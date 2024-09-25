@@ -5,11 +5,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', component: () => import('../views/HomeView.vue')},
     { path: '/register', component: () => import('../views/RegisterView.vue')},
     { path: '/auth', component: () => import('../views/AuthView.vue')},
     { path: '/user', component: () => import('../views/UserPage.vue')},
-    { path: '/feed', component: () => import('../views/FeedView.vue'),
+    { path: '/', component: () => import('../views/FeedView.vue'),
       meta: {
         requiresAuth: true
       }

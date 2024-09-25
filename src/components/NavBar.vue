@@ -3,7 +3,7 @@
         <ul class="nav-list">
             <span class="logo">ВИШЕР</span>
             <router-link to="/user" class="navigate-link">user</router-link>
-            <router-link to="/feed" class="navigate-link">feed</router-link>
+            <router-link to="/" class="navigate-link">feed</router-link>
             <router-link to="/auth" class="navigate-link">auth</router-link>
             <router-link to="/register" class="navigate-link">register</router-link>
             <!-- <li v-for="(item, index) in navItems" :key="index">
