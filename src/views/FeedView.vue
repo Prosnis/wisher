@@ -5,7 +5,7 @@
         </div>
         <main>
             <section class="add-wish">
-                <router-link to="/user" class="navigate-link">
+                <router-link to="/wisher/user" class="navigate-link">
                     <h1>Создать свой список желаний</h1>
                     <font-awesome-icon :icon="['fas', 'gift']" class="gift-icon fa-bounce animated" />
                 </router-link>

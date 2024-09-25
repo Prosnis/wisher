@@ -5,10 +5,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/register', component: () => import('../views/RegisterView.vue')},
-    { path: '/auth', component: () => import('../views/AuthView.vue')},
-    { path: '/user', component: () => import('../views/UserPage.vue')},
-    { path: '/', component: () => import('../views/FeedView.vue'),
+    { path: '/wisher/register', component: () => import('../views/RegisterView.vue')},
+    { path: '/wisher/auth', component: () => import('../views/AuthView.vue')},
+    { path: '/wisher/user', component: () => import('../views/UserPage.vue')},
+    { path: '/wisher/', component: () => import('../views/FeedView.vue'),
       meta: {
         requiresAuth: true
       }
