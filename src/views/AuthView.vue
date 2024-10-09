@@ -24,7 +24,7 @@ const router = useRouter()
 
 
 const toAuthPage = () => {
-  router.push('/wisher/register/');  я
+  router.push('/wisher/register/');  
 };
 
 

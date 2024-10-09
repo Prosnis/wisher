@@ -33,7 +33,7 @@ import { badges } from './UserBadges';
 import { ref, watch } from 'vue';
 import { getFirestore, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import Modal from '../components/ModalComponent.vue';
+import Modal from '@/components/ModalComponent.vue';
 
 const userAbout = ref('');
 const userName = ref('');

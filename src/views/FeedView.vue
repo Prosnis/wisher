@@ -21,9 +21,9 @@
 </template>
 
 <script setup>
-import NavBar from '../components/NavBar.vue';
-import { usersWhises } from '../assets/temp-data/temp-data';
-import CommonCards from '../components/WishCard.vue';
+import NavBar from '@/components/NavBar.vue';
+import { usersWhises } from '@/assets/temp-data/temp-data';
+import CommonCards from '@/components/WishCard.vue';
 </script>
 
 <style scoped>
