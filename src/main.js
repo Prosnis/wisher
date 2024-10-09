@@ -5,12 +5,13 @@ import App from "./App.vue";
 import router from "./router";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
+import { getFirestore } from 'firebase/firestore';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { library } from '@fortawesome/fontawesome-svg-core'
-import {fas} from '@fortawesome/free-solid-svg-icons'
-import 'font-awesome-animation/css/font-awesome-animation.min.css'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import 'font-awesome-animation/css/font-awesome-animation.min.css';
  
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -22,13 +23,17 @@ const firebaseConfig = {
   appId: "1:26276656992:web:8ed1d29b416b0d58341005",
 };
 
-initializeApp(firebaseConfig);
+// Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig);
 
-library.add(fas)
+// Initialize Firestore with Firebase App
+const db = getFirestore(firebaseApp);
+
+library.add(fas);
 const app = createApp(App);
-
-app.component('font-awesome-icon', FontAwesomeIcon)
+app.component('font-awesome-icon', FontAwesomeIcon);
 
 app.use(router);
-
 app.mount("#app");
+
+export { db };

@@ -1,94 +1,162 @@
 <template>
     <div class="wrapper">
-            <img class="auth-logo" src="../assets/auth-logo.png" alt="logo">
-            <h1>зарегистрироваться</h1>
-        <form @submit.prevent="register" >
-            <input type="text" placeholder="Email" v-model="email" />
-            <input type="password" placeholder="password" v-model="password" />
-            <button >зарегистрироваться</button>
+        <h1>sign in</h1>
+        <form class="register-form" @submit.prevent="register">
+            <input class="email-input" type="text" placeholder="Email" v-model="email" />
+            <input class="password-input" type="password" placeholder="Password" v-model="password" />
+            <button class="btn-register" type="submit">Зарегистрироваться</button>
+            <button class="btn-register" @click="signInWithGoogle">Login with Google</button>
         </form>
-        <button @submit="signInWithGoogle">login with google</button>
-
+        <p class="toAuthPage" @click="toAuthPage">есть аккаунт?</p>
     </div>
 </template>
 
 <script setup>
-    import {ref} from 'vue'
-    import {getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
-    import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useRouter } from 'vue-router';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
-    const email = ref('')
-    const password = ref('')
-    const router = useRouter()
+const email = ref('');
+const password = ref('');
+const router = useRouter();
+const db = getFirestore(); // Инициализация Firestore
 
-    const register = () => {
-        createUserWithEmailAndPassword(getAuth(), email.value, password.value)
-        .then((data) =>{
-            console.log( data,'successfully registered')
-            router.push('/feed')
-        })
-        .catch((error) => {
-            console.log(error.code)
-            console.log(error.message)
-        })
+
+const toAuthPage = () => {
+  router.push('/wisher/auth/');  // Переход на страницу редактирования
+};
+
+const register = async () => {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(getAuth(), email.value, password.value);
+        const user = userCredential.user;
+        console.log(user, 'successfully registered');
+
+        // Создаем объект пользователя для Firestore
+        const userData = {
+            uid: user.uid,
+            email: user.email,
+            createdAt: new Date(),
+            wallpaperUrl: "https://t4.ftcdn.net/jpg/08/11/25/41/360_F_811254149_AV6WMNTKdLZgMmyTDizY43EIMb8RgOul.jpg",
+            displayName: user.email,
+            about: '',
+            photoUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPyGNr2qL63Sfugk2Z1-KBEwMGOfycBribew&s",
+            badges: [
+                { name: 'Аниме', BgColor: 'rgba(204, 34, 238, 0.45)', color: 'rgba(204, 34, 238, 1)' },
+            ],
+            wishes: [{}]
+            // Дополнительные поля могут быть добавлены здесь
+        };
+
+        // Сохраняем объект пользователя в Firestore
+        await setDoc(doc(db, 'users', user.uid), userData);
+
+        // Перенаправляем пользователя на его страницу только после успешного сохранения в Firestore
+        await router.push(`/wisher/user/${user.uid}`);
+    } catch (error) {
+        console.error('Error during registration:', error.code, error.message);
     }
+}
 
-    const signInWithGoogle = ()=> {
+const signInWithGoogle = async () => {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
 
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        console.log(user, 'successfully logged in with Google');
+
+        // Создаем объект пользователя для Firestore
+        const userData = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoUrl: user.photoURL,
+            createdAt: new Date(),
+            // Дополнительные поля могут быть добавлены здесь
+        };
+
+        // Сохраняем объект пользователя в Firestore
+        await setDoc(doc(db, 'users', user.uid), userData, { merge: true });
+
+        // Перенаправляем пользователя на его страницу
+        await router.push(`/wisher/user/${user.uid}`);
+    } catch (error) {
+        console.error('Error during Google sign-in:', error.message);
     }
-
+};
 </script>
 
 
 
 <style scoped>
-.auth-logo {
-    max-height: 550px;
+
+.toAuthPage{
+    cursor: pointer;
+    transition: transform 0.2s ease-in; 
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.toAuthPage:hover{
+    transform: scale(1.2); 
 }
 
 .wrapper {
     display: flex;
+    justify-content: center;
     flex-direction: column;
     align-items: center;
-    font-family: 'Lazy Dog', sans-serif;
+    height: 100vh;
+    font-family: "Good dog", sans-serif;
+    font-size: 50px;
+    color: #464241;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+
+}
+
+.wrapper h1 {
+    margin: 0 0 20px 0;
+    letter-spacing: 10px;
+}
+
+.wrapper p {
+    margin: 0;
 }
 
 
-
-form input {
+.password-input,
+.email-input {
     width: 200px;
-    color: #3598db;
+    color: #464241;
     margin-bottom: 10px;
-    border: 2px solid #3598db;
+    border: 2px solid #464241;
     padding: 8px;
     border-radius: 4px;
     outline: none;
 }
 
-form input::placeholder {
-    color: #3598db;
+.password-input,
+.email-input::placeholder {
+    color: #464241;
     font-style: italic;
 }
 
-button {
+.btn-register {
     font-size: 20px;
     color: white;
-    background-color: #3598db;
+    background-color: #464241;
     padding: 5px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     width: 220px;
     margin-bottom: 10px;
-}
-
-img{
-    margin-bottom: 30px;
 }
 </style>

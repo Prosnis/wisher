@@ -1,31 +1,35 @@
 <template>
-    <nav>
+    <nav class="nav">
         <ul class="nav-list">
             <span class="logo">ВИШЕР</span>
-            <router-link to="/wisher/user" class="navigate-link">user</router-link>
-            <router-link to="/wisher/" class="navigate-link">feed</router-link>
-            <router-link to="/wisher/auth" class="navigate-link">auth</router-link>
-            <router-link to="/wisher/register" class="navigate-link">register</router-link>
+            <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
+            <!-- <router-link to="/wisher/" class="navigate-link">feed</router-link> -->
+            <!-- <router-link to="/wisher/auth" class="navigate-link">auth</router-link> -->
+            <!-- <router-link to="/wisher/register" class="navigate-link">register</router-link> -->
             <!-- <li v-for="(item, index) in navItems" :key="index">
                 {{ item.name }}
             </li> -->
-            <a class="login" href="#">Войти</a>
+            <!-- <a class="login" href="#">Войти</a> -->
         </ul>
     </nav>
 </template>
 
 <script setup>
-// const navItems = [
-//     { name: 'Мой вишлист' },
-//     { name: 'Друзья' },
-// ]
+
+    
 </script>
 
 <style scoped>
-nav {
+.nav-list a{
+    color: white;
+    text-decoration: none;
+}
+
+.nav {
     display: flex;
     justify-content: center;
-    background: #3598db;
+    /* background: #3598db; */
+    background: #464241;
     height: 60px;
     box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35);
     margin-bottom: 20px;
@@ -45,9 +49,10 @@ nav {
 }
 
 .logo {
-    font-size: 50px;
+    font-size: 60px;
     font-family: "Good dog", sans-serif;
-    margin-right: auto;
+    /* margin-right: auto; */
+    margin: auto;
 }
 
 .login {

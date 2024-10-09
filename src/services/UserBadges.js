@@ -1,9 +1,3 @@
-<template>
-    <div></div>
-</template>
-
-<script >
-
 export const badges = [
     { name: 'Аниме', BgColor: 'rgba(204, 34, 238, 0.45)', color: 'rgba(204, 34, 238, 1)' },
     { name: 'Рыбалка', BgColor: 'rgba(135, 206, 235, 0.45)', color: 'rgba(135, 206, 235, 1)' },
@@ -18,10 +12,16 @@ export const badges = [
     { name: 'Паркур', BgColor: 'rgba(250, 128, 114, 0.45)', color: 'rgba(250, 128, 114, 1)' },
     { name: 'Кулинария', BgColor: 'rgba(34, 139, 34, 0.45)', color: 'rgba(34, 139, 34, 1)' },
     { name: 'Фотография.', BgColor: 'rgba(240, 128, 128, 0.45)', color: 'rgba(240, 128, 1)' },
+    { name: 'Йога', BgColor: 'rgba(32, 178, 170, 0.45)', color: 'rgba(32, 178, 170, 1)' },
+    { name: 'Плавание', BgColor: 'rgba(30, 144, 255, 0.45)', color: 'rgba(30, 144, 255, 1)' },
+    { name: 'Велоспорт', BgColor: 'rgba(255, 69, 0, 0.45)', color: 'rgba(255, 69, 0, 1)' },
+    { name: 'Программирование', BgColor: 'rgba(70, 130, 180, 0.45)', color: 'rgba(70, 130, 180, 1)' },
+    { name: 'Чтение', BgColor: 'rgba(255, 222, 173, 0.45)', color: 'rgba(0, 222, 173, 1)' },
+    { name: 'Гейминг', BgColor: 'rgba(218, 112, 214, 0.45)', color: 'rgba(218, 112, 214, 1)' },
+    { name: 'Музыка', BgColor: 'rgba(255, 105, 180, 0.45)', color: 'rgba(255, 105, 180, 1)' },
+    { name: 'Бег', BgColor: 'rgba(255, 140, 0, 0.45)', color: 'rgba(255, 140, 0, 1)' },
+    { name: 'Садоводство', BgColor: 'rgba(124, 252, 0, 0.45)', color: 'rgba(0, 0, 0, 1)' }
 ]
 
-
-
-</script>
 
 

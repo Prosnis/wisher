@@ -14,8 +14,6 @@
 <script setup>
 import { ref } from 'vue';
 
-defineProps(['wish']);
-
 const hover = ref(false);
 const handleLike = () => {};
 const handleComment = () => {};
@@ -35,6 +33,8 @@ const handleAdd = () => {};
     transition: transform 0.2s ease-in;
     box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35);
     position: relative;
+    color: rgb(0, 0, 0);
+    background-color: #ffffff;
 }
 
 .card:hover {
@@ -102,6 +102,7 @@ const handleAdd = () => {};
     flex-wrap: wrap;
     display: flex;
     justify-content: center;
+    padding: 5px;
 }
 
 

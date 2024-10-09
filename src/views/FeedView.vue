@@ -3,7 +3,7 @@
         <div>
             <NavBar />
         </div>
-        <main>
+        <main class="main-feed">
             <section class="add-wish">
                 <router-link to="/wisher/user" class="navigate-link">
                     <h1>Создать свой список желаний</h1>
@@ -28,7 +28,7 @@ import CommonCards from '../components/WishCard.vue';
 
 <style scoped>
 
-main {
+.main-feed {
     max-width: 1300px;
     margin: auto;
     min-height: 90vh;
