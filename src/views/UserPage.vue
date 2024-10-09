@@ -85,7 +85,7 @@ const user = ref({});
 const badges = ref([]);
 const usersWhises = ref([]);
 const route = useRoute();
-const db = getFirestore();   // Инициализация Firestore
+const db = getFirestore();   
 const hoverWallaper = ref(false)
 const hoverAvatar = ref(false)
 
@@ -105,7 +105,7 @@ const modaltoggle = () => {
 const uploadImage = async (file, path) => {
   const fileRef = storageRef(storage, path);
   await uploadBytes(fileRef, file);
-  return await getDownloadURL(fileRef);  // Получаем URL загруженного изображения
+  return await getDownloadURL(fileRef);  
 };
 
 
@@ -122,12 +122,12 @@ const saveProfile = async () => {
   try {
     if (avatarFile.value) {
       const photoUrl = await uploadImage(avatarFile.value, `avatars/${currentUser.uid}`);
-      updates.photoUrl = photoUrl;  // Сохраняем URL аватара
+      updates.photoUrl = photoUrl;  
       user.value.photoUrl = photoUrl;
     }
     if (wallpaperFile.value) {
       const wallpaperUrl = await uploadImage(wallpaperFile.value, `wallpapers/${currentUser.uid}`);
-      updates.wallpaperUrl = wallpaperUrl;  // Сохраняем URL обложки профиля
+      updates.wallpaperUrl = wallpaperUrl;  
       user.value.wallpaperUrl = wallpaperUrl;
     }
     await updateDoc(userDocRef, updates);

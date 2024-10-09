@@ -20,11 +20,11 @@ import { getFirestore, doc, setDoc } from 'firebase/firestore';
 const email = ref('');
 const password = ref('');
 const router = useRouter();
-const db = getFirestore(); // Инициализация Firestore
+const db = getFirestore(); 
 
 
 const toAuthPage = () => {
-  router.push('/wisher/auth/');  // Переход на страницу редактирования
+  router.push('/wisher/auth/');  
 };
 
 const register = async () => {
@@ -33,7 +33,7 @@ const register = async () => {
         const user = userCredential.user;
         console.log(user, 'successfully registered');
 
-        // Создаем объект пользователя для Firestore
+
         const userData = {
             uid: user.uid,
             email: user.email,
@@ -46,13 +46,12 @@ const register = async () => {
                 { name: 'Аниме', BgColor: 'rgba(204, 34, 238, 0.45)', color: 'rgba(204, 34, 238, 1)' },
             ],
             wishes: [{}]
-            // Дополнительные поля могут быть добавлены здесь
+
         };
 
-        // Сохраняем объект пользователя в Firestore
         await setDoc(doc(db, 'users', user.uid), userData);
 
-        // Перенаправляем пользователя на его страницу только после успешного сохранения в Firestore
+
         await router.push(`/wisher/user/${user.uid}`);
     } catch (error) {
         console.error('Error during registration:', error.code, error.message);
@@ -68,20 +67,19 @@ const signInWithGoogle = async () => {
         const user = result.user;
         console.log(user, 'successfully logged in with Google');
 
-        // Создаем объект пользователя для Firestore
+
         const userData = {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
             photoUrl: user.photoURL,
             createdAt: new Date(),
-            // Дополнительные поля могут быть добавлены здесь
+
         };
 
-        // Сохраняем объект пользователя в Firestore
+
         await setDoc(doc(db, 'users', user.uid), userData, { merge: true });
 
-        // Перенаправляем пользователя на его страницу
         await router.push(`/wisher/user/${user.uid}`);
     } catch (error) {
         console.error('Error during Google sign-in:', error.message);

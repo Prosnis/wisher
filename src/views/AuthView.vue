@@ -24,10 +24,10 @@ const router = useRouter()
 
 
 const toAuthPage = () => {
-  router.push('/wisher/register/');  // Переход на страницу редактирования
+  router.push('/wisher/register/');  я
 };
 
-// Вход по email и паролю
+
 const register = () => {
   const auth = getAuth()
   signInWithEmailAndPassword(auth, email.value, password.value)
@@ -35,7 +35,7 @@ const register = () => {
       const user = data.user
       console.log('Successfully logged in:', user)
 
-      // Перенаправление на страницу пользователя по его uid
+
        router.push(`/wisher/user/${user.uid}`);
     })
     .catch((error) => {
@@ -67,7 +67,6 @@ const signInWithGoogle = () => {
       const user = result.user
       console.log('Google sign-in success:', user)
 
-      // Перенаправление на страницу пользователя по его uid
       router.push(`/user/${user.uid}`)
     })
     .catch((error) => {
