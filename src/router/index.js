@@ -1,18 +1,19 @@
+import path from '@/services/pathes.js'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/wisher/register', component: () => import('../views/RegisterView.vue')},
-    { path: '/wisher/auth', component: () => import('../views/AuthView.vue')},
-    { path: '/wisher/modal',component: () => import('@/services/EditUserPage.vue')},
-    { path: '/wisher/user/:uid', component: () => import('../views/UserPage.vue'),
+    { path: path.register, component: () => import('@/views/RegisterView.vue')},
+    { path: path.auth, component: () => import('@/views/AuthView.vue')},
+    // { path: '/wisher/modal',component: () => import('@/services/EditUserPage.vue')},
+    { path: `${path.user}/:uid`, component: () => import('@/views/UserPage.vue'),
       meta: {
         requiresAuth: true
       }
     },
-    { path: '/wisher/', component: () => import('../views/RegisterView.vue')},
+    { path: path.main, component: () => import('@/views/RegisterView.vue')},
   ]
 })
 
@@ -24,7 +25,7 @@ router.beforeEach((to, from, next) => {
   // Проверка состояния аутентификации через onAuthStateChanged
   onAuthStateChanged(auth, (user) => {
     if (requiresAuth && !user) {
-      next('/wisher/auth');  // Если пользователь не аутентифицирован, перенаправляем на страницу авторизации
+      next(path.auth);  // Если пользователь не аутентифицирован, перенаправляем на страницу авторизации
     } else {
       next();  // Если пользователь аутентифицирован или маршрут не требует аутентификации
     }

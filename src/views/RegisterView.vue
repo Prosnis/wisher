@@ -1,33 +1,38 @@
 <template>
-    <div class="wrapper">
-        <h1>sign in</h1>
-        <form class="register-form" @submit.prevent="register">
-            <input class="email-input" type="text" placeholder="Email" v-model="email" />
-            <input class="password-input" type="password" placeholder="Password" v-model="password" />
-            <button class="btn-register" type="submit">Зарегистрироваться</button>
-            <button class="btn-register" @click="signInWithGoogle">Login with Google</button>
+    <div class="register">
+        <form class="register__form" @submit.prevent="register">
+            <h1>Sign in</h1>
+            <input class="register__input register__input--email" type="text" placeholder="Email" v-model="email" />
+            <input class="register__input register__input--password" type="password" placeholder="Password"
+            v-model="password" />
+            <button class="register__button register__button--login" type="submit">Зарегистрироваться</button>
+            <!-- <button class="register__button register__button--withGoogle" @click="signInWithGoogle">Login with
+                Google</button> -->
+                <p class="register__question" @click="toAuthPage"> есть аккаунт?</p>
         </form>
-        <p class="toAuthPage" @click="toAuthPage">есть аккаунт?</p>
     </div>
 </template>
 
 <script setup>
+import path from '@/services/pathes';
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { ref } from 'vue';
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'vue-router';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 const email = ref('');
 const password = ref('');
 const router = useRouter();
-const db = getFirestore(); 
+const db = getFirestore();
 
 
-const toAuthPage = () => {
-  router.push('/wisher/auth/');  
-};
+function toAuthPage() {
+    router.push(path.auth).catch((err) => {
+        console.error('Failed to navigate:', err);
+    });;
+}
 
-const register = async () => {
+async function register() {
     try {
         const userCredential = await createUserWithEmailAndPassword(getAuth(), email.value, password.value);
         const user = userCredential.user;
@@ -52,13 +57,15 @@ const register = async () => {
         await setDoc(doc(db, 'users', user.uid), userData);
 
 
-        await router.push(`/wisher/user/${user.uid}`);
+        await router.push(`${path.user}/${user.uid}`).catch((err) => {
+            console.error('Failed to navigate:', err);
+        });
     } catch (error) {
         console.error('Error during registration:', error.code, error.message);
     }
 }
 
-const signInWithGoogle = async () => {
+async function signInWithGoogle() {
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
 
@@ -80,81 +87,83 @@ const signInWithGoogle = async () => {
 
         await setDoc(doc(db, 'users', user.uid), userData, { merge: true });
 
-        await router.push(`/wisher/user/${user.uid}`);
+        await router.push(`${path.user}/${user.uid}`).catch((err) => {
+            console.error('Failed to navigate:', err);
+        });
     } catch (error) {
         console.error('Error during Google sign-in:', error.message);
     }
-};
+}
 </script>
 
 
 
 <style scoped>
-
-.toAuthPage{
+.register__question {
     cursor: pointer;
-    transition: transform 0.2s ease-in; 
 }
 
-.toAuthPage:hover{
-    transform: scale(1.2); 
-}
-
-.wrapper {
+.register {
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    font-family: "Good dog", sans-serif;
-    font-size: 50px;
-    color: #464241;
+    font-size: 18px;
+    color: #1f56ce;
 }
 
-.register-form {
+.register__form {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    border: #1f56ce 1px solid;
+    border-radius: 20px;
+    box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35);
 
 }
 
-.wrapper h1 {
-    margin: 0 0 20px 0;
-    letter-spacing: 10px;
+.register h1 {
+    margin-right: auto;
+    font-size: 20px;
 }
 
-.wrapper p {
+.register p {
     margin: 0;
+    margin-left: auto ;
 }
 
+.register p:hover{
+    text-decoration: underline;
+}
 
-.password-input,
-.email-input {
-    width: 200px;
-    color: #464241;
+.register__input {
+    width: 300px;
+    height: 20px;
+    color: #1f56ce;
     margin-bottom: 10px;
-    border: 2px solid #464241;
+    border: 2px solid #1f56ce;
     padding: 8px;
     border-radius: 4px;
     outline: none;
+    background-color: white 
 }
 
-.password-input,
-.email-input::placeholder {
-    color: #464241;
+.register__input::placeholder {
+    color: #1f56ce;
     font-style: italic;
 }
 
-.btn-register {
+.register__button {
     font-size: 20px;
     color: white;
-    background-color: #464241;
-    padding: 5px 20px;
+    background-color: #1f56ce;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: 220px;
+    width: 320px;
+    height: 40px;
     margin-bottom: 10px;
 }
 </style>

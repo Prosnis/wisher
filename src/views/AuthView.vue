@@ -1,20 +1,21 @@
 <template>
-  <div class="wrapper">
-      <h1>log in</h1>
-        <form class="auth-form" @submit.prevent="register">
-          <input class="email-input" type="text" placeholder="Email" v-model="email" />
-          <input class="password-input" type="password" placeholder="Password" v-model="password" />
-          <p v-if="errMsg">{{ errMsg }}</p>
-          <button class="btn-register" type="submit">Войти</button>
-          <button class="btn-register" @click="signInWithGoogle">Login with Google</button>
-      </form>
-      <p class="toRegPage" @click="toAuthPage">новый пользователь?</p>
+  <div class="auth">
+    <form class="auth__form" @submit.prevent="register">
+      <h1>Log in</h1>
+      <input class="auth__input auth__input--email" type="text" placeholder="Email" v-model="email">
+      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password">
+      <p v-if="errMsg">{{ errMsg }}</p>
+      <button class="auth__btn auth__btn--login" type="submit">Войти</button>
+      <!-- <button class="auth__btn auth__btn--google" @click="signInWithGoogle">Login with Google</button> -->
+      <p class="auth__question" @click="toAuthPage">новый пользователь?</p>
+    </form>
   </div>
 </template>
 
 <script setup>
+import path from '@/services/pathes';
+import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { ref } from 'vue'
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 
 const email = ref('')
@@ -23,12 +24,14 @@ const errMsg = ref('')
 const router = useRouter()
 
 
-const toAuthPage = () => {
-  router.push('/wisher/register/');  
-};
+function toAuthPage() {
+  router.push(path.register).catch((err) => {
+    console.error('Failed to navigate:', err);
+  });
+}
 
 
-const register = () => {
+function register() {
   const auth = getAuth()
   signInWithEmailAndPassword(auth, email.value, password.value)
     .then((data) => {
@@ -36,7 +39,9 @@ const register = () => {
       console.log('Successfully logged in:', user)
 
 
-       router.push(`/wisher/user/${user.uid}`);
+      router.push(`${path.user}/${user.uid}`).catch((err) => {
+        console.error('Failed to navigate:', err);
+      });
     })
     .catch((error) => {
       console.log(error.code)
@@ -58,7 +63,7 @@ const register = () => {
 }
 
 // Вход через Google
-const signInWithGoogle = () => {
+function signInWithGoogle() {
   const auth = getAuth()
   const provider = new GoogleAuthProvider()
 
@@ -79,71 +84,72 @@ const signInWithGoogle = () => {
 
 
 <style scoped>
-
-.toRegPage {
+.auth__question {
   cursor: pointer;
-  transition: transform 0.2s ease-in; 
 }
 
-.toRegPage:hover {
-  transform: scale(1.2); 
-}
 
-.wrapper {
-    display: flex;
+.auth {
+  display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    font-family: "Good dog", sans-serif;
-    font-size: 50px;
-    color: #464241;
+    font-size: 18px;
+    color: #1f56ce;
 }
 
-.auth-form {
-    display: flex;
+.auth__form {
+  display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    border: #1f56ce 1px solid;
+    border-radius: 20px;
+    box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35);
 
 }
 
-.wrapper h1 {
-    margin: 0 0 20px 0;
-    letter-spacing: 10px;
+.auth h1 {
+  margin-right: auto;
+  font-size: 20px;
 }
 
-.wrapper p {
-    margin: 0;
+.auth p {
+  margin: 0;
+  margin-left: auto ;
 }
 
+.auth p:hover{
+    text-decoration: underline;
+}
 
-.password-input,
-.email-input {
-    width: 200px;
-    color: #464241;
+.auth__input {
+  width: 300px;
+    height: 20px;
+    color: #1f56ce;
     margin-bottom: 10px;
-    border: 2px solid #464241;
+    border: 2px solid #1f56ce;
     padding: 8px;
     border-radius: 4px;
     outline: none;
+    background-color: white 
 }
 
-.password-input,
-.email-input::placeholder {
-    color: #464241;
-    font-style: italic;
+.auth__input:placeholder {
+  color: #1f56ce;
+  font-style: italic;
 }
 
-.btn-register {
-    font-size: 20px;
+.auth__btn {
+  font-size: 20px;
     color: white;
-    background-color: #464241;
-    padding: 5px 20px;
+    background-color: #1f56ce;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: 220px;
+    width: 320px;
+    height: 40px;
     margin-bottom: 10px;
 }
 </style>

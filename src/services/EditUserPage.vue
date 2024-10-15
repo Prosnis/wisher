@@ -1,7 +1,6 @@
 <template>
-    <Modal>
-        <button class="btn-modal-close" @click="closeModal"><font-awesome-icon class="btn-modal-close-icon"
-                :icon="['fas', 'close']" /></button>
+
+    <form method="dialog" @submit="saveProfile" class="form">
         <h1>Редактировать профиль</h1>
         <ul class="user-edit-list">
             <li>
@@ -13,76 +12,80 @@
                 <textarea name="" id="about" v-model="userAbout"></textarea>
             </li>
             <li>
-                <label for="">Выбирите интересы:</label>
+                <label for="">Выберите интересы:</label>
                 <div class="badge-wrapper">
-                    <div v-for="(badge, index) in badges" :key="index" class="badge"
-                        :style="{ backgroundColor: isBadgePicked(badge) ? 'white' : badge.BgColor, color: badge.color }"
-                        @click="badgePicker(badge)">
+                    <div v-for="(badge, index) in badges" :key="index" class="badge" :style="{
+                        backgroundColor: isBadgePicked(badge) ? 'green' : badge.BgColor,
+                        color: isBadgePicked(badge) ? 'white' : badge.color
+                    }" @click="badgePicker(badge)">
                         {{ badge.name }}
                     </div>
                 </div>
             </li>
         </ul>
-        <button class="btn-modal-save" @click="saveProfile">сохранить изменения</button>
-    </Modal>
+        <button class="btn-modal-save">сохранить изменения</button>
+    </form>
+
 </template>
 
 <script setup>
 
-import { badges } from './UserBadges';
-import { ref, watch } from 'vue';
-import { getFirestore, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import Modal from '@/components/ModalComponent.vue';
+import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore';
+import { ref, watch } from 'vue';
+import { badges } from './UserBadges';
 
 const userAbout = ref('');
 const userName = ref('');
 const auth = getAuth();
 const db = getFirestore();
 
-const emit = defineEmits(['close', 'update-profile']);
+
+const emit = defineEmits(['close', 'updateProfile']);
 
 const props = defineProps({
-    user: Object,
-    pickedBadges: Array
+    user: {
+        type: Object,
+        default: () => ({ name: 'Unknown', about: 'Empty' })
+    },
+    pickedBadges: {
+        type: Array,
+        default: () => []
+    }
 });
 
 
 
 const localUserName = ref(props.user.displayName);
 const localUserAbout = ref(props.user.about);
-const localPickedBadges = ref([...props.pickedBadges]); 
+const localPickedBadges = ref([...props.pickedBadges]);
 
 watch(() => props.user, (newUser) => {
     localUserName.value = newUser.displayName;
     localUserAbout.value = newUser.about;
 }, { immediate: true });
 
+watch(() => props.pickedBadges, (newBadges) => {
+  localPickedBadges.value = [...newBadges];
+}, { immediate: true });
 
 
-
-const closeModal = () => {
-    emit('close');
-};
-
+function isBadgePicked(badge) {
+    return localPickedBadges.value.some((pickedBadge) => pickedBadge.name === badge.name);
+}
 
 
-const isBadgePicked = (badge) => {
-    return localPickedBadges.value.find((pickedBadge) => pickedBadge.name === badge.name);
-};
-
-
-const badgePicker = (badge) => {
-    const index = localPickedBadges.value.findIndex((item) => item.name === badge.name); 
+function badgePicker(badge) {
+    const index = localPickedBadges.value.findIndex((item) => item.name === badge.name);
     if (index !== -1) {
-        localPickedBadges.value.splice(index, 1); 
+        localPickedBadges.value.splice(index, 1);
     } else {
-        localPickedBadges.value.push(badge); 
+        localPickedBadges.value.push(badge);
     }
     console.log(localPickedBadges.value)
-};
+}
 
-const saveProfile = async () => {
+async function saveProfile() {
     const currentUser = auth.currentUser;
     if (!currentUser) {
         console.error('Пользователь не авторизован');
@@ -105,17 +108,21 @@ const saveProfile = async () => {
     try {
         await updateDoc(userDocRef, updates);
         console.log('Профиль успешно обновлен');
-        emit('update-profile', { userName: updates.displayName, userAbout: updates.about, pickedBadges: updates.badges });
+        emit('updateProfile', { userName: updates.displayName, userAbout: updates.about, pickedBadges: updates.badges });
     } catch (error) {
         console.error('Ошибка при обновлении профиля:', error);
     }
-    closeModal()
-};
+}
 
 </script>
 
 
 <style scoped>
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
 .badge-wrapper {
     display: flex;
     gap: 5px;
@@ -171,21 +178,9 @@ const saveProfile = async () => {
     font-weight: 600;
     border-radius: 10px;
     border: none;
-    background-color: #201f1e8a;
+    background-color: #1a1817c4;
     color: white;
     cursor: pointer;
-    margin: auto;
-}
-
-.btn-modal-close {
-    background-color: white;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    margin-left: auto;
-}
-
-.btn-modal-close-icon {
-    font-size: 20px;
+    margin: 0 auto;
 }
 </style>

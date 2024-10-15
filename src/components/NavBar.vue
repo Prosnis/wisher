@@ -1,7 +1,7 @@
 <template>
     <nav class="nav">
-        <ul class="nav-list">
-            <span class="logo">ВИШЕР</span>
+        <ul class="nav__links">
+            <span class="nav__logo logo">ВИШЕР</span>
             <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
             <!-- <router-link to="/wisher/" class="navigate-link">feed</router-link> -->
             <!-- <router-link to="/wisher/auth" class="navigate-link">auth</router-link> -->
@@ -20,7 +20,7 @@
 </script>
 
 <style scoped>
-.nav-list a{
+.nav__links a{
     color: white;
     text-decoration: none;
 }
@@ -35,7 +35,7 @@
     margin-bottom: 20px;
 }
 
-.nav-list {
+.nav__links {
     display: flex;
     align-items: center;
     list-style-type: none;
@@ -48,7 +48,7 @@
 
 }
 
-.logo {
+.nav__logo {
     font-size: 60px;
     font-family: "Good dog", sans-serif;
     /* margin-right: auto; */

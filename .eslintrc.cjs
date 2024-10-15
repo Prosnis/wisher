@@ -1,11 +1,13 @@
-/* eslint-env node */
 module.exports = {
   root: true,
-  'extends': [
+  parserOptions: {
+    ecmaVersion: 'latest'
+  },
+  extends: [
     'plugin:vue/vue3-essential',
     'eslint:recommended'
   ],
-  parserOptions: {
-    ecmaVersion: 'latest'
-  }
+  rules: {
+    'no-console': 'off', 
+  },
 }

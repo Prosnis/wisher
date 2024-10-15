@@ -1,12 +1,12 @@
 <template>
     <div class="card" @mouseenter="hover = true" @mouseleave="hover = false">
-        <img class="card-img" :src="wish.img" alt="">
-        <p class="user-card-title">{{ wish.name }}</p>
-        <p class="user-card-description">{{ wish.description }}</p>
-        <div class="card-icons" v-if="hover">
-            <font-awesome-icon class="card-icon" :icon="['fas', 'heart']" @click="handleLike" />
-            <font-awesome-icon class="card-icon" :icon="['fas', 'add']" @click="handleAdd" />
-            <font-awesome-icon class="card-icon" :icon="['fas', 'comment']" @click="handleComment" />
+        <img class="card__img" :src="wish.img" alt="">
+        <p class="card__title">{{ wish.name }}</p>
+        <p class="card__description">{{ wish.description }}</p>
+        <div class="card__icons" v-if="hover">
+            <font-awesome-icon class="card_icons_icon" :icon="['fas', 'heart']" @click="handleLike" />
+            <font-awesome-icon class="card_icons_icon" :icon="['fas', 'add']" @click="handleAdd" />
+            <font-awesome-icon class="card_icons_icon" :icon="['fas', 'comment']" @click="handleComment" />
         </div>
     </div>
 </template>
@@ -42,7 +42,7 @@ const handleAdd = () => {};
 }
 
 
-.card-icons {
+.card__icons {
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -55,7 +55,7 @@ const handleAdd = () => {};
     background-color: rgba(170, 170, 172, 0.521)
 }
 
-.card-icon {
+.card_icons_icon {
     margin-left: 10px;
     font-size: 30px;
     padding: 10px;
@@ -68,7 +68,7 @@ const handleAdd = () => {};
 }
 
 
-.card-img {
+.card__img {
     width: 100%;
     height: 300px;
     object-fit: cover;
@@ -83,7 +83,7 @@ const handleAdd = () => {};
 }
 
 
-.user-card-title {
+.card__title {
     margin: 10px 0 0;
     font-size: 18px;
 }
@@ -106,7 +106,7 @@ const handleAdd = () => {};
 }
 
 
-.user-card-description {
+.card__description{
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
