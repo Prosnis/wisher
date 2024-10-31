@@ -23,7 +23,7 @@
 <script setup>
 import { usersWhises } from '@/assets/temp-data/temp-data';
 import NavBar from '@/components/NavBar.vue';
-import CommonCards from '@/components/WishCard.vue';
+import CommonCards from '@/components/WishCardCreate.vue';
 import path from '@/services/pathes';
 </script>
 

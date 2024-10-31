@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div class="card" @mouseenter="hoverEnter($event)" @mouseleave="hoverLeft($event)" :data-id="wish.id">
         <img :src="wish.img" alt="" class="card__image">
         <h3 card__title>{{ wish.name }}</h3>
         <p class="card__price">{{ wish.price }} руб</p>
@@ -16,10 +16,6 @@
 
 <script setup>
 
-
-import { ref } from 'vue';
-
-
 const props = defineProps({
     wish: {
         type: Object,
@@ -32,13 +28,45 @@ const props = defineProps({
     }
 });
 
-const hover = ref(false);
-const handleLike = () => { };
-const handleComment = () => { };
-const handleAdd = () => { };
+
+
+const hoverEnter = (event) => {
+    event.target.classList.add('card__hover')
+    console.log(event.target.dataset.id)
+}
+
+const hoverLeft = (event) => {
+    event.target.classList.remove('card__hover')
+}
+
+
 </script>
 
-<style>
+<style scoped>
+
+.card__hover {
+  width: 100%;
+  height: 100%;
+  --color: #f8f8dfaf;
+  background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  z-index: 1;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+
 .user__info--date {
     font-size: 15px;
 }
@@ -70,7 +98,7 @@ p {
     border: 1px solid #ccc;
     height: 250px;
     object-fit: cover;
-    border-radius: 10% 10% 0 0;
+    border-radius: 5% 5% 0 0;
 }
 
 .card__user__info {
@@ -104,15 +132,16 @@ p {
 
 .card {
     position: relative;
-    width: 250px;
-    height: 400px;
+    width: 260px;
+    height: 420px;
     border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
     text-align: center;
-    border-radius: 10%;
+    border-radius: 5%;
+    box-shadow: 0px 5px 5px rgba(126, 155, 189, 0.6);
 }
 
 

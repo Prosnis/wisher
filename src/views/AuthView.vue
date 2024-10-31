@@ -2,8 +2,8 @@
   <div class="auth">
     <form class="auth__form" @submit.prevent="register">
       <h1>Log in</h1>
-      <input class="auth__input auth__input--email" type="text" placeholder="Email" v-model="email">
-      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password">
+      <!-- <input class="auth__input auth__input--email" type="text" placeholder="Email" v-model="email">
+      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password"> -->
       <p v-if="errMsg">{{ errMsg }}</p>
       <button class="auth__btn auth__btn--login" type="submit">Войти</button>
       <!-- <button class="auth__btn auth__btn--google" @click="signInWithGoogle">Login with Google</button> -->
@@ -33,7 +33,7 @@ function toAuthPage() {
 
 function register() {
   const auth = getAuth()
-  signInWithEmailAndPassword(auth, email.value, password.value)
+  signInWithEmailAndPassword(auth, '123@123.sd', 'adgadfgad')
     .then((data) => {
       const user = data.user
       console.log('Successfully logged in:', user)

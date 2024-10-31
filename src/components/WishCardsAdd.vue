@@ -1,12 +1,12 @@
 <template>
 
-    <form method="dialog" class="form" @submit="test">
+    <form method="dialog" class="form" @submit="CreateCard">
         <h1 class="form__title">Добавить желание</h1>
         <div class="form__wrapper">
             <ul class="form__list">
                 <li>
                     <label for="name">Название:</label>
-                    <input type="text" id="name" v-model="previewName">
+                    <input type="text" id="name" v-model="previewName" required>
                 </li>
                 <li>
                     <label for="description">Описание</label>
@@ -18,7 +18,7 @@
                 </li>
                 <li>
                     <label for="link">Ссылка на товар</label>
-                    <input type="text" id="link">
+                    <input type="text" id="link" v-model="previewLink">
                 </li>
             </ul>
 
@@ -37,13 +37,13 @@
                         <img :src="props.userImg" alt="User Avatar" class="card__img user__info--avatarImg" />
                         <span v-text='props.userName'></span>
                     </div>
-                    <span class="user__info--date">{{ new Date().toLocaleDateString() }}</span>
+                    <span class="user__info--date">{{ previewDate }}</span>
                 </div>
             </div>
 
 
         </div>
-        <button class="">добавить</button>
+        <button class="form__btn form__btn--add">добавить</button>
     </form>
 
 </template>
@@ -65,6 +65,8 @@ const previewImg = ref('')
 const previewName = ref('')
 const previewDescription = ref('')
 const previewPrice = ref('')
+const previewDate = ref(new Date().toLocaleDateString())
+const previewLink = ref('')
 
 const props = defineProps({
     userImg: {
@@ -78,15 +80,25 @@ const props = defineProps({
     }
 })
 
+const clearForm = () =>{
+    previewName.value = ''
+    previewDescription.value = ''
+    previewPrice.value = ''
+    previewLink.value = ''
+    previewImg.value = ''
+}
 
-const createCardData = (previewImg, previewName, previewDescription,previewPrice) => {
+
+const createCardData = (previewImg, previewName, previewDescription,previewPrice, previewDate,previewLink) => {
     return {
         id: crypto.randomUUID(),
-        img: previewImg,
+        img: previewImg || 'https://media.istockphoto.com/id/1308342088/vector/surprise-gift-box-gift-box-with-red-ribbon-bow-flat-style-element-design-for-giveaway.jpg?s=612x612&w=0&k=20&c=FUOJS2CFbYIqm4R7zfyKUdeS-gMyc3bGlRr1rL7rjQ0=',
         name: previewName,
         hover: false,
-        description: previewDescription,
-        price: previewPrice
+        description: previewDescription || 'Описание отсутствует. ',
+        price: previewPrice || 0,
+        date: previewDate,
+        link: previewLink
     };
 
 };
@@ -110,11 +122,11 @@ async function addWishToUser(userId, cardData) {
 }
 
 
-const test = () => {
+const CreateCard = () => {
     const currentUser = auth.currentUser;
-    const newCard = createCardData(previewImg.value, previewName.value, previewDescription.value, previewPrice.value); 
-
+    const newCard = createCardData(previewImg.value, previewName.value, previewDescription.value, previewPrice.value, previewDate.value, previewLink.value); 
     addWishToUser(currentUser.uid, newCard); 
+    clearForm()
 }
 
 
@@ -135,6 +147,27 @@ const previewCard = (event) => {
 
 
 <style scoped>
+.form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form__btn--add{
+margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 10px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background-color: #464241;
+  color: white;
+  cursor: pointer;
+}
+
+
 .user__info--date {
     font-size: 15px;
 }

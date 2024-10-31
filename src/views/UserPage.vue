@@ -75,13 +75,13 @@
 <script setup>
 import ModalComponent from '@/components/ModalComponent.vue';
 import NavBar from '@/components/NavBar.vue';
-import CommonCards from '@/components/WishCard.vue';
+import CommonCards from '@/components/WishCardCreate.vue';
 import EditUserPage from '@/components/EditUserPage.vue';
 import { getUserData } from '@/services/GetUserData.js';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { saveProfile } from '@/services/UserPictureUpdate'
-import AddWishCards from '@/components/AddWishCards.vue';
+import AddWishCards from '@/components/WishCardsAdd.vue';
 // import {usersWhises} from '@/assets/temp-data/temp-data.js'
 
 const user = ref({});
