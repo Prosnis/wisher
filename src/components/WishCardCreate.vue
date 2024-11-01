@@ -1,8 +1,12 @@
 <template>
-    <div class="card" @mouseenter="hoverEnter($event)" @mouseleave="hoverLeft($event)" :data-id="wish.id">
+    <ModalComponent ref="modal" >
+        <WishCardPreview :wish="wish" :userImg="props.userImg" :userName="props.userName"/>
+    </ModalComponent>
+    <div class="card" @mouseenter="hoverEnter($event)" @mouseleave="hoverLeft($event)" :data-id="wish.id"
+        @click="showModal">
         <img :src="wish.img" alt="" class="card__image">
         <h3 card__title>{{ wish.name }}</h3>
-        <p class="card__price">{{ wish.price }} руб</p>
+        <p class="card__price">{{ formatPrice(wish.price) }} руб</p>
         <div class="card__user__info">
             <div class="user__info--info">
                 <img :src="props.userImg" alt="User Avatar" class="card__img user__info--avatarImg" />
@@ -10,11 +14,20 @@
             </div>
             <span class="user__info--date">{{ new Date().toLocaleDateString() }}</span>
         </div>
-
     </div>
 </template>
 
 <script setup>
+
+import ModalComponent from './ModalComponent.vue';
+import WishCardPreview from './WishCardPreview.vue';
+import { ref } from 'vue';
+const modal = ref(null)
+
+
+const showModal = () => {
+    modal.value.openModal();
+};
 
 const props = defineProps({
     wish: {
@@ -27,6 +40,15 @@ const props = defineProps({
         type: String
     }
 });
+
+const formatPrice = (value) => {
+    if (!value) return '';
+    return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 0,
+    }).format(value);
+};
 
 
 
@@ -43,27 +65,26 @@ const hoverLeft = (event) => {
 </script>
 
 <style scoped>
-
 .card__hover {
-  width: 100%;
-  height: 100%;
-  --color: #f8f8dfaf;
-  background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  z-index: 1;
-  opacity: 0.8;
-  cursor: pointer;
+    width: 100%;
+    height: 100%;
+    --color: #f8f8dfaf;
+    background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    z-index: 1;
+    opacity: 0.8;
+    cursor: pointer;
 }
 
 @keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
+    0% {
+        background-position: 200% 0;
+    }
 
-  100% {
-    background-position: -200% 0;
-  }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 
@@ -193,5 +214,4 @@ textarea {
     height: 0.1px;
     opacity: 0;
 }
-
 </style>

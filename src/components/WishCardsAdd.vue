@@ -24,14 +24,15 @@
 
             <div class="form__preview__card">
 
-                <label v-if="!previewImg" class="card__label card__label--file" for="file-input">
+                <label class="card__label card__label--file" for="file-input">
+                    <img v-if="previewImg" :src="previewImg" alt="" class="card__image">
                     <font-awesome-icon v-if="!previewImg" class="card__icon--file" :icon="['fas', 'file-image']" />
                     <input class="card__input card__input--file" type="file" id="file-input"
                         @change="previewCard($event)">
                 </label>
-                <img v-if="previewImg" :src="previewImg" alt="" class="card__image">
+                <!-- <img v-if="previewImg" :src="previewImg" alt="" class="card__image"> -->
                 <h3 card__title>{{ previewName }}</h3>
-                <p class="card__price">{{ previewPrice }} руб</p>
+                <p class="card__price">{{formatPrice(previewPrice) }}</p>
                 <div class="card__user__info">
                     <div class="user__info--info">
                         <img :src="props.userImg" alt="User Avatar" class="card__img user__info--avatarImg" />
@@ -53,7 +54,7 @@
 import { updateDoc, doc, arrayUnion, getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
-import { ref, defineProps, defineEmits  } from 'vue'
+import { ref,  defineEmits  } from 'vue'
 
 const emit = defineEmits()
 
@@ -79,6 +80,15 @@ const props = defineProps({
         type: Array
     }
 })
+
+const formatPrice = (value) => {
+    if (!value) return '';
+    return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 0,
+    }).format(value);
+};
 
 const clearForm = () =>{
     previewName.value = ''

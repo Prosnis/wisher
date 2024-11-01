@@ -40,7 +40,7 @@ defineExpose({
 .modal__dialog {
     border: none;
     padding: 20px;
-    width: 600px;
+    min-width: 600px;
     background: white;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
