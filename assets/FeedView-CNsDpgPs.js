@@ -1,0 +1,1 @@
+import{N as a}from"./NavBar-JqVFmojW.js";import{c as _,h as r,a as e,F as t,o as d}from"./index-DtZ_ybxC.js";const n={__name:"FeedView",setup(o){return(i,s)=>(d(),_(t,null,[r(a),s[0]||(s[0]=e("div",{class:"feed__wrapper"},[e("div",{class:"feed__friends__whishes"}),e("div",{class:"feed__users__whishes"}),e("div",{class:"feed__suggest__whishes"})],-1))],64))}};export{n as default};

@@ -1,0 +1,1 @@
+import{N as a}from"./NavBar-JqVFmojW.js";import{c as r,h as t,a as o,F as s,o as n}from"./index-DtZ_ybxC.js";const p={__name:"UserInvitationsView",setup(l){return(m,e)=>(n(),r(s,null,[t(a),e[0]||(e[0]=o("div",null,null,-1))],64))}};export{p as default};
