@@ -1,66 +1,22 @@
-<template>
-
-    <form method="dialog" class="form" @submit="CreateCard">
-        <h1 class="form__title">Добавить желание</h1>
-        <div class="form__wrapper">
-            <ul class="form__list">
-                <li>
-                    <label for="name">Название:</label>
-                    <input type="text" id="name" v-model="previewName" required>
-                </li>
-                <li>
-                    <label for="description">Описание</label>
-                    <textarea type="text" id="description" v-model="previewDescription"> </textarea>
-                </li>
-                <li>
-                    <label for="price">Цена</label>
-                    <input type="number" id="price" v-model="previewPrice">
-                </li>
-                <li>
-                    <label for="link">Ссылка на товар</label>
-                    <input type="text" id="link" v-model="previewLink">
-                </li>
-            </ul>
-
-            <div class="form__preview__card">
-
-                <label class="card__label card__label--file" for="file-input">
-                    <img v-if="previewImg" :src="previewImg" alt="" class="card__image">
-                    <font-awesome-icon v-if="!previewImg" class="card__icon--file" :icon="['fas', 'file-image']" />
-                    <input class="card__input card__input--file" type="file" id="file-input"
-                        @change="previewCard($event)">
-                </label>
-                <!-- <img v-if="previewImg" :src="previewImg" alt="" class="card__image"> -->
-                <h3 card__title>{{ previewName }}</h3>
-                <p class="card__price">{{formatPrice(previewPrice) }}</p>
-                <div class="card__user__info">
-                    <div class="user__info--info">
-                        <img :src="props.userImg" alt="User Avatar" class="card__img user__info--avatarImg" />
-                        <span v-text='props.userName'></span>
-                    </div>
-                    <span class="user__info--date">{{ previewDate }}</span>
-                </div>
-            </div>
-
-
-        </div>
-        <button class="form__btn form__btn--add">добавить</button>
-    </form>
-
-</template>
-
 <script setup>
+import { getAuth } from 'firebase/auth'
+import { doc, getFirestore, setDoc } from 'firebase/firestore'
 
-import { updateDoc, doc, arrayUnion, getFirestore } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { defineEmits, ref } from 'vue'
 
-import { ref,  defineEmits  } from 'vue'
+const props = defineProps({
+  userImg: {
+    type: String,
+  },
+  userName: {
+    type: String,
+  },
+})
 
 const emit = defineEmits()
 
 const db = getFirestore()
-const auth = getAuth();
-
+const auth = getAuth()
 
 const previewImg = ref('')
 const previewName = ref('')
@@ -69,92 +25,152 @@ const previewPrice = ref('')
 const previewDate = ref(new Date().toLocaleDateString())
 const previewLink = ref('')
 
-const props = defineProps({
-    userImg: {
-        type: String
-    },
-    userName: {
-        type: String
-    },
-    usersWhises: {
-        type: Array
+function formatPrice(value) {
+  if (!value)
+    return ''
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    minimumFractionDigits: 0,
+  }).format(value)
+}
+
+function clearForm() {
+  previewName.value = ''
+  previewDescription.value = ''
+  previewPrice.value = ''
+  previewLink.value = ''
+  previewImg.value = ''
+}
+
+function createCardData(previewImg, previewName, previewDescription, previewPrice, previewDate, previewLink) {
+  return {
+    id: crypto.randomUUID(),
+    userId: auth.currentUser.uid,
+    img: previewImg || 'https://media.istockphoto.com/id/1308342088/vector/surprise-gift-box-gift-box-with-red-ribbon-bow-flat-style-element-design-for-giveaway.jpg?s=612x612&w=0&k=20&c=FUOJS2CFbYIqm4R7zfyKUdeS-gMyc3bGlRr1rL7rjQ0=',
+    name: previewName,
+    hover: false,
+    description: previewDescription || 'Описание отсутствует. ',
+    price: previewPrice || 0,
+    date: previewDate,
+    link: previewLink,
+    reserve: '',
+
+  }
+}
+
+async function CreateCard() {
+  const newCard = createCardData(previewImg.value, previewName.value, previewDescription.value, previewPrice.value, previewDate.value, previewLink.value)
+  await setDoc(doc(db, 'wishes', newCard.id), newCard)
+  emit('addWish', newCard)
+  clearForm()
+}
+
+function previewCard(event) {
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      previewImg.value = e.target.result
     }
-})
-
-const formatPrice = (value) => {
-    if (!value) return '';
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-    }).format(value);
-};
-
-const clearForm = () =>{
-    previewName.value = ''
-    previewDescription.value = ''
-    previewPrice.value = ''
-    previewLink.value = ''
-    previewImg.value = ''
+    reader.readAsDataURL(file)
+  }
 }
-
-
-const createCardData = (previewImg, previewName, previewDescription,previewPrice, previewDate,previewLink) => {
-    return {
-        id: crypto.randomUUID(),
-        img: previewImg || 'https://media.istockphoto.com/id/1308342088/vector/surprise-gift-box-gift-box-with-red-ribbon-bow-flat-style-element-design-for-giveaway.jpg?s=612x612&w=0&k=20&c=FUOJS2CFbYIqm4R7zfyKUdeS-gMyc3bGlRr1rL7rjQ0=',
-        name: previewName,
-        hover: false,
-        description: previewDescription || 'Описание отсутствует. ',
-        price: previewPrice || 0,
-        date: previewDate,
-        link: previewLink
-    };
-
-};
-
-
-async function addWishToUser(userId, cardData) {
-    try {
-        const userDocRef = doc(db, 'users', userId);
-
-        await updateDoc(userDocRef, {
-            wishes: arrayUnion(cardData)
-        });
-
-        emit('addWish', cardData)
-
-
-        console.log('Card successfully added to wishes!');
-    } catch (error) {
-        console.error('Error adding card to wishes:', error);
-    }
-}
-
-
-const CreateCard = () => {
-    const currentUser = auth.currentUser;
-    const newCard = createCardData(previewImg.value, previewName.value, previewDescription.value, previewPrice.value, previewDate.value, previewLink.value); 
-    addWishToUser(currentUser.uid, newCard); 
-    clearForm()
-}
-
-
-const previewCard = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewImg.value = e.target.result;
-        }
-        reader.readAsDataURL(file);
-    }
-}
-
-
-
 </script>
 
+<template>
+  <form
+    method="dialog"
+    class="form"
+    @submit="CreateCard"
+  >
+    <h1 class="form__title">
+      Добавить желание
+    </h1>
+    <div class="form__wrapper">
+      <ul class="form__list">
+        <li>
+          <label for="name">Название:</label>
+          <input
+            id="name"
+            v-model="previewName"
+            type="text"
+            required
+          >
+        </li>
+        <li>
+          <label for="description">Описание</label>
+          <textarea
+            id="description"
+            v-model="previewDescription"
+            type="text"
+          />
+        </li>
+        <li>
+          <label for="price">Цена</label>
+          <input
+            id="price"
+            v-model="previewPrice"
+            type="number"
+          >
+        </li>
+        <li>
+          <label for="link">Ссылка на товар</label>
+          <input
+            id="link"
+            v-model="previewLink"
+            type="text"
+          >
+        </li>
+      </ul>
+
+      <div class="form__preview__card">
+        <label
+          class="card__label card__label--file"
+          for="file-input"
+        >
+          <img
+            v-if="previewImg"
+            :src="previewImg"
+            alt=""
+            class="card__image"
+          >
+          <font-awesome-icon
+            v-if="!previewImg"
+            class="card__icon--file"
+            :icon="['fas', 'file-image']"
+          />
+          <input
+            id="file-input"
+            class="card__input card__input--file"
+            type="file"
+            @change="previewCard($event)"
+          >
+        </label>
+        <h3 card__title>
+          {{ previewName }}
+        </h3>
+        <p class="card__price">
+          {{ formatPrice(previewPrice) }}
+        </p>
+        <div class="card__user__info">
+          <div class="user__info--info">
+            <img
+              :src="props.userImg"
+              alt="User Avatar"
+              class="card__img user__info--avatarImg"
+            >
+            <span v-text="props.userName" />
+          </div>
+          <span class="user__info--date">{{ previewDate }}</span>
+        </div>
+      </div>
+    </div>
+    <button class="form__btn form__btn--add">
+      добавить
+    </button>
+  </form>
+</template>
 
 <style scoped>
 .form{
@@ -176,7 +192,6 @@ margin: 0;
   color: white;
   cursor: pointer;
 }
-
 
 .user__info--date {
     font-size: 15px;
@@ -237,8 +252,6 @@ p {
     font-weight: 600;
 }
 
-
-
 .form__preview__card {
     position: relative;
     width: 250px;
@@ -250,8 +263,6 @@ p {
     gap: 20px;
     text-align: center;
 }
-
-
 
 .form__wrapper {
     display: flex;
@@ -287,7 +298,6 @@ textarea {
     list-style-type: none;
     padding: 0;
 }
-
 
 .card__icon--file {
     font-size: 100px;

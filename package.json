@@ -19,12 +19,15 @@
     "@fortawesome/vue-fontawesome": "^3.0.0-5",
     "firebase": "^10.13.2",
     "font-awesome-animation": "^1.1.1",
+    "html2canvas": "^1.4.1",
+    "qrcode": "^1.5.4",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^3.8.0",
     "@vitejs/plugin-vue": "^5.0.5",
-    "eslint": "^8.57.0",
+    "eslint": "^9.10.0",
     "eslint-plugin-vue": "^9.23.0",
     "gh-pages": "^6.1.1",
     "vite": "^5.3.1"

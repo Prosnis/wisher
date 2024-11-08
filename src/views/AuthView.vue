@@ -1,19 +1,5 @@
-<template>
-  <div class="auth">
-    <form class="auth__form" @submit.prevent="register">
-      <h1>Log in</h1>
-      <!-- <input class="auth__input auth__input--email" type="text" placeholder="Email" v-model="email">
-      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password"> -->
-      <p v-if="errMsg">{{ errMsg }}</p>
-      <button class="auth__btn auth__btn--login" type="submit">Войти</button>
-      <!-- <button class="auth__btn auth__btn--google" @click="signInWithGoogle">Login with Google</button> -->
-      <p class="auth__question" @click="toAuthPage">новый пользователь?</p>
-    </form>
-  </div>
-</template>
-
 <script setup>
-import path from '@/services/pathes';
+import path from '@/components/constants/pathes'
 import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -23,13 +9,11 @@ const password = ref('')
 const errMsg = ref('')
 const router = useRouter()
 
-
 function toAuthPage() {
   router.push(path.register).catch((err) => {
-    console.error('Failed to navigate:', err);
-  });
+    console.error('Failed to navigate:', err)
+  })
 }
-
 
 function register() {
   const auth = getAuth()
@@ -38,10 +22,9 @@ function register() {
       const user = data.user
       console.log('Successfully logged in:', user)
 
-
       router.push(`${path.user}/${user.uid}`).catch((err) => {
-        console.error('Failed to navigate:', err);
-      });
+        console.error('Failed to navigate:', err)
+      })
     })
     .catch((error) => {
       console.log(error.code)
@@ -81,13 +64,39 @@ function signInWithGoogle() {
 }
 </script>
 
-
+<template>
+  <div class="auth">
+    <form
+      class="auth__form"
+      @submit.prevent="register"
+    >
+      <h1>Log in</h1>
+      <!-- <input class="auth__input auth__input--email" type="text" placeholder="Email" v-model="email">
+      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password"> -->
+      <p v-if="errMsg">
+        {{ errMsg }}
+      </p>
+      <button
+        class="auth__btn auth__btn--login"
+        type="submit"
+      >
+        Войти
+      </button>
+      <!-- <button class="auth__btn auth__btn--google" @click="signInWithGoogle">Login with Google</button> -->
+      <p
+        class="auth__question"
+        @click="toAuthPage"
+      >
+        новый пользователь?
+      </p>
+    </form>
+  </div>
+</template>
 
 <style scoped>
 .auth__question {
   cursor: pointer;
 }
-
 
 .auth {
   display: flex;
@@ -133,7 +142,7 @@ function signInWithGoogle() {
     padding: 8px;
     border-radius: 4px;
     outline: none;
-    background-color: white 
+    background-color: white
 }
 
 .auth__input:placeholder {

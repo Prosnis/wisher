@@ -1,36 +1,43 @@
-<template>
-    <dialog ref="dialogRef" class="modal__dialog" >
-        <div class="modal__dialog__inner">
-            <button class="modal__button modal__button--close" @click="closeModal"><font-awesome-icon
-                class="modal__icon--close modal__icon"
-                :icon="['fas', 'close']" /></button>
-            <div class="modal__content">
-                <slot />
-            </div>
-        </div>
-    </dialog>
-</template>
-
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
+const dialogRef = ref(null)
 
-const dialogRef = ref(null);
+function openModal() {
+  dialogRef.value.showModal()
+}
 
-const openModal = () => {
-    dialogRef.value.showModal();
-};
-
-const closeModal = () => {
-    dialogRef.value.close();
-};
-
+function closeModal() {
+  dialogRef.value.close()
+}
 
 defineExpose({
-    openModal,
-    closeModal,
-});
+  openModal,
+  closeModal,
+})
 </script>
+
+<template>
+  <dialog
+    ref="dialogRef"
+    class="modal__dialog"
+  >
+    <div class="modal__dialog__inner">
+      <button
+        class="modal__button modal__button--close"
+        @click="closeModal"
+      >
+        <font-awesome-icon
+          class="modal__icon--close modal__icon"
+          :icon="['fas', 'close']"
+        />
+      </button>
+      <div class="modal__content">
+        <slot />
+      </div>
+    </div>
+  </dialog>
+</template>
 
 <style scoped>
 .modal__dialog__inner{
@@ -40,7 +47,7 @@ defineExpose({
 .modal__dialog {
     border: none;
     padding: 20px;
-    min-width: 600px;
+    max-width: 600px;
     background: white;
     border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);

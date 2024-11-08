@@ -1,18 +1,19 @@
-import { getDoc, getDocs, doc, collection, getFirestore } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore'
 
-const db = getFirestore();
+const db = getFirestore()
 
 export async function getUserData(uid) {
-    const userDoc = await getDoc(doc(db, 'users', uid));
-    const userData = userDoc.exists() ? userDoc.data() : null;
+  const userDoc = await getDoc(doc(db, 'users', uid))
+  const userData = userDoc.exists() ? userDoc.data() : null
 
-    if (!userData) {
-        console.error('Пользователь не найден!');
-        return { user: null, wishes: [] };
-    }
+  if (!userData) {
+    console.error('Пользователь не найден!')
+    return { user: null, wishes: [] }
+  }
 
-    const wishesSnapshot = await getDocs(collection(db, 'users', uid, 'wishes'));
-    const userWishes = wishesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const wishesQuery = query(collection(db, 'wishes'), where('userId', '==', uid))
+  const wishesSnapshot = await getDocs(wishesQuery)
+  const userWishes = wishesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
 
-    return { user: userData, wishes: userWishes };
+  return { user: userData, wishes: userWishes }
 }

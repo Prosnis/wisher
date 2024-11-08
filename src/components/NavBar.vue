@@ -1,26 +1,36 @@
-<template>
-    <nav class="nav">
-        <ul class="nav__links">
-            <span class="nav__logo logo">ВИШЕР</span>
-            <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
-            <!-- <router-link to="/wisher/" class="navigate-link">feed</router-link> -->
-            <!-- <router-link to="/wisher/auth" class="navigate-link">auth</router-link> -->
-            <!-- <router-link to="/wisher/register" class="navigate-link">register</router-link> -->
-            <!-- <li v-for="(item, index) in navItems" :key="index">
-                {{ item.name }}
-            </li> -->
-            <!-- <a class="login" href="#">Войти</a> -->
-        </ul>
-    </nav>
-</template>
-
 <script setup>
-
-    
+import path from '@/components/constants/pathes'
 </script>
 
+<template>
+  <nav class="nav">
+    <ul class="nav__links">
+      <span class="nav__logo logo">ВИШЕР</span>
+      <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
+      <router-link
+        to="/wisher/feed"
+        class="navigate-link"
+      >
+        feed
+      </router-link>
+      <router-link
+        :to="path.invitationCard"
+        class="navigate-link"
+      >
+        invitation
+      </router-link>
+      <!-- <router-link to="/wisher/auth" class="navigate-link">auth</router-link> -->
+      <!-- <router-link to="/wisher/register" class="navigate-link">register</router-link> -->
+      <!-- <li v-for="(item, index) in navItems" :key="index">
+                {{ item.name }}
+            </li> -->
+      <!-- <a class="login" href="#">Войти</a> -->
+    </ul>
+  </nav>
+</template>
+
 <style scoped>
-.nav__links a{
+.nav__links a {
     color: white;
     text-decoration: none;
 }

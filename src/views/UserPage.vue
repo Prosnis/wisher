@@ -1,3 +1,83 @@
+<script setup>
+import EditUserPage from '@/components/EditUserPage.vue'
+import ModalComponent from '@/components/ModalComponent.vue'
+import NavBar from '@/components/NavBar.vue'
+import WishCardCreate from '@/components/WishCardCreate.vue'
+import AddWishCards from '@/components/WishCardsAdd.vue'
+import { getUserData } from '@/services/GetUserData.js'
+import { saveProfile } from '@/services/UserPictureUpdate'
+import { getAuth } from 'firebase/auth'
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+
+const user = ref({})
+const badges = ref([])
+const usersWhises = ref([])
+const route = useRoute()
+const hoverWallaper = ref(false)
+const hoverAvatar = ref(false)
+const wallpaperFile = ref(null)
+const avatarFile = ref(null)
+const loading = ref(false)
+const modal = ref(null)
+const modalAddCard = ref(null)
+const isLoading = ref(true)
+const imageLoaded = ref(false)
+const auth = getAuth()
+const hasEditPermission = ref(false)
+
+function showModal() {
+  modal.value.openModal()
+}
+function showModalAddCard() {
+  modalAddCard.value.openModal()
+}
+
+function picturesEdit(target, event) {
+  const file = event.target.files[0]
+  if (target === 'avatar') {
+    avatarFile.value = file
+  }
+  else if (target === 'wallpaper') {
+    wallpaperFile.value = file
+  }
+  saveProfile(user, wallpaperFile, avatarFile, loading)
+}
+
+function profileUpdate(updatedData) {
+  user.value.displayName = updatedData.userName
+  user.value.about = updatedData.userAbout
+  badges.value = updatedData.pickedBadges
+  console.log('Профиль обновлен в родительском компоненте:', updatedData)
+}
+
+function handleAddWish(cardData) {
+  usersWhises.value.push(cardData)
+}
+
+onMounted(async () => {
+  isLoading.value = true
+  const uid = route.params.uid
+  const currentUser = auth.currentUser
+  if (currentUser && currentUser.uid === uid) {
+    hasEditPermission.value = true
+  }
+
+  const { user: userData, wishes } = await getUserData(uid)
+
+  if (userData) {
+    user.value = userData
+    badges.value = userData.badges || []
+    usersWhises.value = wishes
+  }
+  else {
+    console.error('Не удалось загрузить данные пользователя')
+  }
+
+  isLoading.value = false
+})
+</script>
+
 <template>
   <div>
     <div>
@@ -5,45 +85,111 @@
     </div>
 
     <main class="user">
-      <div v-show="isLoading" class="skeleton-loader user__info"></div>
+      <div
+        v-show="isLoading"
+        class="skeleton-loader user__info"
+      />
       <section class="user__info">
-        <div v-show="!isLoading" class="profile" v-if="user">
-
-          <div class="profile__wallapper" @mouseenter="hoverWallaper = true" @mouseleave="hoverWallaper = false">
-            <img :src="user.wallpaperUrl" alt="user-wallapper" loading="lazy" class="profile__wallapper-img"
-              :style="{ opacity: imageLoaded ? 1 : 0 }" @load="imageLoaded = true">
-            <!-- <div class="profile__spinner" v-if="!loading" /> -->
-            <label for="input-wallaper" class="profile__wallaper-edit" v-if="hoverWallaper">
-              <input class="profile__input profile__input--wallpaper" id="input-wallaper" type="file"
-                @change="picturesEdit('wallpaper', $event)">
+        <div
+          v-show="!isLoading"
+          v-if="user"
+          class="profile"
+        >
+          <div
+            class="profile__wallapper"
+            @mouseenter="hoverWallaper = true"
+            @mouseleave="hoverWallaper = false"
+          >
+            <img
+              :src="user.wallpaperUrl"
+              alt="user-wallapper"
+              loading="lazy"
+              class="profile__wallapper-img"
+              :style="{ opacity: imageLoaded ? 1 : 0 }"
+              @load="imageLoaded = true"
+            >
+            <label
+              v-if="hoverWallaper"
+              for="input-wallaper"
+              class="profile__wallaper-edit"
+            >
+              <input
+                id="input-wallaper"
+                class="profile__input profile__input--wallpaper"
+                type="file"
+                @change="picturesEdit('wallpaper', $event)"
+              >
               изменить обложку
             </label>
-          </div>
+          </div>А
 
-          <div class="profile__photo-wrapper" @mouseenter="hoverAvatar = true" @mouseleave="hoverAvatar = false">
-            <div class="profile__spinner" v-if="loading" />
-            <img class="profile__photo" :src="user.photoUrl" alt="user-photo" loading="lazy">
-            <label for="input-avatar" class="profile__photo profile__photo--edit" v-if="hoverAvatar">
-              <input class="profile__input profile__input--avatar" type="file" id="input-avatar"
-                @change="picturesEdit('avatar', $event)">
-              <font-awesome-icon class="profile__icon profile__icon-edit" :icon="['fas', 'edit']" />
+          <div
+            class="profile__photo-wrapper"
+            @mouseenter="hoverAvatar = true"
+            @mouseleave="hoverAvatar = false"
+          >
+            <div
+              v-if="loading"
+              class="profile__spinner"
+            />
+            <img
+              class="profile__photo"
+              :src="user.photoUrl"
+              alt="user-photo"
+              loading="lazy"
+            >
+            <label
+              v-if="hoverAvatar"
+              for="input-avatar"
+              class="profile__photo profile__photo--edit"
+            >
+              <input
+                id="input-avatar"
+                class="profile__input profile__input--avatar"
+                type="file"
+                @change="picturesEdit('avatar', $event)"
+              >
+              <font-awesome-icon
+                class="profile__icon profile__icon-edit"
+                :icon="['fas', 'edit']"
+              />
             </label>
           </div>
 
-
           <div class="profile__settings">
-            <button class="profile__button profile__button--edit" @click="showModal">Редактировать профиль</button>
+            <button
+              v-if="hasEditPermission"
+              class="profile__button profile__button--edit"
+              @click="showModal"
+            >
+              Редактировать профиль
+            </button>
+            <div
+              v-if="!hasEditPermission"
+              style="height: 55px;"
+            />
             <ModalComponent ref="modal">
-              <EditUserPage :user="user" :picked-badges="badges" @update-profile="profileUpdate" />
+              <EditUserPage
+                :user="user"
+                :picked-badges="badges"
+                @update-profile="profileUpdate"
+              />
             </ModalComponent>
           </div>
 
-
-          <h2 class="profile__name">{{ user.displayName }}</h2>
-          <p class="profile__about">{{ user.about || 'Информация о пользователе отсутствует' }}</p>
+          <h2 class="profile__name">
+            {{ user.displayName }}
+          </h2>
+          <p class="profile__about">
+            {{ user.about || 'Информация о пользователе отсутствует' }}
+          </p>
 
           <div class="profile__badges">
-            <div v-for="(badge, index) in badges" :key="index" class="badge">
+            <div
+              v-for="(badge, index) in badges"
+              :key="index"
+              class="badge"
+            >
               {{ badge.name }}
             </div>
           </div>
@@ -52,111 +198,52 @@
 
       <div class="wishes">
         <h2>Список желаний</h2>
-        <button class="profile__button profile__button--addWish" @click="showModalAddCard">Добавить</button>
+        <button
+          v-if="hasEditPermission"
+          class="profile__button profile__button--addWish"
+          @click="showModalAddCard"
+        >
+          Добавить
+        </button>
         <ModalComponent ref="modalAddCard">
-          <AddWishCards :userImg="user.photoUrl" :userName ='user.displayName' @addWish="handleAddWish"/>
+          <AddWishCards
+            :user-img="user.photoUrl"
+            :user-name="user.displayName"
+            @add-wish="handleAddWish"
+          />
         </ModalComponent>
-        <section class="wishes__list" v-if="usersWhises.length">
+        <section
+          v-if="usersWhises.length"
+          class="wishes__list"
+        >
           <div class="whishes__cards">
-            <CommonCards v-for="wish in usersWhises" :key="wish.id" :wish="wish" :userImg="user.photoUrl" :userName ='user.displayName' />
+            <WishCardCreate
+              v-for="wish in usersWhises"
+              :key="wish.id"
+              :wish="wish"
+              :user-img="user.photoUrl"
+              :user-name="user.displayName"
+            />
           </div>
         </section>
-        <div v-else class="wishes__empty">
-          <img src="../assets//empty-box.png" alt="empty-box" loading="lazy">
+        <div
+          v-else
+          class="wishes__empty"
+        >
+          <img
+            src="../assets//empty-box.png"
+            alt="empty-box"
+            loading="lazy"
+          >
           <p>У пользователя пока нет желаний.</p>
         </div>
       </div>
-
-
     </main>
   </div>
 </template>
 
-<script setup>
-import ModalComponent from '@/components/ModalComponent.vue';
-import NavBar from '@/components/NavBar.vue';
-import CommonCards from '@/components/WishCardCreate.vue';
-import EditUserPage from '@/components/EditUserPage.vue';
-import { getUserData } from '@/services/GetUserData.js';
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import { saveProfile } from '@/services/UserPictureUpdate'
-import AddWishCards from '@/components/WishCardsAdd.vue';
-// import {usersWhises} from '@/assets/temp-data/temp-data.js'
-
-const user = ref({});
-const badges = ref([]);
-const usersWhises = ref([]);
-const route = useRoute();
-const hoverWallaper = ref(false)
-const hoverAvatar = ref(false)
-const wallpaperFile = ref(null);
-const avatarFile = ref(null);
-const loading = ref(false)
-const modal = ref(null)
-const modalAddCard = ref(null)
-const isLoading = ref(true);
-const imageLoaded = ref(false);
-
-
-
-const showModal = () => {
-  modal.value.openModal();
-};
-
-
-const showModalAddCard = () => {
-  modalAddCard.value.openModal();
-};
-
-
-function picturesEdit(target, event) {
-  const file = event.target.files[0];
-  if (target === 'avatar') {
-    avatarFile.value = file;
-  } else if (target === 'wallpaper') {
-    wallpaperFile.value = file;
-  }
-  saveProfile(user, wallpaperFile, avatarFile, loading)
-}
-
-
-function profileUpdate(updatedData) {
-  user.value.displayName = updatedData.userName;
-  user.value.about = updatedData.userAbout;
-  badges.value = updatedData.pickedBadges;
-  console.log('Профиль обновлен в родительском компоненте:', updatedData);
-}
-
-
-const handleAddWish = (cardData) => {
-    usersWhises.value.push(cardData); 
-};
-
-
-onMounted(async () => {
-  isLoading.value = true;
-  const uid = route.params.uid;
-  const { user: userData, wishes } = await getUserData(uid);
-  if (userData) {
-    user.value = userData;
-    badges.value = userData.badges || [];
-    usersWhises.value = userData.wishes;
-  } else {
-    console.error('Не удалось загрузить данные пользователя');
-  }
-  isLoading.value = false;
-});
-
-
-</script>
-
-
-
-
-
 <style scoped>
-.whishes__cards{
+.whishes__cards {
   display: flex;
   gap: 20px;
   padding: 50px;
@@ -189,9 +276,6 @@ onMounted(async () => {
   }
 }
 
-
-
-
 .skeleton-loader {
   height: 600px;
   --color: #f0f2f5;
@@ -207,7 +291,6 @@ onMounted(async () => {
     linear-gradient(var(--color) 30px, transparent 0%),
     linear-gradient(var(--color) 30px, transparent 0%),
     linear-gradient(var(--color) 300px, transparent 0%);
-
 
   background-size:
     200px 200px,
@@ -238,7 +321,6 @@ onMounted(async () => {
   }
 }
 
-
 .wishes {
   border-radius: 50px;
   box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6);
@@ -262,7 +344,6 @@ onMounted(async () => {
   color: white;
 }
 
-
 .profile__photo--edit {
   background-color: #464241;
   opacity: 0.3;
@@ -272,13 +353,11 @@ onMounted(async () => {
   justify-content: center;
 }
 
-
 .profile__input {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
 }
-
 
 .profile__wallaper-edit {
   position: absolute;
@@ -306,7 +385,6 @@ onMounted(async () => {
 .wishes__empty img {
   width: 300px;
 }
-
 
 /* .card-icon-set {
   padding: 10px;
@@ -376,9 +454,6 @@ onMounted(async () => {
   opacity: 0;
 }
 
-
-
-
 .profile {
   display: flex;
   flex-direction: column;
@@ -426,5 +501,4 @@ onMounted(async () => {
   border: none;
 
 }
-
 </style>

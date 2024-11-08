@@ -1,68 +1,78 @@
-<template>
-    <ModalComponent ref="modal" >
-        <WishCardPreview :wish="wish" :userImg="props.userImg" :userName="props.userName"/>
-    </ModalComponent>
-    <div class="card" @mouseenter="hoverEnter($event)" @mouseleave="hoverLeft($event)" :data-id="wish.id"
-        @click="showModal">
-        <img :src="wish.img" alt="" class="card__image">
-        <h3 card__title>{{ wish.name }}</h3>
-        <p class="card__price">{{ formatPrice(wish.price) }} руб</p>
-        <div class="card__user__info">
-            <div class="user__info--info">
-                <img :src="props.userImg" alt="User Avatar" class="card__img user__info--avatarImg" />
-                <span v-text='props.userName'></span>
-            </div>
-            <span class="user__info--date">{{ new Date().toLocaleDateString() }}</span>
-        </div>
-    </div>
-</template>
-
 <script setup>
-
-import ModalComponent from './ModalComponent.vue';
-import WishCardPreview from './WishCardPreview.vue';
-import { ref } from 'vue';
-const modal = ref(null)
-
-
-const showModal = () => {
-    modal.value.openModal();
-};
+import path from '@/components/constants/pathes'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
-    wish: {
-        type: Object,
-    },
-    userImg: {
-        type: String
-    },
-    userName: {
-        type: String
-    }
-});
+  wish: {
+    type: Object,
+  },
+  userImg: {
+    type: String,
+  },
+  userName: {
+    type: String,
+  },
+})
 
-const formatPrice = (value) => {
-    if (!value) return '';
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-    }).format(value);
-};
+const router = useRouter()
 
-
-
-const hoverEnter = (event) => {
-    event.target.classList.add('card__hover')
-    console.log(event.target.dataset.id)
+function goToCardPreview(wishID) {
+  router.push(`${path.card}/${wishID}`).catch((err) => {
+    console.log('Card not allowed')
+  })
 }
 
-const hoverLeft = (event) => {
-    event.target.classList.remove('card__hover')
+function formatPrice(value) {
+  if (!value)
+    return ''
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    minimumFractionDigits: 0,
+  }).format(value)
 }
 
+function hoverEnter(event) {
+  event.target.classList.add('card__hover')
+}
 
+function hoverLeft(event) {
+  event.target.classList.remove('card__hover')
+}
 </script>
+
+<template>
+  <div
+    class="card"
+    :data-id="wish.id"
+    @mouseenter="hoverEnter($event)"
+    @mouseleave="hoverLeft($event)"
+    @click="goToCardPreview(wish.id)"
+  >
+    <img
+      :src="wish.img"
+      alt=""
+      class="card__image"
+    >
+    <h3 card__title>
+      {{ wish.name }}
+    </h3>
+    <p class="card__price">
+      {{ formatPrice(wish.price) }} руб
+    </p>
+    <div class="card__user__info">
+      <div class="user__info--info">
+        <img
+          :src="props.userImg"
+          alt="User Avatar"
+          class="card__img user__info--avatarImg"
+        >
+        <span v-text="props.userName" />
+      </div>
+      <span class="user__info--date">{{ new Date().toLocaleDateString() }}</span>
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .card__hover {
@@ -86,7 +96,6 @@ const hoverLeft = (event) => {
         background-position: -200% 0;
     }
 }
-
 
 .user__info--date {
     font-size: 15px;
@@ -148,9 +157,6 @@ p {
     font-weight: 600;
 }
 
-
-
-
 .card {
     position: relative;
     width: 260px;
@@ -164,8 +170,6 @@ p {
     border-radius: 5%;
     box-shadow: 0px 5px 5px rgba(126, 155, 189, 0.6);
 }
-
-
 
 .form__wrapper {
     display: flex;
@@ -201,7 +205,6 @@ textarea {
     list-style-type: none;
     padding: 0;
 }
-
 
 .card__icon--file {
     font-size: 100px;
