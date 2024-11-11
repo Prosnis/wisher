@@ -19,12 +19,7 @@ import path from '@/components/constants/pathes'
       >
         invitation
       </router-link>
-      <!-- <router-link to="/wisher/auth" class="navigate-link">auth</router-link> -->
-      <!-- <router-link to="/wisher/register" class="navigate-link">register</router-link> -->
-      <!-- <li v-for="(item, index) in navItems" :key="index">
-                {{ item.name }}
-            </li> -->
-      <!-- <a class="login" href="#">Войти</a> -->
+
     </ul>
   </nav>
 </template>

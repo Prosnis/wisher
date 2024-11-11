@@ -1,5 +1,5 @@
 <script setup>
-import NavBar from '@/components/NavBar.vue'
+import NavBar from '@/components/WiNavbar.vue'
 import { getUserData } from '@/services/GetUserData'
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'

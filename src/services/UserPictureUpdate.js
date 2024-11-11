@@ -23,15 +23,18 @@ export async function saveProfile(user, wallpaperFile, avatarFile, loading) {
     if (avatarFile.value) {
       const photoUrl = await uploadImage(avatarFile.value, `avatars/${currentUser.uid}`)
       updates.photoUrl = photoUrl
-      user.value.photoUrl = photoUrl
+      // user.value.photoUrl = photoUrl
+      user.photoUrl = photoUrl
     }
     if (wallpaperFile.value) {
       const wallpaperUrl = await uploadImage(wallpaperFile.value, `wallpapers/${currentUser.uid}`)
       updates.wallpaperUrl = wallpaperUrl
-      user.value.wallpaperUrl = wallpaperUrl
+      // user.value.wallpaperUrl = wallpaperUrl
+       user.wallpaperUrl = wallpaperUrl
     }
     await updateDoc(userDocRef, updates)
     console.log('Профиль успешно обновлен')
+    return { avatarUrl: updates.photoUrl, wallpaperUrl: updates.wallpaperUrl };
   }
   catch (error) {
     console.log('ошибка при загрузке профиля,', error)

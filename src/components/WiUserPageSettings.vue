@@ -2,7 +2,7 @@
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
 import { ref, watch } from 'vue'
-import { badges } from '../services/UserBadges'
+import { badges } from '../services/UserBadgesStore'
 
 const props = defineProps({
   user: {

@@ -18,7 +18,7 @@ const router = useRouter()
 
 function goToCardPreview(wishID) {
   router.push(`${path.card}/${wishID}`).catch((err) => {
-    console.log('Card not allowed')
+    console.log('Card not allowed', err)
   })
 }
 

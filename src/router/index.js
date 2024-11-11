@@ -5,14 +5,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: path.register, component: () => import('@/views/RegisterView.vue') },
-    { path: path.feed, component: () => import('@/views/FeedView.vue') },
-    { path: path.invitationCard, component: () => import('@/views/InvitationСard.vue') },
-    { path: path.auth, component: () => import('@/views/AuthView.vue') },
+    { path: path.register, component: () => import('@/views/RegisterPageView.vue') },
+    { path: path.feed, component: () => import('@/views/FeedPageView.vue') },
+    { path: path.invitationCard, component: () => import('@/views/InvitationPageView.vue') },
+    { path: path.auth, component: () => import('@/views/AuthPageView.vue') },
     // { path: '/wisher/modal',component: () => import('@/services/EditUserPage.vue')},
     {
       path: `${path.user}/:uid`,
-      component: () => import('@/views/UserPage.vue'),
+      component: () => import('@/views/UserPageView.vue'),
       name: 'UserProfile',
       meta: {
         requiresAuth: true,
@@ -20,19 +20,12 @@ const router = createRouter({
     },
     {
       path: `${path.card}/:uid`,
-      component: () => import('@/views/WishCardPreview.vue'),
+      component: () => import('@/views/CardDetailsPageView.vue'),
       meta: {
         requiresAuth: true,
       },
     },
-    {
-      path: `${path.invitations}/:uid`,
-      component: () => import('@/views/UserInvitationsView.vue'),
-      meta: {
-        requiresAuth: true,
-      },
-    },
-    { path: path.main, component: () => import('@/views/RegisterView.vue') },
+    { path: path.main, component: () => import('@/views/RegisterPageView.vue') },
   ],
 })
 
