@@ -3,16 +3,15 @@ import { images } from '@/components/constants/inivationImages'
 import path from '@/components/constants/pathes'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
+import { generateQrCode } from '@/services/GetQRCode'
 import { getUserData } from '@/services/GetUserData'
+import { saveInvitationToDB } from '@/services/SaveInvitationToDB'
 import { getAuth } from 'firebase/auth'
-import { doc, getFirestore, updateDoc } from 'firebase/firestore'
-import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from 'firebase/storage'
 import html2canvas from 'html2canvas'
-import QRCode from 'qrcode'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router';
 
-const db = getFirestore()
+
 const qrCodeDataUrl = ref(null)
 const title = ref('')
 const date = ref('')
@@ -26,55 +25,14 @@ const file = ref(null)
 const router = useRouter();
 const isActive = ref(false)
 
-
-const storage = getStorage()
-
-async function generateQrCode(url) {
-  try {
-    return await QRCode.toDataURL(url, { width: 110, margin: 1, color: { dark: '#ffffff', light: '#000000' } })
-  }
-  catch (error) {
-    console.error('Ошибка генерации QR-кода:', error)
-    return null
-  }
-}
-
 function selectImage(image) {
   selectedImage.value = image
-}
-
-async function uploadImage(file, path) {
-  const byteCharacters = atob(file.split(',')[1])
-  const byteArray = new Uint8Array(byteCharacters.length)
-
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteArray[i] = byteCharacters.charCodeAt(i)
-  }
-
-  const blob = new Blob([byteArray], { type: 'image/png' })
-  const fileRef = storageRef(storage, path)
-  await uploadBytes(fileRef, blob)
-  return await getDownloadURL(fileRef)
-}
-
-
-async function saveInvitationToDB(file) {
-  const currentUser = auth.currentUser
-  isActive.value = true
-  try {
-    const userDocRef = doc(db, 'users', currentUser.uid)
-    const invitationImage = await uploadImage(file, `invitations/${currentUser.uid}`)
-    await updateDoc(userDocRef, { invitationImage })
-  } catch (error) {
-    console.log('Ошибка при загрузке профиля:', error)
-  } finally {
-    isActive.value = false
-  }
 }
 
 async function saveCardAsImage() {
   const card = document.getElementById('card')
   try {
+    isActive.value = true
     const canvas = await html2canvas(card)
     const imageDataUrl = canvas.toDataURL('image/png')
     file.value = imageDataUrl
@@ -82,6 +40,8 @@ async function saveCardAsImage() {
     goToInvitationPage()
   } catch (error) {
     console.error('Ошибка при сохранении изображения:', error)
+  } finally {
+    isActive.value = false
   }
 }
 
@@ -92,11 +52,9 @@ function goToInvitationPage() {
     const uid = currentUser.uid;
     router.push({ path: `${path.invitationCard}/${uid}` });
   } else {
-    console.error('Пользователь не авторизован');
+    console.error('goToInvitationPage');
   }
 }
-
-
 
 onMounted(async () => {
   const uid = auth.currentUser.uid
