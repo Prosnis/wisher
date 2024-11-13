@@ -2,7 +2,7 @@
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 
-import { defineEmits, ref } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
   userImg: {
@@ -13,7 +13,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits()
+const emit = defineEmits(['handleAddWish', {}])
 
 const db = getFirestore()
 const auth = getAuth()

@@ -25,6 +25,13 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: `${path.invitationCard}/:uid`,
+      component: () => import('@/views/InvitationPageShare.vue'),
+      meta: {
+        requiresAuth: true,
+      },
+    },
     { path: path.main, component: () => import('@/views/RegisterPageView.vue') },
   ],
 })

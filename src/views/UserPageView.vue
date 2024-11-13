@@ -103,7 +103,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-
 .skeleton-loader {
   height: 600px;
   --color: #f0f2f5;
