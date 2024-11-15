@@ -8,7 +8,6 @@ const router = createRouter({
     { path: path.register, component: () => import('@/views/RegisterPageView.vue') },
     { path: path.feed, component: () => import('@/views/FeedPageView.vue') },
     { path: path.invitationCard, component: () => import('@/views/InvitationPageView.vue') },
-    { path: '/wisher/wiTest', component: () => import('@/components/WiStoreTest.vue') },
     { path: path.auth, component: () => import('@/views/AuthPageView.vue') },
     // { path: '/wisher/modal',component: () => import('@/services/EditUserPage.vue')},
     {
