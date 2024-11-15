@@ -1,27 +1,32 @@
 <script setup>
 import path from '@/components/constants/pathes'
-import { getAuth } from 'firebase/auth';
-import { onMounted, ref } from 'vue';
+import { getAuth } from 'firebase/auth'
+import { onMounted, ref } from 'vue'
 
 const userLink = ref(null)
 const auth = getAuth()
-onMounted(async ()=>{
+onMounted(async () => {
   userLink.value = await auth.currentUser.uid
 })
-
 </script>
 
 <template>
   <nav class="nav">
     <ul class="nav__links">
-      <router-link v-if="userLink" :to="`${path.user}/${userLink}`" class="nav__logo logo">
+      <router-link
+        v-if="userLink"
+        :to="`${path.user}/${userLink}`"
+        class="nav__logo logo"
+      >
         <span>ВИШЕР</span>
       </router-link>
       <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
-      <router-link :to="path.invitationCard" class="navigate-link">
+      <router-link
+        :to="path.invitationCard"
+        class="navigate-link"
+      >
         invitation
       </router-link>
-
     </ul>
   </nav>
 </template>

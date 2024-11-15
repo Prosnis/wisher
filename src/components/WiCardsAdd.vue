@@ -79,7 +79,11 @@ function previewCard(event) {
 </script>
 
 <template>
-  <form method="dialog" class="form" @submit="CreateCard">
+  <form
+    method="dialog"
+    class="form"
+    @submit="CreateCard"
+  >
     <h1 class="form__title">
       Добавить желание
     </h1>
@@ -87,27 +91,61 @@ function previewCard(event) {
       <ul class="form__list">
         <li>
           <label for="name">Название:</label>
-          <input id="name" v-model="previewName" type="text" required>
+          <input
+            id="name"
+            v-model="previewName"
+            type="text"
+            required
+          >
         </li>
         <li>
           <label for="description">Описание</label>
-          <textarea id="description" v-model="previewDescription" type="text" />
+          <textarea
+            id="description"
+            v-model="previewDescription"
+            type="text"
+          />
         </li>
         <li>
           <label for="price">Цена</label>
-          <input id="price" v-model="previewPrice" type="number">
+          <input
+            id="price"
+            v-model="previewPrice"
+            type="number"
+          >
         </li>
         <li>
           <label for="link">Ссылка на товар</label>
-          <input id="link" v-model="previewLink" type="text">
+          <input
+            id="link"
+            v-model="previewLink"
+            type="text"
+          >
         </li>
       </ul>
 
       <div class="form__preview__card">
-        <label class="card__label card__label--file" for="file-input">
-          <img v-if="previewImg" :src="previewImg" alt="" class="card__image">
-          <font-awesome-icon v-if="!previewImg" class="card__icon--file" :icon="['fas', 'file-image']" />
-          <input id="file-input" class="card__input card__input--file" type="file" @change="previewCard($event)">
+        <label
+          class="card__label card__label--file"
+          for="file-input"
+        >
+          <img
+            v-if="previewImg"
+            :src="previewImg"
+            alt=""
+            class="card__image"
+          >
+          <font-awesome-icon
+            v-if="!previewImg"
+            class="card__icon--file"
+            :icon="['fas', 'file-image']"
+          />
+          <input
+            id="file-input"
+            class="card__input card__input--file"
+            type="file"
+            @change="previewCard($event)"
+          >
         </label>
         <h3 card__title>
           {{ previewName }}
@@ -117,7 +155,11 @@ function previewCard(event) {
         </p>
         <div class="card__user__info">
           <div class="user__info--info">
-            <img :src="props.userImg" alt="User Avatar" class="card__img user__info--avatarImg">
+            <img
+              :src="props.userImg"
+              alt="User Avatar"
+              class="card__img user__info--avatarImg"
+            >
             <span v-text="props.userName" />
           </div>
           <span class="user__info--date">{{ previewDate }}</span>

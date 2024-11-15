@@ -206,13 +206,6 @@ async function toggleReserve() {
               <span>Pарезервируйте этот подарок, если хотите его подарить.</span>
             </div>
           </div>
-          <!--
-                <div class="card__description__comments">
-                    <div class="card__img-wrapper--avatar">
-                        <img class="card__image  card__image--user" src="@/components/icons/ozon.png" alt="">
-                    </div>
-                    <div>Написать комментарий...</div>
-                </div> -->
         </div>
       </div>
     </div>

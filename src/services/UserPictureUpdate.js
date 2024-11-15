@@ -30,11 +30,11 @@ export async function saveProfile(user, wallpaperFile, avatarFile, loading) {
       const wallpaperUrl = await uploadImage(wallpaperFile.value, `wallpapers/${currentUser.uid}`)
       updates.wallpaperUrl = wallpaperUrl
       // user.value.wallpaperUrl = wallpaperUrl
-       user.wallpaperUrl = wallpaperUrl
+      user.wallpaperUrl = wallpaperUrl
     }
     await updateDoc(userDocRef, updates)
     console.log('Профиль успешно обновлен')
-    return { avatarUrl: updates.photoUrl, wallpaperUrl: updates.wallpaperUrl };
+    return { avatarUrl: updates.photoUrl, wallpaperUrl: updates.wallpaperUrl }
   }
   catch (error) {
     console.log('ошибка при загрузке профиля,', error)

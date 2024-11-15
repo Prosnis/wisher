@@ -72,7 +72,7 @@ function signInWithGoogle() {
     >
       <h1>Log in</h1>
       <!-- <input class="auth__input auth__input--email" type="text" placeholder="Email" v-model="email">
-      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password"> -->
+      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password">  -->
       <p v-if="errMsg">
         {{ errMsg }}
       </p>
@@ -82,7 +82,6 @@ function signInWithGoogle() {
       >
         Войти
       </button>
-      <!-- <button class="auth__btn auth__btn--google" @click="signInWithGoogle">Login with Google</button> -->
       <p
         class="auth__question"
         @click="toAuthPage"

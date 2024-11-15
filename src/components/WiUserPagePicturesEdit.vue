@@ -1,7 +1,13 @@
 <script setup>
 import { saveProfile } from '@/services/UserPictureUpdate'
-import { ref } from 'vue';
+import { ref } from 'vue'
 
+const props = defineProps({
+  user: {
+    type: Object,
+    default: () => ({}),
+  },
+})
 const hoverWallaper = ref(false)
 const hoverAvatar = ref(false)
 const wallpaperFile = ref(null)
@@ -9,57 +15,80 @@ const avatarFile = ref(null)
 const loading = ref(false)
 const imageLoaded = ref(false)
 
-
-
-const props = defineProps({
-    user: {
-        type: Object,
-        default: () => ({}),
-    }
-})
-
-
 function picturesEdit(target, event) {
-    const file = event.target.files[0]
-    if (target === 'avatar') {
-        avatarFile.value = file
-    }
-    else if (target === 'wallpaper') {
-        wallpaperFile.value = file
-    }
-    saveProfile(props.user, wallpaperFile, avatarFile, loading)
+  const file = event.target.files[0]
+  if (target === 'avatar') {
+    avatarFile.value = file
+  }
+  else if (target === 'wallpaper') {
+    wallpaperFile.value = file
+  }
+  saveProfile(props.user, wallpaperFile, avatarFile, loading)
 }
-
-
 </script>
 
-
-
-
 <template>
-    <div class="profile__wallapper" @mouseenter="hoverWallaper = true" @mouseleave="hoverWallaper = false">
-        <img :src="props.user.wallpaperUrl" alt="user-wallpaper" loading="lazy" class="profile__wallapper-img"
-            :style="{ opacity: imageLoaded ? 1 : 0 }" @load="imageLoaded = true">
-        <label v-if="hoverWallaper" for="input-wallaper" class="profile__wallaper-edit">
-            <input id="input-wallaper" class="profile__input profile__input--wallpaper" type="file"
-                @change="picturesEdit('wallpaper', $event)">
-            изменить обложку
-        </label>
-    </div>
+  <div
+    class="profile__wallapper"
+    @mouseenter="hoverWallaper = true"
+    @mouseleave="hoverWallaper = false"
+  >
+    <img
+      :src="props.user.wallpaperUrl"
+      alt="user-wallpaper"
+      loading="lazy"
+      class="profile__wallapper-img"
+      :style="{ opacity: imageLoaded ? 1 : 0 }"
+      @load="imageLoaded = true"
+    >
+    <label
+      v-if="hoverWallaper"
+      for="input-wallaper"
+      class="profile__wallaper-edit"
+    >
+      <input
+        id="input-wallaper"
+        class="profile__input profile__input--wallpaper"
+        type="file"
+        @change="picturesEdit('wallpaper', $event)"
+      >
+      изменить обложку
+    </label>
+  </div>
 
-    <div class="profile__photo-wrapper" @mouseenter="hoverAvatar = true" @mouseleave="hoverAvatar = false">
-        <div v-if="loading" class="profile__spinner" />
-        <img class="profile__photo" :src="props.user.photoUrl" alt="user-photo" loading="lazy">
-        <label v-if="hoverAvatar" for="input-avatar" class="profile__photo profile__photo--edit">
-            <input id="input-avatar" class="profile__input profile__input--avatar" type="file"
-                @change="picturesEdit('avatar', $event)">
-            <font-awesome-icon class="profile__icon profile__icon-edit" :icon="['fas', 'edit']" />
-        </label>
-    </div>
+  <div
+    class="profile__photo-wrapper"
+    @mouseenter="hoverAvatar = true"
+    @mouseleave="hoverAvatar = false"
+  >
+    <div
+      v-if="loading"
+      class="profile__spinner"
+    />
+    <img
+      class="profile__photo"
+      :src="props.user.photoUrl"
+      alt="user-photo"
+      loading="lazy"
+    >
+    <label
+      v-if="hoverAvatar"
+      for="input-avatar"
+      class="profile__photo profile__photo--edit"
+    >
+      <input
+        id="input-avatar"
+        class="profile__input profile__input--avatar"
+        type="file"
+        @change="picturesEdit('avatar', $event)"
+      >
+      <font-awesome-icon
+        class="profile__icon profile__icon-edit"
+        :icon="['fas', 'edit']"
+      />
+    </label>
+  </div>
 </template>
-
-
-
 
 <style scoped>
 .profile__wallapper {
@@ -72,11 +101,6 @@ function picturesEdit(target, event) {
     width: 100%;
     height: 300px;
     border-radius: 50px 50px 0 0;
-}
-
-.profile__wallapper-img {
-    transition: opacity 0.3s ease-in-out;
-    opacity: 0;
 }
 
 .profile__wallapper-img {
@@ -155,7 +179,6 @@ function picturesEdit(target, event) {
     height: 0.1px;
     opacity: 0;
 }
-
 
 .profile__icon-edit {
     font-size: 100px;

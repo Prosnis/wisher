@@ -9,8 +9,7 @@ import { saveInvitationToDB } from '@/services/SaveInvitationToDB'
 import { getAuth } from 'firebase/auth'
 import html2canvas from 'html2canvas'
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router';
-
+import { useRouter } from 'vue-router'
 
 const qrCodeDataUrl = ref(null)
 const title = ref('')
@@ -22,7 +21,7 @@ const auth = getAuth()
 const userProfileUrl = ref('')
 const currentUser = ref({})
 const file = ref(null)
-const router = useRouter();
+const router = useRouter()
 const isActive = ref(false)
 
 function selectImage(image) {
@@ -38,21 +37,24 @@ async function saveCardAsImage() {
     file.value = imageDataUrl
     await saveInvitationToDB(imageDataUrl)
     goToInvitationPage()
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Ошибка при сохранении изображения:', error)
-  } finally {
+  }
+  finally {
     isActive.value = false
   }
 }
 
 function goToInvitationPage() {
-  const currentUser = auth.currentUser;
+  const currentUser = auth.currentUser
 
   if (currentUser) {
-    const uid = currentUser.uid;
-    router.push({ path: `${path.invitationCard}/${uid}` });
-  } else {
-    console.error('goToInvitationPage');
+    const uid = currentUser.uid
+    router.push({ path: `${path.invitationCard}/${uid}` })
+  }
+  else {
+    console.error('goToInvitationPage')
   }
 }
 
@@ -68,41 +70,89 @@ onMounted(async () => {
 <template>
   <NavBar />
   <div class="invitation__wrapper">
-    <div v-if="isActive" class="profile__spinner"></div>
+    <div
+      v-if="isActive"
+      class="profile__spinner"
+    />
     <div class="form">
       <label for="title"> Заголовок
-        <input id="title" v-model="title" class="form__input" type="text" maxlength="50" placeholder="День рождение!">
+        <input
+          id="title"
+          v-model="title"
+          class="form__input"
+          type="text"
+          maxlength="50"
+          placeholder="День рождение!"
+        >
       </label>
       <label for="date"> Дата
-        <input id="date" v-model="date" class="form__input" type="date">
+        <input
+          id="date"
+          v-model="date"
+          class="form__input"
+          type="date"
+        >
       </label>
       <label for="description"> Описание
-        <textarea id="description" v-model="description" class="form__input form__input--description" type="text"
+        <textarea
+          id="description"
+          v-model="description"
+          class="form__input form__input--description"
+          type="text"
           maxlength="300"
-          placeholder="Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый котел», который находится по адресу Косой переулок, 1." />
+          placeholder="Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый котел», который находится по адресу Косой переулок, 1."
+        />
       </label>
       <label for="signature"> Подпись
-        <input id="signature" v-model="signature" class="form__input" type="text" maxlength="20"
-          placeholder="Tom Riddle">
+        <input
+          id="signature"
+          v-model="signature"
+          class="form__input"
+          type="text"
+          maxlength="20"
+          placeholder="Tom Riddle"
+        >
       </label>
 
       <div class="form__picture">
         <ul class="form__picture__list">
-          <li v-for="(image, index) in images" :key="index" class="picture__item"
-            :class="[{ 'picture__item--selected': selectedImage.includes(image) }]" @click="selectImage(image)">
-            <img class="item__image" :src="image" alt="">
+          <li
+            v-for="(image, index) in images"
+            :key="index"
+            class="picture__item"
+            :class="[{ 'picture__item--selected': selectedImage.includes(image) }]"
+            @click="selectImage(image)"
+          >
+            <img
+              class="item__image"
+              :src="image"
+              alt=""
+            >
           </li>
         </ul>
       </div>
+      <button
+        :disabled="isActive"
+        class="form__button"
+        @click="saveCardAsImage"
+      >
+        Сохранить и поделиться
+      </button>
     </div>
 
-    <div id="card" class="invitation">
+    <div
+      id="card"
+      class="invitation"
+    >
       <div class="invitation__info">
         <ul class="info__list">
           <li class="info__list__item info__list__item-title">
-
-            <h1 v-if="!title">День рождение!</h1>
-            <h1 v-else>{{ title }}</h1>
+            <h1 v-if="!title">
+              День рождение!
+            </h1>
+            <h1 v-else>
+              {{ title }}
+            </h1>
           </li>
           <li class="info__list__item info__list__item-date">
             <span v-if="!date"> {{ new Date().toLocaleDateString() }}</span>
@@ -120,50 +170,62 @@ onMounted(async () => {
         </ul>
       </div>
       <div class="invitation__img">
-        <img class="card__image" :src="selectedImage" alt="">
+        <img
+          class="card__image"
+          :src="selectedImage"
+          alt=""
+        >
       </div>
 
       <div class="invitation__qr">
         <span class="qr__info">Сканируйте QR-код, чтобы ознакомиться со списком подарков.</span>
         <WISpinner v-if="!qrCodeDataUrl" />
-        <img v-else :src="qrCodeDataUrl" alt="QR Code">
-        <!-- <div class="qr__user--link">
-            <span class="qr__user--name">{{ currentUser.displayName }}</span>
-            <span>{{ userProfileUrl }}</span>
-          </div> -->
+        <img
+          v-else
+          :src="qrCodeDataUrl"
+          alt="QR Code"
+        >
       </div>
-
     </div>
-    <button @click="saveCardAsImage" :disabled="isActive">
-      Сохранить как изображение
-    </button>
   </div>
 </template>
 
 <style scoped>
+.form__button{
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: auto;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background-color: #464241;
+  color: white;
+  cursor: pointer;
+}
 .profile__spinner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    --color: #f8f8dfaf;
-    background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
-    background-size: 200% 100%;
-    border-radius: 50px 50px 0 0;
-    animation: loading 1.5s infinite;
-    z-index: 1;
-    opacity: 0.8;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  --color: #f8f8dfaf;
+  background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
+  background-size: 200% 100%;
+  /* border-radius: 50px 50px 0 0; */
+  animation: loading 1.5s infinite;
+  z-index: 1;
+  opacity: 0.8;
 }
 
 @keyframes loading {
-    0% {
-        background-position: 200% 0;
-    }
+  0% {
+    background-position: 200% 0;
+  }
 
-    100% {
-        background-position: -200% 0;
-    }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .form__input--description {
@@ -181,6 +243,9 @@ onMounted(async () => {
 
 .qr__info {
   width: 200px;
+  color: white;
+  font-weight: 600;
+  letter-spacing: 2px;
 }
 
 .picture__item--selected {
@@ -211,9 +276,10 @@ onMounted(async () => {
 }
 
 .form {
-  border: 1px solid black;
   padding: 30px;
   width: 400px;
+  background: white;
+  /* border-radius: 20px; */
 }
 
 .form label {
@@ -267,13 +333,16 @@ textarea {
 }
 
 .invitation {
-  border: 1px solid black;
-  width: 900px;
+  width: 100%;
+  border: rgb(28, 215, 221) 1px solid;
+  background: white;
+  /* border-radius: 20px; */
   height: 700px;
   display: grid;
   align-items: center;
   grid-template-columns: 2fr 2fr;
   grid-template-rows: auto 0.5fr;
+  overflow: hidden;
   grid-template-areas:
     "info img"
     "qr qr";
@@ -287,8 +356,9 @@ textarea {
   margin: auto;
   min-height: 50vh;
   padding: 20px;
-  border-radius: 50px;
+  /* border-radius: 20px; */
   gap: 20px;
+  background: #464241;
 }
 
 .invitation__img {
@@ -313,6 +383,7 @@ textarea {
   gap: 20px;
   flex-wrap: wrap;
   height: 200px;
+  background: rgb(28, 215, 221);
 }
 
 .info__list__item {

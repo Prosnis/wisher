@@ -9,7 +9,6 @@ import { getAuth } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-
 const user = ref({})
 const badges = ref([])
 const route = useRoute()
@@ -19,11 +18,9 @@ const auth = getAuth()
 const hasEditPermission = ref(true)
 const currentUserUid = ref('')
 
-
 function showModal() {
   modal.value.openModal()
 }
-
 
 function profileUpdate(updatedData) {
   user.value.displayName = updatedData.userName
@@ -31,7 +28,6 @@ function profileUpdate(updatedData) {
   badges.value = updatedData.pickedBadges
   console.log('Профиль обновлен в родительском компоненте:', updatedData)
 }
-
 
 onMounted(async () => {
   skeletonLoad.value = true
@@ -54,7 +50,6 @@ onMounted(async () => {
   }
   skeletonLoad.value = false
 })
-
 </script>
 
 <template>
@@ -64,18 +59,34 @@ onMounted(async () => {
     </div>
 
     <main class="user">
-      <div v-show="skeletonLoad" class="skeleton-loader user__info" />
+      <div
+        v-show="skeletonLoad"
+        class="skeleton-loader user__info"
+      />
       <section class="user__info">
-        <div v-if="!skeletonLoad && user && user.displayName" class="profile">
-
+        <div
+          v-if="!skeletonLoad && user && user.displayName"
+          class="profile"
+        >
           <WiUserPagePicturesEdit :user="user" />
           <div class="profile__settings">
-            <button v-if="hasEditPermission" class="profile__button profile__button--edit" @click="showModal">
+            <button
+              v-if="hasEditPermission"
+              class="profile__button profile__button--edit"
+              @click="showModal"
+            >
               Редактировать профиль
             </button>
-            <div v-if="!hasEditPermission" style="height: 55px;" />
+            <div
+              v-if="!hasEditPermission"
+              style="height: 55px;"
+            />
             <WiModal ref="modal">
-              <WiUserPageSettings :user="user" :picked-badges="badges" @update-profile="profileUpdate" />
+              <WiUserPageSettings
+                :user="user"
+                :picked-badges="badges"
+                @update-profile="profileUpdate"
+              />
             </WiModal>
           </div>
 
@@ -87,7 +98,11 @@ onMounted(async () => {
           </p>
 
           <div class="profile__badges">
-            <div v-for="(badge, index) in badges" :key="index" class="badge">
+            <div
+              v-for="(badge, index) in badges"
+              :key="index"
+              class="badge"
+            >
               {{ badge.name }}
             </div>
           </div>
@@ -95,8 +110,12 @@ onMounted(async () => {
       </section>
 
       <div class="wishes">
-        <WiUserWishesVue v-if="currentUserUid && user" :currentUserUid="currentUserUid"
-          :hasEditPermission="hasEditPermission" :user="user" />
+        <WiUserWishesVue
+          v-if="currentUserUid && user"
+          :current-user-uid="currentUserUid"
+          :has-edit-permission="hasEditPermission"
+          :user="user"
+        />
       </div>
     </main>
   </div>
@@ -198,7 +217,6 @@ onMounted(async () => {
   position: relative;
 
 }
-
 
 .profile {
   display: flex;

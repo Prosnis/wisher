@@ -42,9 +42,18 @@ function hoverLeft(event) {
 </script>
 
 <template>
-  <div class="card" :data-id="wish.id" @mouseenter="hoverEnter($event)" @mouseleave="hoverLeft($event)"
-    @click="goToCardPreview(wish.id)">
-    <img :src="wish.img" alt="" class="card__image">
+  <div
+    class="card"
+    :data-id="wish.id"
+    @mouseenter="hoverEnter($event)"
+    @mouseleave="hoverLeft($event)"
+    @click="goToCardPreview(wish.id)"
+  >
+    <img
+      :src="wish.img"
+      alt=""
+      class="card__image"
+    >
     <h3 card__title>
       {{ wish.name }}
     </h3>
@@ -53,7 +62,11 @@ function hoverLeft(event) {
     </p>
     <div class="card__user__info">
       <div class="user__info--info">
-        <img :src="props.userImg" alt="User Avatar" class="card__img user__info--avatarImg">
+        <img
+          :src="props.userImg"
+          alt="User Avatar"
+          class="card__img user__info--avatarImg"
+        >
         <span v-text="props.userName" />
       </div>
       <span class="user__info--date">{{ new Date().toLocaleDateString() }}</span>
