@@ -82,7 +82,7 @@ onMounted(async () => {
           class="form__input"
           type="text"
           maxlength="50"
-          placeholder="День рождение!"
+          placeholder="День рождения!"
         >
       </label>
       <label for="date"> Дата
@@ -148,7 +148,7 @@ onMounted(async () => {
         <ul class="info__list">
           <li class="info__list__item info__list__item-title">
             <h1 v-if="!title">
-              День рождение!
+              День рождения!
             </h1>
             <h1 v-else>
               {{ title }}
@@ -192,17 +192,25 @@ onMounted(async () => {
 
 <style scoped>
 .form__button{
+  margin: 0;
   display: flex;
   align-items: center;
   padding: 10px;
   margin: auto;
   font-weight: 600;
   border-radius: 10px;
-  border: none;
-  background-color: #464241;
+  border: 3px solid #0d121b;
+  background-color: #0d121b;
   color: white;
   cursor: pointer;
+  transition: border 0.3s ease, background-color 0.3s ease;
 }
+
+.form__button:hover{
+  border: 3px solid rgb(28, 215, 221);
+}
+
+
 .profile__spinner {
   position: absolute;
   top: 0;
@@ -358,7 +366,7 @@ textarea {
   padding: 20px;
   /* border-radius: 20px; */
   gap: 20px;
-  background: #464241;
+  background-color: #111827
 }
 
 .invitation__img {

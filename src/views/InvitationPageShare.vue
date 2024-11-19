@@ -61,6 +61,7 @@ onMounted(async () => {
   gap: 10px;
 }
 
+
 .invitation__btn {
   padding: 5px;
   border-radius: 5px;

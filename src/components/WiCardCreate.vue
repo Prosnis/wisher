@@ -1,6 +1,6 @@
 <script setup>
 import path from '@/components/constants/pathes'
-import { useRouter } from 'vue-router'
+import {  useRouter } from 'vue-router'
 
 const props = defineProps({
   wish: {
@@ -43,7 +43,7 @@ function hoverLeft(event) {
 
 <template>
   <div
-    class="card"
+    :class="{'card': !props.wish.reserve, 'card__reserve': props.wish.reserve}"
     :data-id="wish.id"
     @mouseenter="hoverEnter($event)"
     @mouseleave="hoverLeft($event)"
@@ -78,12 +78,11 @@ function hoverLeft(event) {
 .card__hover {
   width: 100%;
   height: 100%;
-  --color: #f8f8dfaf;
+  --color: #515c67;
   background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+  animation: loading 2s infinite;
   z-index: 1;
-  opacity: 0.8;
   cursor: pointer;
 }
 
@@ -161,14 +160,30 @@ p {
   position: relative;
   width: 260px;
   height: 420px;
-  border: 1px solid #ccc;
+  border: 3px solid #3dd68c;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
   text-align: center;
   border-radius: 5%;
-  box-shadow: 0px 5px 5px rgba(126, 155, 189, 0.6);
+  background-color: #0d121b;
+  color: white;
+  /* box-shadow: 0px 5px 5px rgba(126, 155, 189, 0.6); */
+}
+.card__reserve {
+  position: relative;
+  width: 260px;
+  height: 420px;
+   border: 3px solid #f14158; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  border-radius: 5%;
+  background-color: #0d121b;
+  color: white;
 }
 
 .form__wrapper {

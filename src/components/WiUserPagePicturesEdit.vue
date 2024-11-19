@@ -7,6 +7,9 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  hasEditPermission: {
+    type: Boolean
+  }
 })
 const hoverWallaper = ref(false)
 const hoverAvatar = ref(false)
@@ -42,7 +45,7 @@ function picturesEdit(target, event) {
       @load="imageLoaded = true"
     >
     <label
-      v-if="hoverWallaper"
+      v-if="hoverWallaper && hasEditPermission"
       for="input-wallaper"
       class="profile__wallaper-edit"
     >
@@ -72,7 +75,7 @@ function picturesEdit(target, event) {
       loading="lazy"
     >
     <label
-      v-if="hoverAvatar"
+      v-if="hoverAvatar && props.hasEditPermission "
       for="input-avatar"
       class="profile__photo profile__photo--edit"
     >
@@ -100,7 +103,7 @@ function picturesEdit(target, event) {
     object-fit: cover;
     width: 100%;
     height: 300px;
-    border-radius: 50px 50px 0 0;
+    border-radius: 10px 10px 0 0;
 }
 
 .profile__wallapper-img {

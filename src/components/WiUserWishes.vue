@@ -14,7 +14,7 @@ const props = defineProps({
     type: Boolean,
     default: () => false,
   },
-  currentUserUid: {
+  profileUserUid: {
     type: String,
   },
 })
@@ -22,9 +22,8 @@ const modalAddCard = ref(null)
 const userWishList = ref([])
 
 onMounted(async () => {
-  console.log('UID пользователя:', props.currentUserUid)
   try {
-    const { wishes: userWishes } = await getUserData(props.currentUserUid)
+    const { wishes: userWishes } = await getUserData(props.profileUserUid)
     userWishList.value = userWishes
   }
   catch (error) {
@@ -42,7 +41,7 @@ function handleAddWish(cardData) {
 </script>
 
 <template>
-  <h2>Список желаний</h2>
+  <h2 class="whishes__title">Список желаний</h2>
   <button
     v-if="hasEditPermission"
     class="profile__button profile__button--addWish"
@@ -85,6 +84,9 @@ function handleAddWish(cardData) {
 </template>
 
 <style scoped>
+.whishes__title{
+  color: white;
+}
 .wishes__empty {
   display: flex;
   flex-direction: column;
@@ -107,10 +109,21 @@ function handleAddWish(cardData) {
 }
 
 .profile__button--addWish {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 10px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 3px solid #0d121b;
+  background-color: #0d121b;
+  color: white;
   cursor: pointer;
-  background-color: white;
-  padding: 20px;
-  border: none;
+  transition: border 0.3s ease, background-color 0.3s ease;
+}
 
+.profile__button--addWish:hover{
+  border: 3px solid #ffd859;
 }
 </style>

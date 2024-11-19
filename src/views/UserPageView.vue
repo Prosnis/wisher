@@ -5,18 +5,21 @@ import WiUserPagePicturesEdit from '@/components/WiUserPagePicturesEdit.vue'
 import WiUserPageSettings from '@/components/WiUserPageSettings.vue'
 import WiUserWishesVue from '@/components/WiUserWishes.vue'
 import { getUserData } from '@/services/GetUserData.js'
+import { useUserStore } from '@/stores/WiUserStore'
 import { getAuth } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-const user = ref({})
+const user = ref({}) //
 const badges = ref([])
 const route = useRoute()
 const modal = ref(null)
 const skeletonLoad = ref(true)
 const auth = getAuth()
-const hasEditPermission = ref(true)
-const currentUserUid = ref('')
+const hasEditPermission = ref(false)
+const currentUserUid = ref('') // 
+const profileUID = ref(null)
+const userStore = useUserStore()
 
 function showModal() {
   modal.value.openModal()
@@ -31,15 +34,14 @@ function profileUpdate(updatedData) {
 
 onMounted(async () => {
   skeletonLoad.value = true
-  const uid = route.params.uid
+  profileUID.value = route.params.uid
   const currentUser = auth.currentUser
   currentUserUid.value = currentUser.uid
-
-  if (currentUser && currentUser.uid === uid) {
+  if (currentUser && currentUser.uid === profileUID.value) {
     hasEditPermission.value = true
   }
 
-  const { user: userData } = await getUserData(uid)
+  const { user: userData } = await getUserData(profileUID.value)
 
   if (userData) {
     user.value = userData
@@ -68,7 +70,7 @@ onMounted(async () => {
           v-if="!skeletonLoad && user && user.displayName"
           class="profile"
         >
-          <WiUserPagePicturesEdit :user="user" />
+          <WiUserPagePicturesEdit :user="user" :has-edit-permission="hasEditPermission" />
           <div class="profile__settings">
             <button
               v-if="hasEditPermission"
@@ -112,7 +114,7 @@ onMounted(async () => {
       <div class="wishes">
         <WiUserWishesVue
           v-if="currentUserUid && user"
-          :current-user-uid="currentUserUid"
+          :profile-user-uid="profileUID"
           :has-edit-permission="hasEditPermission"
           :user="user"
         />
@@ -168,11 +170,12 @@ onMounted(async () => {
 }
 
 .wishes {
-  border-radius: 50px;
-  box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6);
+  border-radius: 10px;
+  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6); */
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #111827
 }
 
 .profile__badges {
@@ -193,10 +196,15 @@ onMounted(async () => {
   margin: 10px;
   font-weight: 600;
   border-radius: 10px;
-  border: none;
-  background-color: #464241;
+  border: 3px solid #0d121b;
+  background-color: #0d121b;
   color: white;
   cursor: pointer;
+  transition: border 0.3s ease, background-color 0.3s ease;
+}
+
+.profile__button--edit:hover{
+  border: 3px solid #ffd859;
 }
 
 .profile__settings {
@@ -212,8 +220,8 @@ onMounted(async () => {
 
 .user__info {
   gap: 20px;
-  border-radius: 50px;
-  box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6);
+  border-radius: 10px;
+  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6); */
   position: relative;
 
 }
@@ -222,17 +230,20 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-radius: 50px;
+  border-radius: 10px;
   margin-bottom: 50px;
+  background-color: #111827
 }
 
 .profile__name {
   margin: 0 0 20px;
-  margin-top: 65px
+  margin-top: 65px;
+  color: #F7F6F5;
 }
 
 .profile__about {
   margin: 0 0 20px;
+  color: #F7F6F5;
 
 }
 
@@ -242,19 +253,19 @@ onMounted(async () => {
   border-radius: 50px;
   font-weight: 600;
   color: white;
-  background-color: green;
+  background-color: #0d121b;
 }
 
 .user__info {
   transition: opacity 0.3s ease;
 }
 
-.skeleton-loader {
+/* .skeleton-loader {
   transition: opacity 0.3s ease;
   opacity: 1;
 }
 
 .skeleton-loader[style*="display: none"] {
   opacity: 0;
-}
+} */
 </style>

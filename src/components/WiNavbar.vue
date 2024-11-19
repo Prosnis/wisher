@@ -33,7 +33,7 @@ onMounted(async () => {
 
 <style scoped>
 .nav__links a {
-  color: white;
+  color: #ffd859;;
   text-decoration: none;
 }
 
@@ -41,9 +41,9 @@ onMounted(async () => {
   display: flex;
   justify-content: center;
   /* background: #3598db; */
-  background: #464241;
+  background-color: #111827;
   height: 60px;
-  box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35);
+  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35); */
   margin-bottom: 20px;
 }
 
