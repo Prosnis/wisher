@@ -210,7 +210,6 @@ onMounted(async () => {
   border: 3px solid rgb(28, 215, 221);
 }
 
-
 .profile__spinner {
   position: absolute;
   top: 0;

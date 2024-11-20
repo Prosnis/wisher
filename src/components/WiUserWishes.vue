@@ -41,7 +41,9 @@ function handleAddWish(cardData) {
 </script>
 
 <template>
-  <h2 class="whishes__title">Список желаний</h2>
+  <h2 class="whishes__title">
+    Список желаний
+  </h2>
   <button
     v-if="hasEditPermission"
     class="profile__button profile__button--addWish"

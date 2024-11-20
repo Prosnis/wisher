@@ -12,7 +12,6 @@ const userLinkToCopy = ref(null)
 const auth = getAuth()
 const buttonText = ref('Скопировать ссылку')
 
-
 async function copyLink() {
   const combinedText = `${invitationImageUrl.value}\n${userLinkToCopy.value}`
   await navigator.clipboard.writeText(combinedText)
@@ -33,21 +32,45 @@ onMounted(async () => {
 <template>
   <WiNavbar />
   <div>
-    <div v-if="!invitationImageUrl" class="invitation__container skeleton-loader" />
-    <div v-else class="invitation__container">
+    <div
+      v-if="!invitationImageUrl"
+      class="invitation__container skeleton-loader"
+    />
+    <div
+      v-else
+      class="invitation__container"
+    >
       <WiBackButton />
-      <img :src="invitationImageUrl" alt="Invitation Image" class="invitation__image" loading="lazy"
-        @load="handleImageLoad">
+      <img
+        :src="invitationImageUrl"
+        alt="Invitation Image"
+        class="invitation__image"
+        loading="lazy"
+        @load="handleImageLoad"
+      >
       <div class="invitation__links">
-        <a target="_blank"
-          :href="`https://vk.com/share.php?url=${encodeURIComponent(invitationImageUrl)}&title=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://prosnis.github.io/wisher/user/${uid}`)}`">
-          <img src="@/components/icons/svg/vk.svg" alt="">
+        <a
+          target="_blank"
+          :href="`https://vk.com/share.php?url=${encodeURIComponent(invitationImageUrl)}&title=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://prosnis.github.io/wisher/user/${uid}`)}`"
+        >
+          <img
+            src="@/components/icons/svg/vk.svg"
+            alt=""
+          >
         </a>
-        <a target="_blank"
-          :href="`https://t.me/share/url?url=${encodeURIComponent(invitationImageUrl)}&text=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://prosnis.github.io/wisher/user/${uid}`)}`">
-          <img src="@/components/icons/svg/tg.svg" alt="">
+        <a
+          target="_blank"
+          :href="`https://t.me/share/url?url=${encodeURIComponent(invitationImageUrl)}&text=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://prosnis.github.io/wisher/user/${uid}`)}`"
+        >
+          <img
+            src="@/components/icons/svg/tg.svg"
+            alt=""
+          >
         </a>
-        <button class="invitation__btn" @click="copyLink">
+        <button
+          class="invitation__btn"
+          @click="copyLink"
+        >
           {{ buttonText }}
         </button>
       </div>
@@ -60,7 +83,6 @@ onMounted(async () => {
   display: flex;
   gap: 10px;
 }
-
 
 .invitation__btn {
   padding: 5px;

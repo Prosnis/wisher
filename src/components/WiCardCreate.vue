@@ -1,6 +1,6 @@
 <script setup>
 import path from '@/components/constants/pathes'
-import {  useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   wish: {
@@ -43,7 +43,7 @@ function hoverLeft(event) {
 
 <template>
   <div
-    :class="{'card': !props.wish.reserve, 'card__reserve': props.wish.reserve}"
+    :class="{ card: !props.wish.reserve, card__reserve: props.wish.reserve }"
     :data-id="wish.id"
     @mouseenter="hoverEnter($event)"
     @mouseleave="hoverLeft($event)"
@@ -175,7 +175,7 @@ p {
   position: relative;
   width: 260px;
   height: 420px;
-   border: 3px solid #f14158; 
+   border: 3px solid #f14158;
   display: flex;
   flex-direction: column;
   align-items: center;

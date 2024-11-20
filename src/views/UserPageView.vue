@@ -1,56 +1,27 @@
 <script setup>
-import WiModal from '@/components/WiModal.vue'
+import path from '@/components/constants/pathes'
 import WiNavbar from '@/components/WiNavbar.vue'
 import WiUserPagePicturesEdit from '@/components/WiUserPagePicturesEdit.vue'
-import WiUserPageSettings from '@/components/WiUserPageSettings.vue'
 import WiUserWishesVue from '@/components/WiUserWishes.vue'
-import { getUserData } from '@/services/GetUserData.js'
-import { useUserStore } from '@/stores/WiUserStore'
-import { getAuth } from 'firebase/auth'
-import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useProfileStore } from '@/stores/WiProfileStore'
+import { storeToRefs } from 'pinia'
+import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-const user = ref({}) //
-const badges = ref([])
+const router = useRouter()
 const route = useRoute()
-const modal = ref(null)
-const skeletonLoad = ref(true)
-const auth = getAuth()
-const hasEditPermission = ref(false)
-const currentUserUid = ref('') // 
-const profileUID = ref(null)
-const userStore = useUserStore()
 
-function showModal() {
-  modal.value.openModal()
+const profileStore = useProfileStore()
+const { user, badges, hasEditPermission, skeletonLoad, profileUID } = storeToRefs(profileStore)
+const { getProfileData } = profileStore
+
+function goToSettingsPage() {
+  const uid = route.params.uid
+  router.push({ path: `${path.settings}/${uid}` })
 }
 
-function profileUpdate(updatedData) {
-  user.value.displayName = updatedData.userName
-  user.value.about = updatedData.userAbout
-  badges.value = updatedData.pickedBadges
-  console.log('Профиль обновлен в родительском компоненте:', updatedData)
-}
-
-onMounted(async () => {
-  skeletonLoad.value = true
-  profileUID.value = route.params.uid
-  const currentUser = auth.currentUser
-  currentUserUid.value = currentUser.uid
-  if (currentUser && currentUser.uid === profileUID.value) {
-    hasEditPermission.value = true
-  }
-
-  const { user: userData } = await getUserData(profileUID.value)
-
-  if (userData) {
-    user.value = userData
-    badges.value = userData.badges || []
-  }
-  else {
-    console.error('Не удалось загрузить данные пользователя')
-  }
-  skeletonLoad.value = false
+onMounted(() => {
+  getProfileData(route.params.uid)
 })
 </script>
 
@@ -70,12 +41,15 @@ onMounted(async () => {
           v-if="!skeletonLoad && user && user.displayName"
           class="profile"
         >
-          <WiUserPagePicturesEdit :user="user" :has-edit-permission="hasEditPermission" />
+          <WiUserPagePicturesEdit
+            :user="user"
+            :has-edit-permission="hasEditPermission"
+          />
           <div class="profile__settings">
             <button
               v-if="hasEditPermission"
               class="profile__button profile__button--edit"
-              @click="showModal"
+              @click="goToSettingsPage"
             >
               Редактировать профиль
             </button>
@@ -83,13 +57,6 @@ onMounted(async () => {
               v-if="!hasEditPermission"
               style="height: 55px;"
             />
-            <WiModal ref="modal">
-              <WiUserPageSettings
-                :user="user"
-                :picked-badges="badges"
-                @update-profile="profileUpdate"
-              />
-            </WiModal>
           </div>
 
           <h2 class="profile__name">
@@ -113,7 +80,7 @@ onMounted(async () => {
 
       <div class="wishes">
         <WiUserWishesVue
-          v-if="currentUserUid && user"
+          v-if="user"
           :profile-user-uid="profileUID"
           :has-edit-permission="hasEditPermission"
           :user="user"
@@ -203,7 +170,7 @@ onMounted(async () => {
   transition: border 0.3s ease, background-color 0.3s ease;
 }
 
-.profile__button--edit:hover{
+.profile__button--edit:hover {
   border: 3px solid #ffd859;
 }
 
