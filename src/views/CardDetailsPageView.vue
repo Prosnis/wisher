@@ -25,12 +25,11 @@ const reservedUser = ref({})
 
 onMounted(async () => {
   try {
-    
-  isLoading.value = true
-  const cardId = route.params.uid
-  const userDoc = await getDoc(doc(db, 'wishes', cardId))
-  const cardData = userDoc.exists() ? userDoc.data() : null
-  currentUser.value = auth.currentUser
+    isLoading.value = true
+    const cardId = route.params.uid
+    const userDoc = await getDoc(doc(db, 'wishes', cardId))
+    const cardData = userDoc.exists() ? userDoc.data() : null
+    currentUser.value = auth.currentUser
 
     if (cardData) {
       card.value = cardData
@@ -40,7 +39,7 @@ onMounted(async () => {
       const userData = await getUserData(cardData.userId)
       user.value = userData.user
 
-      if(currentUser.value.uid === cardData.userId) {
+      if (currentUser.value.uid === cardData.userId) {
         blockSelfReserve.value = false
       }
     }
@@ -80,9 +79,11 @@ async function toggleReserve() {
       isReserved.value = true
       reservedUser.value = userData.user
     }
-  } catch (err) {
+  }
+  catch (err) {
     console.log(err, 'Ошибка при резерве карточки')
-  } finally {
+  }
+  finally {
     spinner.value = false
   }
 }
@@ -91,28 +92,49 @@ async function toggleReserve() {
 <template>
   <NavBar />
   <div class="card">
-    <div v-show="isLoading" class="card__user__info skeleton-loader" />
+    <div
+      v-show="isLoading"
+      class="card__user__info skeleton-loader"
+    />
     <div v-show="!isLoading">
       <div class="card__user__info">
-        <div class="card__img-wrapper--avatar">
-          <img class="card__image  card__image--user" :src="user.photoUrl" alt="">
+        <div class="card__user__wrapper">
+          <div class="card__img-wrapper--avatar">
+            <img
+              class="card__image  card__image--user"
+              :src="user.photoUrl"
+              alt=""
+            >
+          </div>
+          <router-link
+            :to="{ name: 'UserProfile', params: { uid: user.uid } }"
+            class="card__user-name"
+          >
+            {{ user.displayName }}
+          </router-link>
+          <span v-if="card.link">
+            поделился ссылкой
+            <a
+              :href="card.link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <font-awesome-icon :icon="['fas', 'up-right-from-square']" />
+            </a>
+          </span>
+          <span v-else>не указал ссылку</span>
         </div>
-        <router-link :to="{ name: 'UserProfile', params: { uid: user.uid } }" class="card__user-name">
-          {{ user.displayName }}
-        </router-link>
-        <span v-if="card.link">
-          поделился ссылкой
-          <a :href="card.link" target="_blank" rel="noopener noreferrer">
-            <font-awesome-icon :icon="['fas', 'up-right-from-square']" />
-          </a>
-        </span>
-        <span v-else>не указал ссылку</span>
+        <div class="card__menu"><font-awesome-icon :icon="['fas', 'ellipsis-vertical']" /></div>
       </div>
       <div class="card__wrapper">
         <div class="card__images">
           <div class="card__description">
             <div class="card__img__wrapper--description">
-              <img class="card__image  card__image--description" :src="card.img" alt="">
+              <img
+                class="card__image  card__image--description"
+                :src="card.img"
+                alt=""
+              >
             </div>
           </div>
 
@@ -120,17 +142,34 @@ async function toggleReserve() {
             <h3>Найти на маркетплейсах</h3>
             <div class="card__links-wrapper">
               <div class="card__links--item">
-                <a :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(card.name)}`"
-                  target="_blank"><img class="card__image card__links--img" src="@/components/icons/ozon.png"
-                    alt=""></a>
+                <a
+                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(card.name)}`"
+                  target="_blank"
+                ><img
+                  class="card__image card__links--img"
+                  src="@/components/icons/ozon.png"
+                  alt=""
+                ></a>
               </div>
               <div class="card__links--item">
-                <a :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(card.name)}`"
-                  target="_blank"><img class="card__image card__links--img" src="@/components/icons/wb.png" alt=""></a>
+                <a
+                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(card.name)}`"
+                  target="_blank"
+                ><img
+                  class="card__image card__links--img"
+                  src="@/components/icons/wb.png"
+                  alt=""
+                ></a>
               </div>
               <div class="card__links--item">
-                <a :href="`https://market.yandex.ru/search?text=${encodeURIComponent(card.name)}`" target="_blank"><img
-                    class="card__image card__links--img" src="@/components/icons/ym.png" alt=""></a>
+                <a
+                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(card.name)}`"
+                  target="_blank"
+                ><img
+                  class="card__image card__links--img"
+                  src="@/components/icons/ym.png"
+                  alt=""
+                ></a>
               </div>
             </div>
           </div>
@@ -142,23 +181,50 @@ async function toggleReserve() {
             <span>{{ card.description }}</span>
           </div>
 
-          <WISpinner v-if="spinner" class="card__spinner" />
-          <div v-else class="card__description--actions">
-            <div v-if="isReserved" class="card__description--reserved">
-              <button v-if="hasEditPermission"  class="card__button card__button-free" @click="toggleReserve">
+          <WISpinner
+            v-if="spinner"
+            class="card__spinner"
+          />
+          <div
+            v-else
+            class="card__description--actions"
+          >
+            <div
+              v-if="isReserved"
+              class="card__description--reserved"
+            >
+              <button
+                v-if="hasEditPermission"
+                class="card__button card__button-free"
+                @click="toggleReserve"
+              >
                 отказаться
               </button>
               <div>
-                <img class="card__description--stamp" src="@/components/icons/reserved.png" alt="">
+                <img
+                  class="card__description--stamp"
+                  src="@/components/icons/reserved.png"
+                  alt=""
+                >
               </div>
               <span>Зарезервировано пользователем
-                <router-link :to="{ name: 'UserProfile', params: { uid: reservedUser.uid } }" class="card__user-name">
+                <router-link
+                  :to="{ name: 'UserProfile', params: { uid: reservedUser.uid } }"
+                  class="card__user-name"
+                >
                   {{ reservedUser.displayName }}
                 </router-link>
               </span>
             </div>
-            <div v-else class="card__description--reserved">
-              <button v-if="blockSelfReserve" class="card__button card__button-reserved" @click="toggleReserve">
+            <div
+              v-else
+              class="card__description--reserved"
+            >
+              <button
+                v-if="blockSelfReserve"
+                class="card__button card__button-reserved"
+                @click="toggleReserve"
+              >
                 зарезервировать
               </button>
               <span v-if="blockSelfReserve">Pарезервируйте этот подарок, если хотите его подарить.</span>
@@ -171,6 +237,11 @@ async function toggleReserve() {
 </template>
 
 <style scoped>
+.card__description__user span {
+  word-break: break-word; 
+  overflow-wrap: break-word; 
+  white-space: normal; 
+}
 .skeleton-loader {
   height: 600px;
   --color: #f0f2f5;
@@ -208,6 +279,13 @@ async function toggleReserve() {
 
 .card__description--stamp {
   height: 150px;
+}
+
+.card__menu{
+  color: white;
+  font-size: 20px;
+  padding: 30px;
+  cursor: pointer;
 }
 
 .card__description__comments {
@@ -278,12 +356,17 @@ async function toggleReserve() {
   overflow: hidden;
 }
 
-.card__user__info {
+.card__user__wrapper{
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 10px;
   color: #F5F4F4;
+}
+
+.card__user__info{
+  display: flex;
+  justify-content: space-between;
 }
 
 .card__wrapper {

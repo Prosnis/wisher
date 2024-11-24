@@ -8,8 +8,8 @@ const props = defineProps({
     default: () => ({}),
   },
   hasEditPermission: {
-    type: Boolean
-  }
+    type: Boolean,
+  },
 })
 const hoverWallaper = ref(false)
 const hoverAvatar = ref(false)

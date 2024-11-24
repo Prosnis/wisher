@@ -7,6 +7,7 @@ const path = {
   feed: '/wisher/feed',
   invitationCard: '/wisher/iCard',
   invitations: '/wisher/invitations',
+  settings: '/wisher/settings',
 }
 
 export default path
