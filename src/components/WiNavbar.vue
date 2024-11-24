@@ -33,7 +33,7 @@ onMounted(async () => {
 
 <style scoped>
 .nav__links a {
-  color: #ffd859;;
+  color: #ffd859;
   text-decoration: none;
 }
 

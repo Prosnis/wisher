@@ -1,8 +1,8 @@
 <script setup>
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
-
-import { ref } from 'vue'
+import { reactive } from 'vue'
+import { STOCK_CARD_PICTURE } from './constants/varribles';
 
 const props = defineProps({
   userImg: {
@@ -14,16 +14,22 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['handleAddWish', {}])
-
 const db = getFirestore()
 const auth = getAuth()
 
-const previewImg = ref('')
-const previewName = ref('')
-const previewDescription = ref('')
-const previewPrice = ref('')
-const previewDate = ref(new Date().toLocaleDateString())
-const previewLink = ref('')
+const form = reactive({
+  img: "",
+  name: "",
+  description: "",
+  price: "",
+  date: getCurrentDate(),
+  link: "",
+});
+
+function getCurrentDate() {
+  return new Date().toLocaleDateString();
+}
+
 
 function formatPrice(value) {
   if (!value)
@@ -36,34 +42,40 @@ function formatPrice(value) {
 }
 
 function clearForm() {
-  previewName.value = ''
-  previewDescription.value = ''
-  previewPrice.value = ''
-  previewLink.value = ''
-  previewImg.value = ''
+  Object.assign(form, {
+    img: "",
+    name: "",
+    description: "",
+    price: "",
+    date: new Date().toLocaleDateString(),
+    link: "",
+  });
 }
 
-function createCardData(previewImg, previewName, previewDescription, previewPrice, previewDate, previewLink) {
+function createCardData(form) {
   return {
     id: crypto.randomUUID(),
     userId: auth.currentUser.uid,
-    img: previewImg || 'https://media.istockphoto.com/id/1308342088/vector/surprise-gift-box-gift-box-with-red-ribbon-bow-flat-style-element-design-for-giveaway.jpg?s=612x612&w=0&k=20&c=FUOJS2CFbYIqm4R7zfyKUdeS-gMyc3bGlRr1rL7rjQ0=',
-    name: previewName,
+    img: form.img || STOCK_CARD_PICTURE,
+    name: form.name,
     hover: false,
-    description: previewDescription || 'Описание отсутствует. ',
-    price: previewPrice || 0,
-    date: previewDate,
-    link: previewLink,
+    description: form.description || 'Описание отсутствует. ',
+    price: form.price || 0,
+    date: form.date,
+    link: form.link,
     reserve: '',
-
   }
 }
 
 async function CreateCard() {
-  const newCard = createCardData(previewImg.value, previewName.value, previewDescription.value, previewPrice.value, previewDate.value, previewLink.value)
-  await setDoc(doc(db, 'wishes', newCard.id), newCard)
-  emit('handleAddWish', newCard)
-  clearForm()
+  const newCard = createCardData(form)
+  try {
+    await setDoc(doc(db, 'wishes', newCard.id), newCard)
+    emit('handleAddWish', newCard)
+    clearForm()
+  } catch(err) {
+    console.log(err, 'Ошибка при создании карточки')
+  }
 }
 
 function previewCard(event) {
@@ -71,7 +83,7 @@ function previewCard(event) {
   if (file) {
     const reader = new FileReader()
     reader.onload = (e) => {
-      previewImg.value = e.target.result
+      form.img = e.target.result
     }
     reader.readAsDataURL(file)
   }
@@ -80,9 +92,8 @@ function previewCard(event) {
 
 <template>
   <form
-    method="dialog"
     class="form"
-    @submit="CreateCard"
+    @submit.prevent="CreateCard"
   >
     <h1 class="form__title">
       Добавить желание
@@ -93,33 +104,38 @@ function previewCard(event) {
           <label for="name">Название:</label>
           <input
             id="name"
-            v-model="previewName"
+            v-model="form.name"
             type="text"
             required
+            maxlength="30"
           >
         </li>
         <li>
           <label for="description">Описание</label>
           <textarea
             id="description"
-            v-model="previewDescription"
+            v-model="form.description"
             type="text"
+            maxlength="100"
           />
         </li>
         <li>
           <label for="price">Цена</label>
           <input
             id="price"
-            v-model="previewPrice"
+            v-model="form.price"
             type="number"
+            maxlength="100"
+            oninput="this.value = this.value.slice(0, 10)" 
           >
         </li>
         <li>
           <label for="link">Ссылка на товар</label>
           <input
             id="link"
-            v-model="previewLink"
+            v-model="form.link"
             type="text"
+            maxlength="200"
           >
         </li>
       </ul>
@@ -130,13 +146,13 @@ function previewCard(event) {
           for="file-input"
         >
           <img
-            v-if="previewImg"
+            v-if="form.img"
             :src="previewImg"
             alt=""
             class="card__image"
           >
           <font-awesome-icon
-            v-if="!previewImg"
+            v-if="!form.img"
             class="card__icon--file"
             :icon="['fas', 'file-image']"
           />
@@ -147,11 +163,11 @@ function previewCard(event) {
             @change="previewCard($event)"
           >
         </label>
-        <h3 card__title>
-          {{ previewName }}
+        <h3 class="card__title">
+          {{ form.name }}
         </h3>
         <p class="card__price">
-          {{ formatPrice(previewPrice) }}
+          {{ formatPrice(form.price) }}
         </p>
         <div class="card__user__info">
           <div class="user__info--info">
@@ -162,7 +178,7 @@ function previewCard(event) {
             >
             <span v-text="props.userName" />
           </div>
-          <span class="user__info--date">{{ previewDate }}</span>
+          <span class="user__info--date">{{ form.date }}</span>
         </div>
       </div>
     </div>
@@ -173,24 +189,38 @@ function previewCard(event) {
 </template>
 
 <style scoped>
+.card__title{
+  padding: 2px;
+}
+
 .form {
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: white;
+  background-color: #161f32;
+  padding: 50px;
+  border-radius: 10px;
+  border: 1px solid #ffd859;
+  background-color: #2E9AFF;
+  animation-name: form__animation;
+  animation-duration: 1.5s;
+  width: 800px;
+  overflow: hidden;
+
 }
 
-.form__btn--add {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  background-color: #464241;
-  color: white;
-  cursor: pointer;
+@keyframes form__animation {
+  from {
+    width: 800px;
+    height: 50px;
+    background-color: #F498AD;
+  }
+  to {
+    width: 800px;
+    height: 590px;
+    background-color: #2E9AFF;
+  }
 }
 
 .user__info--date {
@@ -229,10 +259,9 @@ p {
 .card__user__info {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 10px;
   margin-top: auto;
   padding: 5px;
-
 }
 
 .user__info--avatarImg {
@@ -247,26 +276,28 @@ p {
   z-index: 1;
   right: 5%;
   top: 5%;
-  background-color: white;
+  background-color: rgb(2, 1, 1);
   padding: 2px;
   font-weight: 600;
 }
 
 .form__preview__card {
   position: relative;
-  width: 250px;
-  height: 400px;
+  width: 280px;
+  height: 450px;
   border: 1px solid #ccc;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
   text-align: center;
+  overflow: hidden;
 }
 
 .form__wrapper {
   display: flex;
-  flex-direction: column;
+  gap: 50px;
   align-items: center;
 }
 
@@ -278,7 +309,7 @@ p {
 
 .form__list input,
 textarea {
-  height: 20px;
+  height: 25px;
   margin-bottom: 10px;
   width: 300px;
   border: 1px solid #ccc;
@@ -309,5 +340,24 @@ textarea {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
+}
+
+.form__btn--add {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 10px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 3px solid #0d121b;
+  background-color: #0d121b;
+  color: white;
+  cursor: pointer;
+  transition: border 0.3s ease, background-color 0.3s ease;
+}
+
+.form__btn--add:hover {
+  border: 3px solid #ffd859;
 }
 </style>
