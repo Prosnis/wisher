@@ -32,31 +32,15 @@ onMounted(() => {
     </div>
 
     <main class="user">
-      <div
-        v-show="skeletonLoad"
-        class="skeleton-loader user__info"
-      />
+      <div v-show="skeletonLoad" class="skeleton-loader user__info" />
       <section class="user__info">
-        <div
-          v-if="!skeletonLoad && user && user.displayName"
-          class="profile"
-        >
-          <WiUserPagePicturesEdit
-            :user="user"
-            :has-edit-permission="hasEditPermission"
-          />
+        <div v-if="!skeletonLoad && user && user.displayName" class="profile">
+          <WiUserPagePicturesEdit :user="user" :has-edit-permission="hasEditPermission" />
           <div class="profile__settings">
-            <button
-              v-if="hasEditPermission"
-              class="profile__button profile__button--edit"
-              @click="goToSettingsPage"
-            >
+            <button v-if="hasEditPermission" class="profile__button profile__button--edit" @click="goToSettingsPage">
               Редактировать профиль
             </button>
-            <div
-              v-if="!hasEditPermission"
-              style="height: 55px;"
-            />
+            <div v-if="!hasEditPermission" style="height: 55px;" />
           </div>
 
           <h2 class="profile__name">
@@ -67,11 +51,7 @@ onMounted(() => {
           </p>
 
           <div class="profile__badges">
-            <div
-              v-for="(badge, index) in badges"
-              :key="index"
-              class="badge"
-            >
+            <div v-for="(badge, index) in badges" :key="index" class="badge">
               {{ badge.name }}
             </div>
           </div>
@@ -79,12 +59,7 @@ onMounted(() => {
       </section>
 
       <div class="wishes">
-        <WiUserWishesVue
-          v-if="user"
-          :profile-user-uid="profileUID"
-          :has-edit-permission="hasEditPermission"
-          :user="user"
-        />
+        <WiUserWishesVue v-if="user"/>
       </div>
     </main>
   </div>
@@ -219,8 +194,8 @@ onMounted(() => {
   padding: 8px;
   border-radius: 50px;
   font-weight: 600;
-  color: white;
-  background-color: #0d121b;
+  color: black;
+  background-color: #ffd859;
 }
 
 .user__info {

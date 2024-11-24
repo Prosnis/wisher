@@ -10,18 +10,22 @@ export const useProfileStore = defineStore('profile', () => {
   const badges = ref(null)
   const hasEditPermission = ref(false)
   const skeletonLoad = ref(true)
+  const wishes = ref(null)
 
   const getProfileData = async (uid) => {
     try {
       skeletonLoad.value = true
       profileUID.value = uid
 
-      const { user: userData } = await getUserData(profileUID.value)
+      const { user: userData, wishes: userWishes } = await getUserData(profileUID.value)
 
       if (userData) {
         user.value = userData
         badges.value = userData.badges || []
         hasEditPermission.value = userStore.userUID === profileUID.value
+      }
+      if (userWishes) {
+        wishes.value = userWishes
       }
     }
     catch (err) {
@@ -31,5 +35,5 @@ export const useProfileStore = defineStore('profile', () => {
       skeletonLoad.value = false
     }
   }
-  return { profileUID, user, badges, hasEditPermission, skeletonLoad, getProfileData }
+  return { profileUID, user, wishes, badges, hasEditPermission, skeletonLoad, getProfileData }
 })

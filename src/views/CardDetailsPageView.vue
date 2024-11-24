@@ -98,30 +98,33 @@ async function toggleReserve() {
     />
     <div v-show="!isLoading">
       <div class="card__user__info">
-        <div class="card__img-wrapper--avatar">
-          <img
-            class="card__image  card__image--user"
-            :src="user.photoUrl"
-            alt=""
+        <div class="card__user__wrapper">
+          <div class="card__img-wrapper--avatar">
+            <img
+              class="card__image  card__image--user"
+              :src="user.photoUrl"
+              alt=""
+            >
+          </div>
+          <router-link
+            :to="{ name: 'UserProfile', params: { uid: user.uid } }"
+            class="card__user-name"
           >
+            {{ user.displayName }}
+          </router-link>
+          <span v-if="card.link">
+            поделился ссылкой
+            <a
+              :href="card.link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <font-awesome-icon :icon="['fas', 'up-right-from-square']" />
+            </a>
+          </span>
+          <span v-else>не указал ссылку</span>
         </div>
-        <router-link
-          :to="{ name: 'UserProfile', params: { uid: user.uid } }"
-          class="card__user-name"
-        >
-          {{ user.displayName }}
-        </router-link>
-        <span v-if="card.link">
-          поделился ссылкой
-          <a
-            :href="card.link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <font-awesome-icon :icon="['fas', 'up-right-from-square']" />
-          </a>
-        </span>
-        <span v-else>не указал ссылку</span>
+        <div class="card__menu"><font-awesome-icon :icon="['fas', 'ellipsis-vertical']" /></div>
       </div>
       <div class="card__wrapper">
         <div class="card__images">
@@ -234,6 +237,11 @@ async function toggleReserve() {
 </template>
 
 <style scoped>
+.card__description__user span {
+  word-break: break-word; 
+  overflow-wrap: break-word; 
+  white-space: normal; 
+}
 .skeleton-loader {
   height: 600px;
   --color: #f0f2f5;
@@ -271,6 +279,13 @@ async function toggleReserve() {
 
 .card__description--stamp {
   height: 150px;
+}
+
+.card__menu{
+  color: white;
+  font-size: 20px;
+  padding: 30px;
+  cursor: pointer;
 }
 
 .card__description__comments {
@@ -341,12 +356,17 @@ async function toggleReserve() {
   overflow: hidden;
 }
 
-.card__user__info {
+.card__user__wrapper{
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 10px;
   color: #F5F4F4;
+}
+
+.card__user__info{
+  display: flex;
+  justify-content: space-between;
 }
 
 .card__wrapper {
