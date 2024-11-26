@@ -1,5 +1,6 @@
 <script setup>
 import path from '@/components/constants/pathes'
+import WIAnimationSvg from '@/components/WIAnimationSvg.vue'
 import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { ref } from 'vue'
@@ -111,6 +112,7 @@ async function signInWithGoogle() {
         есть аккаунт?
       </p>
     </form>
+    <WIAnimationSvg />
   </div>
 </template>
 
@@ -126,7 +128,7 @@ async function signInWithGoogle() {
   align-items: center;
   height: 100vh;
   font-size: 18px;
-  color: #1f56ce;
+  color: #ffd859;
 }
 
 .register__form {
@@ -134,10 +136,9 @@ async function signInWithGoogle() {
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  border: #1f56ce 1px solid;
-  border-radius: 20px;
-  box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35);
 
+  border-radius: 20px;
+  background-color: #111827;
 }
 
 .register h1 {
@@ -157,9 +158,8 @@ async function signInWithGoogle() {
 .register__input {
   width: 300px;
   height: 20px;
-  color: #1f56ce;
   margin-bottom: 10px;
-  border: 2px solid #1f56ce;
+  border: 2px solid #ffd859;
   padding: 8px;
   border-radius: 4px;
   outline: none;
@@ -167,19 +167,23 @@ async function signInWithGoogle() {
 }
 
 .register__input::placeholder {
-  color: #1f56ce;
   font-style: italic;
 }
 
 .register__button {
   font-size: 20px;
-  color: white;
-  background-color: #1f56ce;
+  color: #0d121b;
+  background-color: #ffd859;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   width: 320px;
   height: 40px;
   margin-bottom: 10px;
+}
+
+.register__button:hover {
+  border: 3px solid #ffd859;
+  box-shadow: 0px 0px 15px #ffd859;
 }
 </style>

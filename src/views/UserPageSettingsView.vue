@@ -21,94 +21,120 @@ const { user, badges: userBadges, skeletonLoad } = storeToRefs(profileStore)
 const { getProfileData } = profileStore
 
 const formData = reactive({
-    name: '',
-    about: '',
-    badges: [],
+  name: '',
+  about: '',
+  badges: [],
 })
 
 const isBadgePicked = (badge) => {
-    return formData.badges.some(pickedBadge => pickedBadge.name === badge.name)
+  return formData.badges.some(pickedBadge => pickedBadge.name === badge.name)
 }
 const badgePicker = (badge) => {
-    const index = formData.badges.findIndex(item => item.name === badge.name)
-    if (index !== -1) {
-        formData.badges.splice(index, 1)
-    }
-    else {
-        formData.badges.push(badge)
-    }
+  const index = formData.badges.findIndex(item => item.name === badge.name)
+  if (index !== -1) {
+    formData.badges.splice(index, 1)
+  }
+  else {
+    formData.badges.push(badge)
+  }
 }
 
 const saveDecline = () => {
-    router.back()
+  router.back()
 }
 
 const saveProfile = async () => {
-    loading.value = true
-    currentUser.value = auth.currentUser
-    const userDocRef = doc(db, 'users', currentUser.value.uid)
-    const userSnapshot = await getDoc(userDocRef)
-    const userData = userSnapshot.exists() ? userSnapshot.data() : {}
-    const updates = {
-        displayName: formData.name !== '' ? formData.name : (currentUser.value.displayName || userData.displayName),
-        about: formData.about !== '' ? formData.about : (currentUser.value.about || userData.about),
-        badges: formData.badges,
-    }
-    try {
-        await updateDoc(userDocRef, updates)
-        console.log('Профиль успешно обновлен')
-    }
-    catch (error) {
-        console.error('Ошибка при обновлении профиля:', error)
-    } finally {
-        loading.value = false
-    }
-    router.back()
+  loading.value = true
+  currentUser.value = auth.currentUser
+  const userDocRef = doc(db, 'users', currentUser.value.uid)
+  const userSnapshot = await getDoc(userDocRef)
+  const userData = userSnapshot.exists() ? userSnapshot.data() : {}
+  const updates = {
+    displayName: formData.name !== '' ? formData.name : (currentUser.value.displayName || userData.displayName),
+    about: formData.about !== '' ? formData.about : (currentUser.value.about || userData.about),
+    badges: formData.badges,
+  }
+  try {
+    await updateDoc(userDocRef, updates)
+    console.log('Профиль успешно обновлен')
+  }
+  catch (error) {
+    console.error('Ошибка при обновлении профиля:', error)
+  }
+  finally {
+    loading.value = false
+  }
+  router.back()
 }
 
 onMounted(async () => {
-    await getProfileData(route.params.uid)
-    formData.badges = [...userBadges.value]
+  await getProfileData(route.params.uid)
+  formData.badges = [...userBadges.value]
 })
 </script>
 
 <template>
-    <WiNavbar />
-    <div class="form__wrapper">
-        <div v-if="loading" class="profile__spinner"></div>
-        <form v-if="userBadges" class="form" @submit.prevent="saveProfile">
-            <h1>Редактировать профиль</h1>
-            <ul class="form__list">
-                <li>
-                    <label for="name">Имя:</label>
-                    <input id="name" v-model="formData.name" type="text">
-                </li>
-                <li>
-                    <label for="about">Краткая информация:</label>
-                    <textarea id="about" v-model="formData.about" name="" />
-                </li>
-                <li>
-                    <label for="">Выберите интересы:</label>
-                    <div class="form__badge__wrapper">
-                        <div v-for="(badge, index) in badges" :key="index" class="form__badge" :style="{
-                            backgroundColor: isBadgePicked(badge) ? '#ffd859' : badge.BgColor,
-                            color: isBadgePicked(badge) ? 'black' : badge.color,
-                        }" @click="badgePicker(badge)">
-                            {{ badge.name }}
-                        </div>
-                    </div>
-                </li>
-            </ul>
-            <div class="form__buttons">
-                <button class="form__button form__button--decline" type="button" @click="saveDecline">
-                    отмена
-                </button>
-                <button class="form__button form__button--save">
-                    сохранить изменения
-                </button>
+  <WiNavbar />
+  <div class="form__wrapper">
+    <div
+      v-if="loading"
+      class="profile__spinner"
+    />
+    <form
+      v-if="userBadges"
+      class="form"
+      @submit.prevent="saveProfile"
+    >
+      <h1>Редактировать профиль</h1>
+      <ul class="form__list">
+        <li>
+          <label for="name">Имя:</label>
+          <input
+            id="name"
+            v-model="formData.name"
+            type="text"
+          >
+        </li>
+        <li>
+          <label for="about">Краткая информация:</label>
+          <textarea
+            id="about"
+            v-model="formData.about"
+            name=""
+          />
+        </li>
+        <li>
+          <label for="">Выберите интересы:</label>
+          <div class="form__badge__wrapper">
+            <div
+              v-for="(badge, index) in badges"
+              :key="index"
+              class="form__badge"
+              :style="{
+                backgroundColor: isBadgePicked(badge) ? '#ffd859' : badge.BgColor,
+                color: isBadgePicked(badge) ? 'black' : badge.color,
+              }"
+              @click="badgePicker(badge)"
+            >
+              {{ badge.name }}
             </div>
-        </form>
-    </div>
+          </div>
+        </li>
+      </ul>
+      <div class="form__buttons">
+        <button
+          class="form__button form__button--decline"
+          type="button"
+          @click="saveDecline"
+        >
+          отмена
+        </button>
+        <button class="form__button form__button--save">
+          сохранить изменения
+        </button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <style scoped>

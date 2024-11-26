@@ -96,7 +96,6 @@ function hoverLeft(event) {
   }
 }
 
-
 .card__title{
   text-overflow: ellipsis;
   max-height: calc(2 * 1.5em); /* 2 строки при line-height: 1.5 */
