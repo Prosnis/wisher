@@ -23,7 +23,7 @@ defineExpose({
     class="modal__dialog"
   >
     <div class="modal__dialog__inner">
-      <button
+      <!-- <button
         class="modal__button modal__button--close"
         @click="closeModal"
       >
@@ -31,7 +31,7 @@ defineExpose({
           class="modal__icon--close modal__icon"
           :icon="['fas', 'close']"
         />
-      </button>
+      </button> -->
       <div class="modal__content">
         <slot />
       </div>
@@ -46,7 +46,7 @@ defineExpose({
 }
 .modal__dialog {
     border: none;
-    padding: 20px;
+    padding: 10px;
     max-width: 600px;
     background: white;
     border-radius: 8px;

@@ -2,7 +2,7 @@
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { reactive } from 'vue'
-import { STOCK_CARD_PICTURE } from './constants/varribles';
+import { STOCK_CARD_PICTURE } from './constants/varribles'
 
 const props = defineProps({
   userImg: {
@@ -18,18 +18,17 @@ const db = getFirestore()
 const auth = getAuth()
 
 const form = reactive({
-  img: "",
-  name: "",
-  description: "",
-  price: "",
+  img: '',
+  name: '',
+  description: '',
+  price: '',
   date: getCurrentDate(),
-  link: "",
-});
+  link: '',
+})
 
 function getCurrentDate() {
-  return new Date().toLocaleDateString();
+  return new Date().toLocaleDateString()
 }
-
 
 function formatPrice(value) {
   if (!value)
@@ -43,13 +42,13 @@ function formatPrice(value) {
 
 function clearForm() {
   Object.assign(form, {
-    img: "",
-    name: "",
-    description: "",
-    price: "",
+    img: '',
+    name: '',
+    description: '',
+    price: '',
     date: new Date().toLocaleDateString(),
-    link: "",
-  });
+    link: '',
+  })
 }
 
 function createCardData(form) {
@@ -69,11 +68,13 @@ function createCardData(form) {
 
 async function CreateCard() {
   const newCard = createCardData(form)
+
   try {
     await setDoc(doc(db, 'wishes', newCard.id), newCard)
     emit('handleAddWish', newCard)
     clearForm()
-  } catch(err) {
+  }
+  catch (err) {
     console.log(err, 'Ошибка при создании карточки')
   }
 }
@@ -126,7 +127,7 @@ function previewCard(event) {
             v-model="form.price"
             type="number"
             maxlength="100"
-            oninput="this.value = this.value.slice(0, 10)" 
+            oninput="this.value = this.value.slice(0, 10)"
           >
         </li>
         <li>
@@ -147,7 +148,7 @@ function previewCard(event) {
         >
           <img
             v-if="form.img"
-            :src="previewImg"
+            :src="form.img"
             alt=""
             class="card__image"
           >

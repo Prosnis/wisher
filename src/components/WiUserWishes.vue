@@ -8,13 +8,12 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const profileStore = useProfileStore()
-const { user, wishes, hasEditPermission, } = storeToRefs(profileStore)
+const { user, wishes, hasEditPermission } = storeToRefs(profileStore)
 const { getProfileData } = profileStore
 const addCardToggle = ref(false)
 const buttonText = ref('Добавить')
 
-
-const addCardBtn = () => {
+function addCardBtn() {
   addCardToggle.value = !addCardToggle.value
   addCardToggle.value === false ? buttonText.value = 'Добавить' : buttonText.value = 'Отменить'
 }
@@ -32,29 +31,45 @@ onMounted(() => {
   <h2 class="whishes__title">
     Список желаний
   </h2>
-  <button v-if="hasEditPermission" 
-      class="profile__button profile__button--addWish" 
-      @click="addCardBtn">
+  <button
+    v-if="hasEditPermission"
+    class="profile__button profile__button--addWish"
+    @click="addCardBtn"
+  >
     {{ buttonText }}
   </button>
 
+  <WiCardsAdd
+    v-if="addCardToggle"
+    :user-img="user.photoUrl"
+    :user-name="user.displayName"
+    @handle-add-wish="handleAddWish"
+  />
 
-  <WiCardsAdd v-if="addCardToggle" :user-img="user.photoUrl" :user-name="user.displayName"
-    @handle-add-wish="handleAddWish" />
-
-
-
-
-  <section v-if="wishes.length" class="wishes__list">
+  <section
+    v-if="wishes.length"
+    class="wishes__list"
+  >
     <div class="whishes__cards">
-      <WiCardCreate v-for="wish in wishes" :key="wish.id" :wish="wish" :user-img="user.photoUrl"
-        :user-name="user.displayName" />
+      <WiCardCreate
+        v-for="wish in wishes"
+        :key="wish.id"
+        :wish="wish"
+        :user-img="user.photoUrl"
+        :user-name="user.displayName"
+      />
     </div>
   </section>
 
-
-  <div v-else class="wishes__empty">
-    <img src="../assets//empty-box.png" alt="empty-box" loading="lazy">
+  <div
+    v-else
+    class="wishes__empty"
+  >
+    <img
+      src="../assets//empty-box.png"
+      alt="empty-box"
+      loading="lazy"
+    >
     <p>У пользователя пока нет желаний.</p>
   </div>
 </template>

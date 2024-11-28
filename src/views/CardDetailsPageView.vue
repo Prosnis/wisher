@@ -1,62 +1,31 @@
 <script setup>
+import WiCardMenu from '@/components/WiCardMenu.vue'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
+import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
-import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
-import { onMounted, ref } from 'vue'
+import { doc, getFirestore, updateDoc } from 'firebase/firestore'
+import { storeToRefs } from 'pinia'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const db = getFirestore()
 const auth = getAuth()
-const isLoading = ref(false)
-
-const card = ref({})
 const route = useRoute()
-const user = ref({})
-const hasEditPermission = ref(false)
 const spinner = ref(false)
-const currentUser = ref(null)
-const blockSelfReserve = ref(true)
 
-const isReserved = ref(false)
-const reservedBy = ref('')
-const reservedUser = ref({})
+const cardStore = useCardStore()
+const { isLoading, isReserved, currentUser, reservedBy, user, blockSelfReserve, reservedUser, hasEditPermission, card } = storeToRefs(cardStore)
+const { getCardData } = cardStore
 
-onMounted(async () => {
-  try {
-    isLoading.value = true
-    const cardId = route.params.uid
-    const userDoc = await getDoc(doc(db, 'wishes', cardId))
-    const cardData = userDoc.exists() ? userDoc.data() : null
-    currentUser.value = auth.currentUser
-
-    if (cardData) {
-      card.value = cardData
-      reservedBy.value = cardData.reserve || ''
-      isReserved.value = !!cardData.reserve
-
-      const userData = await getUserData(cardData.userId)
-      user.value = userData.user
-
-      if (currentUser.value.uid === cardData.userId) {
-        blockSelfReserve.value = false
-      }
-    }
-
-    if (cardData.reserve) {
-      const reservedUserData = await getUserData(cardData.reserve)
-      reservedUser.value = reservedUserData.user
-      if (currentUser.value && currentUser.value.uid === reservedUser.value.uid) {
-        hasEditPermission.value = true
-      }
-    }
+watch(card, (newCard) => {
+  if (newCard.reserve) {
+    blockSelfReserve.value = currentUser.value.uid !== newCard.userId
+    console.log(blockSelfReserve.value = currentUser.value.uid !== newCard.userId)
   }
-  catch (err) {
-    console.log(err)
-  }
-  finally {
-    isLoading.value = false
+  else {
+    blockSelfReserve.value = true
   }
 })
 
@@ -87,16 +56,25 @@ async function toggleReserve() {
     spinner.value = false
   }
 }
+onMounted(async () => {
+  try {
+    await getCardData(route.params.uid)
+  }
+  catch (err) {
+    console.error('не удалось загрузить данные карточки:', err)
+  }
+})
 </script>
 
 <template>
   <NavBar />
   <div class="card">
     <div
-      v-show="isLoading"
+      v-if="isLoading"
       class="card__user__info skeleton-loader"
     />
-    <div v-show="!isLoading">
+
+    <div v-else>
       <div class="card__user__info">
         <div class="card__user__wrapper">
           <div class="card__img-wrapper--avatar">
@@ -124,7 +102,10 @@ async function toggleReserve() {
           </span>
           <span v-else>не указал ссылку</span>
         </div>
-        <div class="card__menu"><font-awesome-icon :icon="['fas', 'ellipsis-vertical']" /></div>
+
+        <div class="card__menu">
+          <WiCardMenu />
+        </div>
       </div>
       <div class="card__wrapper">
         <div class="card__images">
@@ -185,6 +166,7 @@ async function toggleReserve() {
             v-if="spinner"
             class="card__spinner"
           />
+
           <div
             v-else
             class="card__description--actions"
@@ -216,6 +198,7 @@ async function toggleReserve() {
                 </router-link>
               </span>
             </div>
+
             <div
               v-else
               class="card__description--reserved"
@@ -238,10 +221,11 @@ async function toggleReserve() {
 
 <style scoped>
 .card__description__user span {
-  word-break: break-word; 
-  overflow-wrap: break-word; 
-  white-space: normal; 
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
+
 .skeleton-loader {
   height: 600px;
   --color: #f0f2f5;
@@ -281,10 +265,9 @@ async function toggleReserve() {
   height: 150px;
 }
 
-.card__menu{
+.card__menu {
   color: white;
   font-size: 20px;
-  padding: 30px;
   cursor: pointer;
 }
 
@@ -356,7 +339,7 @@ async function toggleReserve() {
   overflow: hidden;
 }
 
-.card__user__wrapper{
+.card__user__wrapper {
   padding: 20px;
   display: flex;
   align-items: center;
@@ -364,7 +347,7 @@ async function toggleReserve() {
   color: #F5F4F4;
 }
 
-.card__user__info{
+.card__user__info {
   display: flex;
   justify-content: space-between;
 }
