@@ -5,7 +5,6 @@ import { badges } from '@/services/UserBadgesStore'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
-import { storeToRefs } from 'pinia'
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -17,7 +16,6 @@ const db = getFirestore()
 const loading = ref(false)
 
 const currentUser = ref(null)
-const { user, badges: userBadges, skeletonLoad } = storeToRefs(profileStore)
 const { getProfileData } = profileStore
 
 const formData = reactive({
@@ -69,7 +67,7 @@ const saveProfile = async () => {
 
 onMounted(async () => {
   await getProfileData(route.params.uid)
-  formData.badges = [...userBadges.value]
+  formData.badges = [...profileStore.badges]
 })
 </script>
 
@@ -81,30 +79,41 @@ onMounted(async () => {
       class="profile__spinner"
     />
     <form
-      v-if="userBadges"
+      v-if="profileStore.badges"
       class="form"
       @submit.prevent="saveProfile"
     >
       <h1>Редактировать профиль</h1>
       <ul class="form__list">
-        <li>
-          <label for="name">Имя:</label>
+        <li class="form__list__item">
+          <label
+            class="form__list__label"
+            for="name"
+          >Имя:</label>
           <input
             id="name"
             v-model="formData.name"
+            class="form__list__input"
             type="text"
           >
         </li>
-        <li>
-          <label for="about">Краткая информация:</label>
+        <li class="form__list__item">
+          <label
+            class="form__list__label"
+            for="about"
+          >Краткая информация:</label>
           <textarea
             id="about"
             v-model="formData.about"
+            class="form__list__textarea"
             name=""
           />
         </li>
-        <li>
-          <label for="">Выберите интересы:</label>
+        <li class="form__list__item">
+          <label
+            class="form__list__label"
+            for=""
+          >Выберите интересы:</label>
           <div class="form__badge__wrapper">
             <div
               v-for="(badge, index) in badges"
@@ -171,7 +180,7 @@ onMounted(async () => {
 
 .form__wrapper{
     position: relative;
-    max-width: 700px;
+    max-width: 800px;
     margin: auto;
 }
 
@@ -193,12 +202,9 @@ onMounted(async () => {
 
 .form__badge {
     cursor: pointer;
-}
-
-.modal-content h1 {
-    margin: 0;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
 .form__list {
@@ -206,20 +212,20 @@ onMounted(async () => {
     padding: 0;
 }
 
-.form__list li {
+.form__list__item {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.form__list label {
+.form__list__label {
     flex: 0 0 150px;
     margin-right: 10px;
 }
 
-.form__list input,
-.form__list textarea,
-.form__list div {
+.form__list__input,
+.form__list__textarea,
+.form__badge {
     flex: 1;
     padding: 5px;
     border: 1px solid #ccc;
@@ -227,7 +233,7 @@ onMounted(async () => {
     font-size: 16px;
 }
 
-.form__list textarea {
+.form__list__textarea {
     resize: none;
     min-height: 80px;
 }
