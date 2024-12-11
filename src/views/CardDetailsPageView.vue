@@ -1,12 +1,11 @@
 <script setup>
-import WiCardMenu from '@/components/WiCardMenu.vue'
+import WiCardMenu from '@/components/WiCards/WiCardMenu.vue'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
 import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, updateDoc } from 'firebase/firestore'
-import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -16,37 +15,36 @@ const route = useRoute()
 const spinner = ref(false)
 
 const cardStore = useCardStore()
-const { isLoading, isReserved, currentUser, reservedBy, user, blockSelfReserve, reservedUser, hasEditPermission, card } = storeToRefs(cardStore)
 const { getCardData } = cardStore
 
-watch(card, (newCard) => {
+watch(cardStore.card, (newCard) => {
   if (newCard.reserve) {
-    blockSelfReserve.value = currentUser.value.uid !== newCard.userId
-    console.log(blockSelfReserve.value = currentUser.value.uid !== newCard.userId)
+    cardStore.blockSelfReserve = cardStore.currentUser.uid !== newCard.userId
+    console.log(cardStore.blockSelfReserve = cardStore.currentUser.uid !== newCard.userId)
   }
   else {
-    blockSelfReserve.value = true
+    cardStore.blockSelfReserve = true
   }
 })
 
 async function toggleReserve() {
-  hasEditPermission.value = true
+  cardStore.hasEditPermission = true
   try {
     spinner.value = true
     const currentUser = auth.currentUser
     const userData = await getUserData(currentUser.uid)
 
-    if (isReserved.value && reservedBy.value === currentUser.uid) {
-      await updateDoc(doc(db, 'wishes', card.value.id), { reserve: '' })
-      reservedBy.value = ''
-      isReserved.value = false
-      reservedUser.value = {}
+    if (cardStore.isReserved && cardStore.reservedBy === currentUser.uid) {
+      await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: '' })
+      cardStore.reservedBy = ''
+      cardStore.isReserved = false
+      cardStore.reservedUser = {}
     }
-    else if (!isReserved.value) {
-      await updateDoc(doc(db, 'wishes', card.value.id), { reserve: auth.currentUser.uid })
-      reservedBy.value = currentUser.uid
-      isReserved.value = true
-      reservedUser.value = userData.user
+    else if (!cardStore.isReserved) {
+      await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: auth.currentUser.uid })
+      cardStore.reservedBy = currentUser.uid
+      cardStore.isReserved = true
+      cardStore.reservedUser = userData.user
     }
   }
   catch (err) {
@@ -56,6 +54,7 @@ async function toggleReserve() {
     spinner.value = false
   }
 }
+
 onMounted(async () => {
   try {
     await getCardData(route.params.uid)
@@ -70,7 +69,7 @@ onMounted(async () => {
   <NavBar />
   <div class="card">
     <div
-      v-if="isLoading"
+      v-if="cardStore.isLoading"
       class="card__user__info skeleton-loader"
     />
 
@@ -80,20 +79,20 @@ onMounted(async () => {
           <div class="card__img-wrapper--avatar">
             <img
               class="card__image  card__image--user"
-              :src="user.photoUrl"
+              :src="cardStore.user.photoUrl"
               alt=""
             >
           </div>
           <router-link
-            :to="{ name: 'UserProfile', params: { uid: user.uid } }"
+            :to="{ name: 'UserProfile', params: { uid: cardStore.user.uid } }"
             class="card__user-name"
           >
-            {{ user.displayName }}
+            {{ cardStore.user.displayName }}
           </router-link>
-          <span v-if="card.link">
+          <span v-if="cardStore.card.link">
             поделился ссылкой
             <a
-              :href="card.link"
+              :href="cardStore.card.link"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -104,7 +103,7 @@ onMounted(async () => {
         </div>
 
         <div class="card__menu">
-          <WiCardMenu />
+          <WiCardMenu v-if="!cardStore.blockSelfReserve" />
         </div>
       </div>
       <div class="card__wrapper">
@@ -113,7 +112,7 @@ onMounted(async () => {
             <div class="card__img__wrapper--description">
               <img
                 class="card__image  card__image--description"
-                :src="card.img"
+                :src="cardStore.card.img"
                 alt=""
               >
             </div>
@@ -124,7 +123,7 @@ onMounted(async () => {
             <div class="card__links-wrapper">
               <div class="card__links--item">
                 <a
-                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(card.name)}`"
+                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardStore.card.name)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
@@ -134,7 +133,7 @@ onMounted(async () => {
               </div>
               <div class="card__links--item">
                 <a
-                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(card.name)}`"
+                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardStore.card.name)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
@@ -144,7 +143,7 @@ onMounted(async () => {
               </div>
               <div class="card__links--item">
                 <a
-                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(card.name)}`"
+                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardStore.card.name)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
@@ -158,8 +157,10 @@ onMounted(async () => {
 
         <div class="card__description__info">
           <div class="card__description__user">
-            <h1>{{ card.name }}</h1>
-            <span>{{ card.description }}</span>
+            <h1 class="user__title">
+              {{ cardStore.card.name }}
+            </h1>
+            <span class="user__description">{{ cardStore.card.description }}</span>
           </div>
 
           <WISpinner
@@ -172,11 +173,11 @@ onMounted(async () => {
             class="card__description--actions"
           >
             <div
-              v-if="isReserved"
+              v-if="cardStore.isReserved"
               class="card__description--reserved"
             >
               <button
-                v-if="hasEditPermission"
+                v-if="cardStore.hasEditPermission"
                 class="card__button card__button-free"
                 @click="toggleReserve"
               >
@@ -191,10 +192,10 @@ onMounted(async () => {
               </div>
               <span>Зарезервировано пользователем
                 <router-link
-                  :to="{ name: 'UserProfile', params: { uid: reservedUser.uid } }"
+                  :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser.uid } }"
                   class="card__user-name"
                 >
-                  {{ reservedUser.displayName }}
+                  {{ cardStore.reservedUser.displayName }}
                 </router-link>
               </span>
             </div>
@@ -204,13 +205,13 @@ onMounted(async () => {
               class="card__description--reserved"
             >
               <button
-                v-if="blockSelfReserve"
+                v-if="cardStore.blockSelfReserve"
                 class="card__button card__button-reserved"
                 @click="toggleReserve"
               >
                 зарезервировать
               </button>
-              <span v-if="blockSelfReserve">Pарезервируйте этот подарок, если хотите его подарить.</span>
+              <span v-if="cardStore.blockSelfReserve">Pарезервируйте этот подарок, если хотите его подарить.</span>
             </div>
           </div>
         </div>
@@ -220,7 +221,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.card__description__user span {
+.user__description, .user__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: normal;
@@ -294,7 +299,7 @@ onMounted(async () => {
   color: grey;
 }
 
-.card__description__info h1 {
+.user__title {
   margin: 0 0 20px 0;
   color: #F5F4F4;
 }

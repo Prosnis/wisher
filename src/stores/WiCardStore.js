@@ -5,17 +5,23 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useCardStore = defineStore('card', () => {
-  const isLoading = ref(true)
-  const currentUser = ref(null)
-  const reservedBy = ref('')
   const user = ref({})
-  const blockSelfReserve = ref(true)
+  const currentUser = ref(null)
   const reservedUser = ref({})
-  const hasEditPermission = ref(false)
+
   const card = ref({})
+
+  const isLoading = ref(true)
+
+  const blockSelfReserve = ref(true)
+  const hasEditPermission = ref(false)
+
+  const reservedBy = ref('')
+  const isReserved = ref(false)
+
   const db = getFirestore()
   const auth = getAuth()
-  const isReserved = ref(false)
+
   const getCardData = async (cardId) => {
     try {
       isLoading.value = true

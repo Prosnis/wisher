@@ -98,17 +98,13 @@ function picturesEdit(target, event) {
     width: 100%;
     position: relative;
 }
-
-.profile__wallapper img {
+.profile__wallapper-img {
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
     object-fit: cover;
     width: 100%;
     height: 300px;
     border-radius: 10px 10px 0 0;
-}
-
-.profile__wallapper-img {
-    transition: opacity 0.3s ease-in-out;
-    opacity: 0;
 }
 
 .profile__wallaper-edit {

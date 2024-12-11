@@ -17,6 +17,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/vue-fontawesome": "^3.0.0-5",
+    "cohere-ai": "^7.14.0",
     "firebase": "^10.13.2",
     "font-awesome-animation": "^1.1.1",
     "html2canvas": "^1.4.1",

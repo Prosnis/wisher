@@ -16,10 +16,14 @@ const props = defineProps({
 
 const router = useRouter()
 
-function goToCardPreview(wishID) {
-  router.push(`${path.card}/${wishID}`).catch((err) => {
+async function goToCardPreview(wishID) {
+  try {
+    await router.push(`${path.card}/${wishID}`)
+    console.log('Navigation succeeded!')
+  }
+  catch (err) {
     console.log('Card not allowed', err)
-  })
+  }
 }
 
 function formatPrice(value) {
@@ -58,10 +62,10 @@ function hoverLeft(event) {
       {{ wish.name }}
     </h3>
     <p class="card__price">
-      {{ formatPrice(wish.price) }} руб
+      <!-- {{ formatPrice(wish.price) }} руб  -->
     </p>
     <div class="card__user__info">
-      <div class="user__info--info">
+      <div class="user__info">
         <img
           :src="props.userImg"
           alt="User Avatar"
@@ -97,33 +101,21 @@ function hoverLeft(event) {
 }
 
 .card__title{
-  text-overflow: ellipsis;
-  max-height: calc(2 * 1.5em); /* 2 строки при line-height: 1.5 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
 }
 .user__info--date {
   font-size: 15px;
 }
 
-.user__info--info {
+.user__info {
   display: flex;
   align-items: center;
   gap: 20px;
   font-size: 20px;
-}
-
-.card__label--file {
-  width: 100%;
-  border: 1px solid #ccc;
-  height: 250px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.card h3,
-p {
-  margin: 0;
 }
 
 .card__image {
@@ -160,6 +152,7 @@ p {
   padding: 2px;
   font-weight: 600;
   color: black;
+  margin: 0;
 }
 
 .card {
@@ -190,52 +183,5 @@ p {
   border-radius: 5%;
   background-color: #0d121b;
   color: white;
-}
-
-.form__wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.form__list li {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.form__list input,
-textarea {
-  height: 20px;
-  margin-bottom: 10px;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.form__list textarea {
-  resize: none;
-  min-height: 80px;
-}
-
-.form__list label {
-  flex: 0 0 150px;
-}
-
-.form__list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.card__icon--file {
-  font-size: 100px;
-  color: rgb(236, 233, 233);
-  transition: color 0.3s;
-}
-
-.card__input--file {
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 <script setup>
 import { getInvitationImageUrl } from '@/services/GetUserInvitation'
 import { onMounted, ref } from 'vue'
-import WiNavbar from './WiNavbar.vue'
+import WiNavbar from '../WiNavbar.vue'
 
 const invitationImageUrl = ref(null)
 

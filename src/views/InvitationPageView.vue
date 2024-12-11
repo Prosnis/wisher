@@ -8,14 +8,10 @@ import { getUserData } from '@/services/GetUserData'
 import { saveInvitationToDB } from '@/services/SaveInvitationToDB'
 import { getAuth } from 'firebase/auth'
 import html2canvas from 'html2canvas'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const qrCodeDataUrl = ref(null)
-const title = ref('')
-const date = ref('')
-const description = ref('')
-const signature = ref('')
 const selectedImage = ref(images[0])
 const auth = getAuth()
 const userProfileUrl = ref('')
@@ -23,6 +19,13 @@ const currentUser = ref({})
 const file = ref(null)
 const router = useRouter()
 const isActive = ref(false)
+
+const form = reactive({
+  title: '',
+  date: '',
+  description: '',
+  signature: '',
+})
 
 function selectImage(image) {
   selectedImage.value = image
@@ -75,38 +78,50 @@ onMounted(async () => {
       class="profile__spinner"
     />
     <div class="form">
-      <label for="title"> Заголовок
+      <label
+        class="form__label"
+        for="title"
+      > Заголовок
         <input
           id="title"
-          v-model="title"
+          v-model="form.title"
           class="form__input"
           type="text"
           maxlength="50"
           placeholder="День рождения!"
         >
       </label>
-      <label for="date"> Дата
+      <label
+        class="form__label"
+        for="date"
+      > Дата
         <input
           id="date"
-          v-model="date"
+          v-model="form.date"
           class="form__input"
           type="date"
         >
       </label>
-      <label for="description"> Описание
+      <label
+        class="form__label"
+        for="description"
+      > Описание
         <textarea
           id="description"
-          v-model="description"
+          v-model="form.description"
           class="form__input form__input--description"
           type="text"
           maxlength="300"
           placeholder="Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый котел», который находится по адресу Косой переулок, 1."
         />
       </label>
-      <label for="signature"> Подпись
+      <label
+        class="form__label"
+        for="signature"
+      > Подпись
         <input
           id="signature"
-          v-model="signature"
+          v-model="form.signature"
           class="form__input"
           type="text"
           maxlength="20"
@@ -147,25 +162,28 @@ onMounted(async () => {
       <div class="invitation__info">
         <ul class="info__list">
           <li class="info__list__item info__list__item-title">
-            <h1 v-if="!title">
+            <h1
+              v-if="!form.title"
+              class="info__list__item--title"
+            >
               День рождения!
             </h1>
             <h1 v-else>
-              {{ title }}
+              {{ form.title }}
             </h1>
           </li>
           <li class="info__list__item info__list__item-date">
-            <span v-if="!date"> {{ new Date().toLocaleDateString() }}</span>
-            <span v-else>{{ date }}</span>
+            <span v-if="!form.date"> {{ new Date().toLocaleDateString() }}</span>
+            <span v-else>{{ form.date }}</span>
           </li>
           <li class="info__list__item info__list__item-description">
-            <span v-if="!description">Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый
+            <span v-if="!form.description">Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый
               котел», который находится по адресу Косой переулок, 1.</span>
-            <span v-else> {{ description }}</span>
+            <span v-else> {{ form.description }}</span>
           </li>
           <li class="info__list__item info__list__item-signature">
-            <span v-if="!signature"> Tom Riddle</span>
-            <span v-else>{{ signature }}</span>
+            <span v-if="!form.signature"> Tom Riddle</span>
+            <span v-else>{{ form.signature }}</span>
           </li>
         </ul>
       </div>
@@ -289,7 +307,7 @@ onMounted(async () => {
   /* border-radius: 20px; */
 }
 
-.form label {
+.form__label{
   flex: 0 0 150px;
   margin-right: 10px;
   display: flex;
@@ -297,8 +315,7 @@ onMounted(async () => {
   margin-bottom: 10px;
 }
 
-.form input,
-textarea {
+.form__input {
   flex: 1;
   padding: 5px;
   border: 1px solid #ccc;
@@ -312,7 +329,7 @@ textarea {
   justify-content: center;
 }
 
-.info__list__item-title h1 {
+.info__list__item--title {
   margin: 0
 }
 

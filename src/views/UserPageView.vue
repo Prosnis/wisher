@@ -1,10 +1,9 @@
 <script setup>
 import path from '@/components/constants/pathes'
 import WiNavbar from '@/components/WiNavbar.vue'
-import WiUserPagePicturesEdit from '@/components/WiUserPagePicturesEdit.vue'
-import WiUserWishesVue from '@/components/WiUserWishes.vue'
+import WiUserPagePicturesEdit from '@/components/WiUser/WiUserPagePicturesEdit.vue'
+import WiUserWishesVue from '@/components/WiUser/WiUserWishes.vue'
 import { useProfileStore } from '@/stores/WiProfileStore'
-import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -12,7 +11,6 @@ const router = useRouter()
 const route = useRoute()
 
 const profileStore = useProfileStore()
-const { user, badges, hasEditPermission, skeletonLoad, profileUID } = storeToRefs(profileStore)
 const { getProfileData } = profileStore
 
 function goToSettingsPage() {
@@ -20,8 +18,8 @@ function goToSettingsPage() {
   router.push({ path: `${path.settings}/${uid}` })
 }
 
-onMounted(() => {
-  getProfileData(route.params.uid)
+onMounted(async () => {
+  await getProfileData(route.params.uid)
 })
 </script>
 
@@ -33,42 +31,42 @@ onMounted(() => {
 
     <main class="user">
       <div
-        v-show="skeletonLoad"
+        v-show="profileStore.skeletonLoad"
         class="skeleton-loader user__info"
       />
       <section class="user__info">
         <div
-          v-if="!skeletonLoad && user && user.displayName"
+          v-if="!profileStore.skeletonLoad && profileStore.user && profileStore.user.displayName"
           class="profile"
         >
           <WiUserPagePicturesEdit
-            :user="user"
-            :has-edit-permission="hasEditPermission"
+            :user="profileStore.user"
+            :has-edit-permission="profileStore.hasEditPermission"
           />
           <div class="profile__settings">
             <button
-              v-if="hasEditPermission"
+              v-if="profileStore.hasEditPermission"
               class="profile__button profile__button--edit"
               @click="goToSettingsPage"
             >
               Редактировать профиль
             </button>
             <div
-              v-if="!hasEditPermission"
-              style="height: 55px;"
+              v-else
+              class="profile__settings__permission"
             />
           </div>
 
           <h2 class="profile__name">
-            {{ user.displayName }}
+            {{ profileStore.user.displayName }}
           </h2>
           <p class="profile__about">
-            {{ user.about || 'Информация о пользователе отсутствует' }}
+            {{ profileStore.user.about || 'Информация о пользователе отсутствует' }}
           </p>
 
           <div class="profile__badges">
             <div
-              v-for="(badge, index) in badges"
+              v-for="(badge, index) in profileStore.badges"
               :key="index"
               class="badge"
             >
@@ -79,16 +77,20 @@ onMounted(() => {
       </section>
 
       <div class="wishes">
-        <WiUserWishesVue v-if="user" />
+        <WiUserWishesVue v-if="profileStore.user" />
       </div>
     </main>
   </div>
 </template>
 
 <style scoped>
+.profile__settings__permission{
+  height: 55px;
+}
 .skeleton-loader {
   height: 600px;
-  --color: #f0f2f5;
+  opacity: .8;
+  --color: #ffffff;
   background-repeat: no-repeat;
   animation: fade 1s linear infinite alternate;
   margin-bottom: 50px;
@@ -123,17 +125,18 @@ onMounted(() => {
 
 @keyframes fade {
   from {
-    opacity: 0.6;
+    /* opacity: 0.6; */
+    background-color: hsl(200, 20%, 70%);
   }
 
   to {
-    opacity: 1;
+    /* opacity: 1; */
+    background-color: hsl(200, 20%, 95%);
   }
 }
 
 .wishes {
   border-radius: 10px;
-  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6); */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -183,9 +186,7 @@ onMounted(() => {
 .user__info {
   gap: 20px;
   border-radius: 10px;
-  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6); */
   position: relative;
-
 }
 
 .profile {
@@ -221,13 +222,4 @@ onMounted(() => {
 .user__info {
   transition: opacity 0.3s ease;
 }
-
-/* .skeleton-loader {
-  transition: opacity 0.3s ease;
-  opacity: 1;
-}
-
-.skeleton-loader[style*="display: none"] {
-  opacity: 0;
-} */
 </style>

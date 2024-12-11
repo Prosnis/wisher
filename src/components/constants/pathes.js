@@ -8,6 +8,8 @@ const path = {
   invitationCard: '/wisher/iCard',
   invitations: '/wisher/invitations',
   settings: '/wisher/settings',
+  cards: '/wisher/cards',
+  cardAdd: '/wisher/createCard',
 }
 
 export default path

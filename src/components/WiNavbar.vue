@@ -22,10 +22,10 @@ onMounted(async () => {
       </router-link>
       <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
       <router-link
-        :to="path.invitationCard"
+        :to="path.feed"
         class="navigate-link"
       >
-        invitation
+        feed
       </router-link>
     </ul>
   </nav>
