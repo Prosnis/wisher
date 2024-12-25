@@ -1,5 +1,5 @@
 <script setup>
-import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
+import { deleteDoc, doc, getFirestore, updateDoc } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import WiContextMenu from '../WiContextMenu.vue'
@@ -23,6 +23,17 @@ async function deleteCard() {
   router.go(-1)
 }
 
+async function fulfillCard() {
+  try {
+    const cardRef = doc(db, 'wishes', currentCard.value)
+    await updateDoc(cardRef, { fulfilled: true })
+    console.log(`Карточка id: ${currentCard.value} выполнена.`)
+  }
+  catch (error) {
+    console.error('Ошибка при обновлении статуса карточки', error)
+  }
+}
+
 onMounted(() => {
   currentCard.value = route.params.uid
 })
@@ -34,14 +45,22 @@ onMounted(() => {
       <ul class="card__menu__list">
         <li
           class="card__menu__item card__menu__item--edit"
-          @click="() => { hideMenu() }"
+          @click="() => hideMenu()"
         >
           <font-awesome-icon :icon="['fas', 'pen']" />
           Редактировать
         </li>
         <li
+          class="card__menu__item card__menu__item--fulfilled"
+          @click="() => [hideMenu(), fulfillCard()]"
+        >
+          <font-awesome-icon
+            :icon="['fas', 'check-circle']"
+          /> Исполнено
+        </li>
+        <li
           class="card__menu__item card__menu__item--delete"
-          @click="() => { hideMenu(); modalToggle = true }"
+          @click="[hideMenu(), modalToggle = true]"
         >
           <font-awesome-icon
             :icon="['fas', 'trash-can']"
@@ -148,5 +167,6 @@ onMounted(() => {
 .card__menu--icon{
   padding: 25px;
   font-size: 30px;
+  color: black;
 }
 </style>

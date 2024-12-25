@@ -47,8 +47,7 @@ function hoverLeft(event) {
 
 <template>
   <div
-    :class="{ card: !props.wish.reserve, card__reserve: props.wish.reserve }"
-    :data-id="wish.id"
+    class="card"
     @mouseenter="hoverEnter($event)"
     @mouseleave="hoverLeft($event)"
     @click="goToCardPreview(wish.id)"
@@ -64,7 +63,7 @@ function hoverLeft(event) {
     <p class="card__price">
       <!-- {{ formatPrice(wish.price) }} руб  -->
     </p>
-    <div class="card__user__info">
+    <!-- <div class="card__user__info">
       <div class="user__info">
         <img
           :src="props.userImg"
@@ -74,15 +73,49 @@ function hoverLeft(event) {
         <span v-text="props.userName" />
       </div>
       <span class="user__info--date">{{ new Date().toLocaleDateString() }}</span>
+    </div> -->
+
+    <div v-if="wish.fulfilled">
+      <div class="card__status card__status--fulfilled">
+        Исполнено
+        <font-awesome-icon
+          :icon="['fas', 'check']"
+          class="card__status--icon"
+        />
+      </div>
+    </div>
+    <div v-if="wish.reserve">
+      <div class="card__status card__status--reserved">
+        Забронировано
+        <font-awesome-icon
+          :icon="['fas', 'check']"
+          class="card__status--icon"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.card__status{
+  margin-bottom: 5px;
+  color: white;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.card__status--fulfilled{
+  background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(137,23,178,1) 1%, rgba(251,17,37,0.7455357142857143) 100%, rgba(0,212,255,1) 100%);
+}
+.card__status--reserved{
+  background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+}
+
 .card__hover {
   width: 100%;
   height: 100%;
-  --color: #515c67;
+  /* --color: #131e36; */
+  --color: var(--color-secondary);
   background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
   background-size: 200% 100%;
   animation: loading 2s infinite;
@@ -119,9 +152,8 @@ function hoverLeft(event) {
 }
 
 .card__image {
-  width: 100%;
-  border: 1px solid #ccc;
-  height: 250px;
+  width: 210px;
+  height: 210px;
   object-fit: cover;
   border-radius: 5% 5% 0 0;
 }
@@ -157,31 +189,18 @@ function hoverLeft(event) {
 
 .card {
   position: relative;
-  width: 260px;
-  height: 420px;
-  border: 3px solid #3dd68c;
+  width: 210px;
+  height: 320px;
+  /* border: 1px solid #3dd68c; */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
   text-align: center;
-  border-radius: 5%;
-  background-color: #0d121b;
-  color: white;
-  /* box-shadow: 0px 5px 5px rgba(126, 155, 189, 0.6); */
-}
-.card__reserve {
-  position: relative;
-  width: 260px;
-  height: 420px;
-   border: 3px solid #f14158;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  text-align: center;
-  border-radius: 5%;
-  background-color: #0d121b;
-  color: white;
+  border-radius: 10px;
+  background-color: var(--color-background);
+  color: rgb(0, 0, 0);
+  font-size: 14px;
+  font-weight: 600;
 }
 </style>

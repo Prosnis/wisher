@@ -1,4 +1,5 @@
 <script setup>
+import WiBackButton from '@/components/WiBackButton.vue'
 import WiCardMenu from '@/components/WiCards/WiCardMenu.vue'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
@@ -7,6 +8,7 @@ import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, updateDoc } from 'firebase/firestore'
 import { onMounted, ref, watch } from 'vue'
+import { ContentLoader } from 'vue-content-loader'
 import { useRoute } from 'vue-router'
 
 const db = getFirestore()
@@ -54,7 +56,6 @@ async function toggleReserve() {
     spinner.value = false
   }
 }
-
 onMounted(async () => {
   try {
     await getCardData(route.params.uid)
@@ -68,10 +69,24 @@ onMounted(async () => {
 <template>
   <NavBar />
   <div class="card">
-    <div
+    <WiBackButton class="card__back__button" />
+
+    <ContentLoader
       v-if="cardStore.isLoading"
-      class="card__user__info skeleton-loader"
-    />
+      viewBox="0 0 1000 700"
+      :speed="2"
+      primary-color="#f5f7fa"
+      secondary-color="#c9c5c5"
+    >
+      <rect
+        x="0"
+        y="0"
+        rx="10"
+        ry="10"
+        width="1000"
+        height="700"
+      />
+    </ContentLoader>
 
     <div v-else>
       <div class="card__user__info">
@@ -89,7 +104,10 @@ onMounted(async () => {
           >
             {{ cardStore.user.displayName }}
           </router-link>
-          <span v-if="cardStore.card.link">
+          <span
+            v-if="cardStore.card.link"
+            class="card__user__link-title"
+          >
             поделился ссылкой
             <a
               :href="cardStore.card.link"
@@ -119,7 +137,9 @@ onMounted(async () => {
           </div>
 
           <div class="card__links">
-            <h3>Найти на маркетплейсах</h3>
+            <h3 class="card__links__title">
+              Найти на маркетплейсах
+            </h3>
             <div class="card__links-wrapper">
               <div class="card__links--item">
                 <a
@@ -190,7 +210,7 @@ onMounted(async () => {
                   alt=""
                 >
               </div>
-              <span>Зарезервировано пользователем
+              <span class="card__reserved__text">Зарезервировано пользователем
                 <router-link
                   :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser.uid } }"
                   class="card__user-name"
@@ -201,7 +221,7 @@ onMounted(async () => {
             </div>
 
             <div
-              v-else
+              v-else-if="!cardStore.isReserved && auth.currentUser && !cardStore.card.fulfilled"
               class="card__description--reserved"
             >
               <button
@@ -211,7 +231,17 @@ onMounted(async () => {
               >
                 зарезервировать
               </button>
-              <span v-if="cardStore.blockSelfReserve">Pарезервируйте этот подарок, если хотите его подарить.</span>
+              <span
+                v-if="cardStore.blockSelfReserve"
+                class="card__reserved__text"
+              >Pарезервируйте этот подарок, если
+                хотите его подарить.</span>
+            </div>
+            <div
+              v-else-if="!auth.currentUser"
+              class="card__reserved__text"
+            >
+              <span>Для бронирования желаний нужно зарегистрироваться</span>
             </div>
           </div>
         </div>
@@ -221,7 +251,24 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.user__description, .user__title {
+.card__back__button {
+  background-color: var(--color-background-light);
+}
+
+.card__reserved__text {
+  color: var(--color-text-secondary);
+}
+
+.card__user__link-title {
+  color: var(--color-text-secondary);
+}
+
+.card__links__title {
+  color: var(--color-text-secondary);
+}
+
+.user__description,
+.user__title {
   display: -webkit-box;
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
@@ -229,41 +276,7 @@ onMounted(async () => {
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: normal;
-}
-
-.skeleton-loader {
-  height: 600px;
-  --color: #f0f2f5;
-  background-repeat: no-repeat;
-  animation: fade 1s linear infinite alternate;
-  margin-bottom: 50px;
-
-  background-image:
-    radial-gradient(circle 25px, var(--color) 100%, transparent 0%),
-    linear-gradient(var(--color) 30px, transparent 0%),
-    linear-gradient(var(--color) 300px, transparent 0%),
-    linear-gradient(var(--color) 110px, transparent 0%),
-    linear-gradient(var(--color) 200px, transparent 0%),
-    linear-gradient(var(--color) 200px, transparent 0%),
-    linear-gradient(var(--color) 200px, transparent 0%);
-
-  background-size:
-    100px 100px,
-    250px 60px,
-    300px 300px,
-    300px 110px,
-    350px 110px,
-    350px 110px,
-    350px 180px;
-
-  background-position:
-    0px 0px,
-    85px 35px,
-    105px 130px,
-    105px 450px,
-    520px 130px,
-    520px 270px,
-    520px 380px;
+  color: var(--color-text-secondary);
 }
 
 .card__description--stamp {
@@ -301,7 +314,7 @@ onMounted(async () => {
 
 .user__title {
   margin: 0 0 20px 0;
-  color: #F5F4F4;
+  color: var(--color-text-primary)
 }
 
 .card__description__info {
@@ -367,7 +380,7 @@ onMounted(async () => {
   font-size: 20px;
   font-weight: 600;
   font-style: italic;
-  color: #F5F4F4;
+  color: var(--color-text-primary)
 }
 
 .card__img-wrapper--avatar {
@@ -395,29 +408,27 @@ onMounted(async () => {
   border-radius: 10px;
   max-width: 1000px;
   margin: 40px auto;
-  background-color: #111827
+  background-color: var(--color-secondary);
+  min-height: 580px;
+  display: flex;
 }
 
 .card__button {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
-  color: white;
+  border: none;
+  background-color: var(--color-background-light);
+  padding: 5px;
   cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
+  width: 180px;
+  border-radius: 10px;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-around;
+  height: 35px;
+  margin: 20px;
 }
 
-.card__button-free:hover {
-  border: 3px solid #ff6459;
-}
-
-.card__button-reserved:hover {
-  border: 3px solid #75ff59;
+.card__button:hover {
+  background-color: var(--color-background-light);
+  color: var(--color-accent);
 }
 </style>

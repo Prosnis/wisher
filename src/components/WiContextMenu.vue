@@ -27,7 +27,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="context__menu__container"
-    @click="() => toggle.visible = !toggle.visible"
+    @click=" toggle.visible = !toggle.visible"
   >
     <slot />
     <div
@@ -50,13 +50,13 @@ onBeforeUnmount(() => {
 
   .context__menu {
     position: absolute;
-    background: #fff;
+    background: var(--color-background-light);
     border-radius: 10px;
     z-index: 1000;
     top: 60px;
     padding: 5px 0px;
     right: 20px;
     width: 150px;
-    height: 55px;
+    height: 80px;
   }
 </style>

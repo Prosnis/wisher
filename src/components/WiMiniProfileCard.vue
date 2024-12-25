@@ -135,6 +135,7 @@ onMounted(async () => {
 .mini__profile--title {
   margin: 0;
   margin-bottom: 10px;
+  color: white;
 }
 
 .mini__profile--description {

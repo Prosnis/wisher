@@ -17,21 +17,21 @@ const router = createRouter({
       component: () => import('@/views/UserPageView.vue'),
       name: 'UserProfile',
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
     {
       path: `${path.card}/:uid`,
       component: () => import('@/views/CardDetailsPageView.vue'),
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
     {
       path: `${path.invitationCard}/:uid`,
       component: () => import('@/views/InvitationPageShare.vue'),
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
       },
     },
     {

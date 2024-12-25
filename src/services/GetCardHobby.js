@@ -29,6 +29,7 @@ const categories = [
   'Косметология',
 ]
 
+const apiUrl = import.meta.env.VITE_API_BEARER
 const chunkSize = 10
 
 export async function classifyText(text) {
@@ -42,7 +43,7 @@ export async function classifyText(text) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`,
+          'Authorization': apiUrl,
         },
         body: JSON.stringify({
           inputs: text,
@@ -64,7 +65,7 @@ export async function classifyText(text) {
       }))
 
       const sorted = categoryScores.sort((a, b) => b.score - a.score)
-      results.push(...sorted.slice(0, 2))
+      results.push(...sorted.slice(0, 3))
     }
 
     console.log('Результаты классификации:', results)

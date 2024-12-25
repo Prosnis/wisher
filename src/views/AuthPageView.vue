@@ -17,7 +17,7 @@ function toAuthPage() {
 
 function register() {
   const auth = getAuth()
-  signInWithEmailAndPassword(auth, '123@123.sd', 'adgadfgad')
+  signInWithEmailAndPassword(auth, email.value, password.value)
     .then((data) => {
       const user = data.user
       console.log('Successfully logged in:', user)
@@ -71,8 +71,18 @@ function signInWithGoogle() {
       @submit.prevent="register"
     >
       <h1>Log in</h1>
-      <!-- <input class="auth__input auth__input--email" type="text" placeholder="Email" v-model="email">
-      <input class="auth__input auth__input--password " type="password" placeholder="Password" v-model="password">  -->
+      <input
+        v-model="email"
+        class="auth__input auth__input--email"
+        type="text"
+        placeholder="Email"
+      >
+      <input
+        v-model="password"
+        class="auth__input auth__input--password "
+        type="password"
+        placeholder="Password"
+      >
       <p v-if="errMsg">
         {{ errMsg }}
       </p>

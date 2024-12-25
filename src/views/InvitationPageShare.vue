@@ -1,5 +1,4 @@
 <script setup>
-import WiBackButton from '@/components/WiBackButton.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
 import { getInvitationImageUrl } from '@/services/GetUserInvitation'
 import { getUserLink } from '@/services/GetUserLink'
@@ -40,7 +39,6 @@ onMounted(async () => {
       v-else
       class="invitation__container"
     >
-      <WiBackButton />
       <img
         :src="invitationImageUrl"
         alt="Invitation Image"
@@ -83,63 +81,40 @@ onMounted(async () => {
   display: flex;
   gap: 10px;
 }
-
-.invitation__btn {
-  padding: 5px;
-  border-radius: 5px;
+.invitation__btn  {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: auto;
+  font-weight: 600;
+  border-radius: 10px;
   border: none;
-  font-size: 20px;
-  letter-spacing: 1px;
-  min-width: 240px;
-  background-color: rgb(255, 255, 255);
-  color: #394e5c;
+  border: 3px solid var(--color-primary);
+  background-color: var(--color-accent);
+  color: white;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  font-size: 16px;
 }
 
-.skeleton-loader {
-  height: 600px;
-  --color: #f0f2f5;
-  background-repeat: no-repeat;
-  animation: fade 1s linear infinite alternate;
-  margin-bottom: 50px;
-
-  background-image:
-    radial-gradient(circle 25px, var(--color) 100%, transparent 0%),
-    radial-gradient(circle 25px, var(--color) 100%, transparent 0%),
-    linear-gradient(var(--color) 700px, transparent 0%);
-
-  background-size:
-    100px 100px,
-    100px 100px,
-    800px 660px;
-
-  background-position:
-    600px 700px,
-    670px 700px,
-    300px 35px;
-}
-
-@keyframes fade {
-  from {
-    opacity: 0.6;
-  }
-
-  to {
-    opacity: 1;
-  }
+.invitation__btn:active{
+  transform: translateY(2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .invitation__container {
-  border-radius: 50px;
+  border-radius: 10px;
   box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6);
   display: flex;
   flex-direction: column;
-  width: 1300px;
+  width: 900px;
   min-height: 750px;
   align-items: center;
-  padding: 50px;
   margin: auto;
+  padding: 20px;
   transition: opacity 0.3s ease;
-  background-color: #81ccfd;
+  background-color: var(--color-secondary);
 }
 
 .invitation__image {
