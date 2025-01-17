@@ -1,15 +1,27 @@
 <script setup>
-import { deleteDoc, doc, getFirestore, updateDoc } from 'firebase/firestore'
-import { onMounted, ref } from 'vue'
+import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
+import { defineEmits, defineProps, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import WiContextMenu from '../WiContextMenu.vue'
 import WiModal from '../WiModal.vue'
 
+const props = defineProps({
+  card: {
+    type: Object,
+    default: () => {},
+  },
+})
+const emit = defineEmits(['toggle-fulfill'])
 const currentCard = ref(null)
 const router = useRouter()
 const route = useRoute()
 const modalToggle = ref(false)
 const db = getFirestore()
+
+function toggleFulfillStatus() {
+  const newStatus = !props.card.fulfilled
+  emit('toggleFulfill', newStatus)
+}
 
 async function deleteCard() {
   try {
@@ -23,17 +35,6 @@ async function deleteCard() {
   router.go(-1)
 }
 
-async function fulfillCard() {
-  try {
-    const cardRef = doc(db, 'wishes', currentCard.value)
-    await updateDoc(cardRef, { fulfilled: true })
-    console.log(`Карточка id: ${currentCard.value} выполнена.`)
-  }
-  catch (error) {
-    console.error('Ошибка при обновлении статуса карточки', error)
-  }
-}
-
 onMounted(() => {
   currentCard.value = route.params.uid
 })
@@ -44,18 +45,12 @@ onMounted(() => {
     <template #menu="{ hideMenu }">
       <ul class="card__menu__list">
         <li
-          class="card__menu__item card__menu__item--edit"
-          @click="() => hideMenu()"
-        >
-          <font-awesome-icon :icon="['fas', 'pen']" />
-          Редактировать
-        </li>
-        <li
           class="card__menu__item card__menu__item--fulfilled"
-          @click="() => [hideMenu(), fulfillCard()]"
+          @click=" [hideMenu(), toggleFulfillStatus()]"
         >
           <font-awesome-icon
-            :icon="['fas', 'check-circle']"
+            class="menu__icon"
+            :icon="['fas', 'check']"
           /> Исполнено
         </li>
         <li
@@ -63,6 +58,7 @@ onMounted(() => {
           @click="[hideMenu(), modalToggle = true]"
         >
           <font-awesome-icon
+            class="menu__icon"
             :icon="['fas', 'trash-can']"
           /> Удалить
         </li>
@@ -100,6 +96,14 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.card__menu__item--fulfilled{
+  color: green;
+  font-size: 15px;
+  padding: 5px;
+}
+.menu__icon{
+  margin: 0px 10px 0px 10px;
+}
 .menu__modal__buttons{
   display: flex;
 }
@@ -161,7 +165,7 @@ onMounted(() => {
 }
 
 .card__menu__item:hover{
-  background-color: #cfd3cf;
+  background-color: var(--color-background-light);
 }
 
 .card__menu--icon{

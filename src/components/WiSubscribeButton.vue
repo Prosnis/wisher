@@ -85,6 +85,6 @@ onMounted(async () => {
     display: flex;
     justify-content: space-around;
     height: 35px;
-    margin: 20px;
+    margin: 20px 20px auto 0px;
 }
 </style>

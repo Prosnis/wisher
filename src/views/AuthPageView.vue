@@ -92,6 +92,12 @@ function signInWithGoogle() {
       >
         Войти
       </button>
+      <button
+        class="auth__btn auth__button--withGoogle"
+        @click="signInWithGoogle"
+      >
+        Google
+      </button>
       <p
         class="auth__question"
         @click="toAuthPage"
@@ -109,22 +115,23 @@ function signInWithGoogle() {
 
 .auth {
   display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    font-size: 18px;
-    color: #ffd859;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  color: var(--color-accent);
+  background-color: var(--color-background);
 }
 
 .auth__form {
   display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    border-radius: 20px;
-    background-color: #111827
-
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-radius: 20px;
+  background-color: var(--color-background-light);
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .auth h1 {
@@ -134,23 +141,23 @@ function signInWithGoogle() {
 
 .auth p {
   margin: 0;
-  margin-left: auto ;
+  margin-left: auto;
 }
 
-.auth p:hover{
-    text-decoration: underline;
+.auth p:hover {
+  text-decoration: underline;
 }
 
 .auth__input {
   width: 300px;
-    height: 20px;
-    color: #1f56ce;
-    margin-bottom: 10px;
-    border: 2px solid #1f56ce;
-    padding: 8px;
-    border-radius: 4px;
-    outline: none;
-    background-color: white
+  height: 20px;
+  color: var(--color-accent);
+  margin-bottom: 10px;
+  border: 2px solid var(--color-accent);
+  padding: 8px;
+  border-radius: 4px;
+  outline: none;
+  background-color: white
 }
 
 .auth__input:placeholder {
@@ -161,17 +168,21 @@ function signInWithGoogle() {
 .auth__btn {
   font-size: 20px;
   color: #0d121b;
-  background-color: #ffd859;
+  background-color: var(--color-accent);
   border: none;
   border-radius: 5px;
   cursor: pointer;
   width: 320px;
   height: 40px;
   margin-bottom: 10px;
+  color: white;
 }
 
 .auth__btn:hover {
   border: 3px solid #ffd859;
   box-shadow: 0px 0px 15px #ffd859;
+}
+.auth__button--withGoogle{
+  background-color: rgb(189, 7, 7);
 }
 </style>

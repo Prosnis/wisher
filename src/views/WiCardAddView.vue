@@ -1,6 +1,7 @@
 <script setup>
 import path from '@/components/constants/pathes'
 import defaultImage from '@/components/icons/box.jpg'
+import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
 import { classifyText } from '@/services/GetCardHobby'
 import { YandexParser } from '@/services/GetFromYandex'
@@ -9,7 +10,6 @@ import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { reactive, ref } from 'vue'
-import { ContentLoader } from 'vue-content-loader'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -153,23 +153,37 @@ function badgePicker(badge) {
   }
 }
 
+let isProcessing = false
+
 async function classifiedHobbies(cardName) {
-  if (!form.name)
+  if (isProcessing)
     return
+  isProcessing = true
+
+  if (!form?.name || form.name.trim() === '') {
+    console.error('form.name is undefined or empty')
+    isProcessing = false
+    return
+  }
+
   try {
     spinnerText.value = 'Подбираем категорию..'
     categories.value = []
+    console.log('Before classifyText:', cardName)
     const result = await classifyText(cardName)
+    console.log('After classifyText:', result)
+
     categories.value = badges.filter(badge =>
       result.some(res => badge.name.includes(res.label)),
     )
   }
   catch (error) {
-    console.error(error)
+    console.error('Error in classifiedHobbies:', error)
     categories.value = []
   }
   finally {
     spinnerText.value = 'Выберите подходящую категорию:'
+    isProcessing = false
   }
 }
 </script>
@@ -207,23 +221,12 @@ async function classifiedHobbies(cardName) {
         :disabled="disabledForm"
         class="form fieldset"
       >
-        <ContentLoader
+        <WiContentLoader
           v-if="loading"
           class="form__preview"
-          viewBox="0 0 430 540"
-          :speed="2"
-          primary-color="#f5f7fa"
-          secondary-color="#eaeff5"
-        >
-          <rect
-            x="0"
-            y="0"
-            rx="10"
-            ry="10"
-            width="430"
-            height="540"
-          />
-        </ContentLoader>
+          :width="430"
+          :height="540"
+        />
 
         <div
           v-else
@@ -322,23 +325,12 @@ async function classifiedHobbies(cardName) {
           </ul>
         </div>
 
-        <ContentLoader
+        <WiContentLoader
           v-if="loading"
           class="form__preview"
-          viewBox="0 0 430 540"
-          :speed="2"
-          primary-color="#f5f7fa"
-          secondary-color="#eaeff5"
-        >
-          <rect
-            x="0"
-            y="0"
-            rx="10"
-            ry="10"
-            width="430"
-            height="540"
-          />
-        </ContentLoader>
+          :width="430"
+          :height="540"
+        />
 
         <div
           v-else
@@ -505,7 +497,7 @@ async function classifiedHobbies(cardName) {
   font-size: 18px;
 }
 
-.parser__button:active{
+.parser__button:active {
   transform: translateY(2px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
@@ -578,7 +570,7 @@ async function classifiedHobbies(cardName) {
   box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
-.form__button--add:active{
+.form__button--add:active {
   transform: translateY(2px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }

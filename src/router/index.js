@@ -11,7 +11,6 @@ const router = createRouter({
     { path: path.auth, component: () => import('@/views/AuthPageView.vue') },
     { path: path.cards, component: () => import('@/views/CardsPageView.vue') },
     { path: path.cardAdd, component: () => import('@/views/WiCardAddView.vue') },
-    // { path: '/wisher/modal',component: () => import('@/services/EditUserPage.vue')},
     {
       path: `${path.user}/:uid`,
       component: () => import('@/views/UserPageView.vue'),

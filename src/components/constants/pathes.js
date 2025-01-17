@@ -1,15 +1,15 @@
 const path = {
-  register: '/wisher/register',
-  auth: '/wisher/auth',
-  user: '/wisher/user',
-  main: '/wisher',
-  card: '/wisher/card',
-  feed: '/wisher/feed',
-  invitationCard: '/wisher/iCard',
-  invitations: '/wisher/invitations',
-  settings: '/wisher/settings',
-  cards: '/wisher/cards',
-  cardAdd: '/wisher/createCard',
+  register: '/register',
+  auth: '/auth',
+  user: '/user',
+  main: '/',
+  card: '/card',
+  feed: '/feed',
+  invitationCard: '/iCard',
+  invitations: '/invitations',
+  settings: '/settings',
+  cards: '/cards',
+  cardAdd: '/createCard',
 }
 
 export default path

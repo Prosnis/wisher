@@ -5,13 +5,11 @@ body {
   margin: 0;
   margin: auto;
   font-family: 'Rubik', sans-serif;
-  /* background-color: #0d121b; */
   background-color: var(--color-background);
 }
 
-/* @font-face {
-  font-family: 'Good dog';
-  src: url('./fonts/gooddog.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-} */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 100px white inset;
+  box-shadow: 0 0 0 100px white inset;
+  -webkit-text-fill-color: #000; 
+}

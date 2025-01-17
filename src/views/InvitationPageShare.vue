@@ -49,7 +49,7 @@ onMounted(async () => {
       <div class="invitation__links">
         <a
           target="_blank"
-          :href="`https://vk.com/share.php?url=${encodeURIComponent(invitationImageUrl)}&title=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://prosnis.github.io/wisher/user/${uid}`)}`"
+          :href="`https://vk.com/share.php?url=${encodeURIComponent(invitationImageUrl)}&title=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://www.вишер.рф/user/${uid}`)}`"
         >
           <img
             src="@/components/icons/svg/vk.svg"
@@ -58,7 +58,7 @@ onMounted(async () => {
         </a>
         <a
           target="_blank"
-          :href="`https://t.me/share/url?url=${encodeURIComponent(invitationImageUrl)}&text=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://prosnis.github.io/wisher/user/${uid}`)}`"
+          :href="`https://t.me/share/url?url=${encodeURIComponent(invitationImageUrl)}&text=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://www.вишер.рф/user/${uid}`)}`"
         >
           <img
             src="@/components/icons/svg/tg.svg"

@@ -1,6 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 
+const props = defineProps({
+  activeView: String,
+})
+
 const emit = defineEmits(['changeView'])
 const activeView = ref('WiUserWishesVue')
 
@@ -14,21 +18,21 @@ function changeView(view) {
   <div class="profile__nav">
     <button
       class="nav__button"
-      :class="{ active: activeView === 'WiUserWishesVue' }"
+      :class="{ active: props.activeView === 'WiUserWishesVue' }"
       @click="changeView('WiUserWishesVue')"
     >
       Мой вишлист
     </button>
     <button
       class="nav__button"
-      :class="{ active: activeView === 'SubscribeListView' }"
+      :class="{ active: props.activeView === 'SubscribeListView' }"
       @click="changeView('SubscribeListView')"
     >
       Мои подписки
     </button>
     <button
       class="nav__button"
-      :class="{ active: activeView === 'WiReservedListView' }"
+      :class="{ active: props.activeView === 'WiReservedListView' }"
       @click="changeView('WiReservedListView')"
     >
       Зарезервированные подарки

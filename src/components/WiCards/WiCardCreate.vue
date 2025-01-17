@@ -26,16 +26,6 @@ async function goToCardPreview(wishID) {
   }
 }
 
-function formatPrice(value) {
-  if (!value)
-    return ''
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    minimumFractionDigits: 0,
-  }).format(value)
-}
-
 function hoverEnter(event) {
   event.target.classList.add('card__hover')
 }
@@ -53,50 +43,41 @@ function hoverLeft(event) {
     @click="goToCardPreview(wish.id)"
   >
     <img
-      :src="wish.img"
+      :src="props.wish.img"
       alt=""
       class="card__image"
     >
     <h3 class="card__title">
-      {{ wish.name }}
+      {{ props.wish.name }}
     </h3>
-    <p class="card__price">
-      <!-- {{ formatPrice(wish.price) }} руб  -->
-    </p>
-    <!-- <div class="card__user__info">
-      <div class="user__info">
-        <img
-          :src="props.userImg"
-          alt="User Avatar"
-          class="card__img user__info--avatarImg"
-        >
-        <span v-text="props.userName" />
+    <p class="card__price" />
+    <div class="card__status-container">
+      <div v-if="props.wish.fulfilled">
+        <div class="card__status card__status--fulfilled">
+          Исполнено
+          <font-awesome-icon
+            :icon="['fas', 'check']"
+            class="card__status--icon"
+          />
+        </div>
       </div>
-      <span class="user__info--date">{{ new Date().toLocaleDateString() }}</span>
-    </div> -->
-
-    <div v-if="wish.fulfilled">
-      <div class="card__status card__status--fulfilled">
-        Исполнено
-        <font-awesome-icon
-          :icon="['fas', 'check']"
-          class="card__status--icon"
-        />
-      </div>
-    </div>
-    <div v-if="wish.reserve">
-      <div class="card__status card__status--reserved">
-        Забронировано
-        <font-awesome-icon
-          :icon="['fas', 'check']"
-          class="card__status--icon"
-        />
+      <div v-if="props.wish.reserve">
+        <div class="card__status card__status--reserved">
+          Забронировано
+          <font-awesome-icon
+            :icon="['fas', 'check']"
+            class="card__status--icon"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.card__status-container {
+  margin-top: auto;
+}
 .card__status{
   margin-bottom: 5px;
   color: white;
@@ -114,7 +95,6 @@ function hoverLeft(event) {
 .card__hover {
   width: 100%;
   height: 100%;
-  /* --color: #131e36; */
   --color: var(--color-secondary);
   background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
   background-size: 200% 100%;
@@ -191,14 +171,13 @@ function hoverLeft(event) {
   position: relative;
   width: 210px;
   height: 320px;
-  /* border: 1px solid #3dd68c; */
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
   text-align: center;
   border-radius: 10px;
-  background-color: var(--color-background);
+  background-color: #0817ec1a;
   color: rgb(0, 0, 0);
   font-size: 14px;
   font-weight: 600;

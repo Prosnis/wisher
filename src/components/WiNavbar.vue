@@ -3,44 +3,40 @@ import path from '@/components/constants/pathes'
 import { logout } from '@/services/logOut'
 import { useUserStore } from '@/stores/WiUserStore'
 import { getAuth } from 'firebase/auth'
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
-
+const route = useRoute()
 const userStore = useUserStore()
+const auth = getAuth()
 
 async function toUserPage() {
-  await router.push(`${path.user}/${userStore.userUID}`)
-  window.location.reload()
-}
-
-const userLink = ref(null)
-const auth = getAuth()
-onMounted(async () => {
-  if (auth.currentUser) {
-    userLink.value = await auth.currentUser.uid
+  const userPagePath = `${path.user}/${userStore.userUID}`
+  if (route.path !== userPagePath) {
+    await router.push(userPagePath)
   }
-})
+}
 </script>
 
 <template>
   <nav class="nav">
-    <div class="nav__empty" />
-    <router-link
-      v-if="userLink"
-      :to="path.feed"
-      class="nav__logo"
-    >
-      <span>wisher</span>
-    </router-link>
+    <div>
+      <router-link
+        :to="path.feed"
+        class="nav__logo"
+      >
+        <span>вишер</span>
+      </router-link>
+    </div>
+
     <router-link
       v-if="!auth.currentUser"
-      class="user"
       :to="path.register"
+      class="user"
     >
-      <span>войти</span>
+      <span class="nav__login__text">вход/регистрация<font-awesome-icon :icon="['fas', 'right-to-bracket']" /></span>
     </router-link>
+
     <div
       v-else
       class="user"
@@ -50,14 +46,20 @@ onMounted(async () => {
         v-if="userStore.user"
         class="user__wrapper"
       >
-        <img
-          class="user__img"
-          :src="userStore.user.photoUrl"
-          alt=""
+        <div class="user__info">
+          <img
+            class="user__img"
+            :src="userStore.user.photoUrl"
+            alt=""
+          >
+          <span class="user__name"> {{ userStore.user.displayName }}</span>
+        </div>
+
+        <button
+          class="nav__button"
+          @click="logout()"
         >
-        <span class="user__name"> {{ userStore.user.displayName }}</span>
-        <button @click="logout()">
-          выйти
+          <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
         </button>
       </div>
     </div>
@@ -65,51 +67,85 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.user__name {}
+.nav__button {
+  border: none;
+  background-color: var(--color-secondary);
+  font-size: 16px;
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  padding: 5px;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.nav__login {
+  text-decoration: none;
+}
+
+.nav__login__text {
+  display: flex;
+  gap: 10px;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.user__name {
+  font-size: 20px;
+  color: var(--color-accent);
+}
 
 .user {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer
+  text-decoration: none;
 }
 
 .user__wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 20px;
+}
+
+.user__info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
+  cursor: pointer;
+  padding: 5px;
 }
 
 .user__img {
-  width: 35px;
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
-  border: 1px solid black
+  border: 1px solid var(--color-accent)
 }
 
 .nav {
   display: flex;
   justify-content: space-between;
   background-color: var(--color-secondary);
-  height: 60px;
+  height: 50px;
   margin-bottom: 20px;
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-  width: 100%; /* Контейнер занимает всю ширину */
+  max-width: 1300px;
+  margin: 0px auto 20px auto;
+  border-radius: 0px 0px 10px 10px;
 }
 
-.nav__empty,
 .nav__logo,
 .user {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0px 20px 0px 20px;
 }
 
 .nav__logo {
-  font-size: 40px;
+  font-size: 35px;
   margin: auto;
-  font-family: "Hachi Maru Pop", serif;
   color: var(--color-accent);
   text-decoration: none;
 }

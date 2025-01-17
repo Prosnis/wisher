@@ -46,8 +46,11 @@ export const useCardStore = defineStore('card', () => {
         const userData = await getUserData(card.value.userId)
         user.value = userData.user
 
-        if (currentUser.value && currentUser.value.uid === card.value.userId) {
-          blockSelfReserve.value = false
+        if (currentUser.value) {
+          blockSelfReserve.value = currentUser.value.uid !== card.value.userId
+        }
+        else {
+          blockSelfReserve.value = true
         }
       }
 

@@ -1,14 +1,14 @@
 <script setup>
 import WiBackButton from '@/components/WiBackButton.vue'
 import WiCardMenu from '@/components/WiCards/WiCardMenu.vue'
+import WiContentLoader from '@/components/WiContentLoader.vue'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
 import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, updateDoc } from 'firebase/firestore'
-import { onMounted, ref, watch } from 'vue'
-import { ContentLoader } from 'vue-content-loader'
+import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const db = getFirestore()
@@ -19,15 +19,17 @@ const spinner = ref(false)
 const cardStore = useCardStore()
 const { getCardData } = cardStore
 
-watch(cardStore.card, (newCard) => {
-  if (newCard.reserve) {
-    cardStore.blockSelfReserve = cardStore.currentUser.uid !== newCard.userId
-    console.log(cardStore.blockSelfReserve = cardStore.currentUser.uid !== newCard.userId)
+async function toggleFulfill(newStatus) {
+  try {
+    const cardRef = doc(db, 'wishes', cardStore.card.id)
+    await updateDoc(cardRef, { fulfilled: newStatus })
+
+    cardStore.card.fulfilled = newStatus
   }
-  else {
-    cardStore.blockSelfReserve = true
+  catch (error) {
+    console.error('Ошибка при изменении статуса fulfilled', error)
   }
-})
+}
 
 async function toggleReserve() {
   cardStore.hasEditPermission = true
@@ -68,25 +70,16 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-  <div class="card">
+  <div
+    v-if="cardStore"
+    class="card"
+  >
     <WiBackButton class="card__back__button" />
-
-    <ContentLoader
+    <WiContentLoader
       v-if="cardStore.isLoading"
-      viewBox="0 0 1000 700"
-      :speed="2"
-      primary-color="#f5f7fa"
-      secondary-color="#c9c5c5"
-    >
-      <rect
-        x="0"
-        y="0"
-        rx="10"
-        ry="10"
-        width="1000"
-        height="700"
-      />
-    </ContentLoader>
+      :width="1000"
+      :height="700"
+    />
 
     <div v-else>
       <div class="card__user__info">
@@ -120,10 +113,17 @@ onMounted(async () => {
           <span v-else>не указал ссылку</span>
         </div>
 
-        <div class="card__menu">
-          <WiCardMenu v-if="!cardStore.blockSelfReserve" />
+        <div
+          v-if="!cardStore.blockSelfReserve"
+          class="card__menu"
+        >
+          <WiCardMenu
+            :card="cardStore.card"
+            @toggle-fulfill="toggleFulfill"
+          />
         </div>
       </div>
+
       <div class="card__wrapper">
         <div class="card__images">
           <div class="card__description">
@@ -237,6 +237,17 @@ onMounted(async () => {
               >Pарезервируйте этот подарок, если
                 хотите его подарить.</span>
             </div>
+
+            <div v-else-if="cardStore.card.fulfilled">
+              <div class="card__status card__status--fulfilled">
+                Исполнено
+                <font-awesome-icon
+                  :icon="['fas', 'check']"
+                  class="card__status--icon"
+                />
+              </div>
+            </div>
+
             <div
               v-else-if="!auth.currentUser"
               class="card__reserved__text"
@@ -251,6 +262,21 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.card__status {
+  margin-bottom: 5px;
+  color: white;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.card__status--fulfilled {
+  width: 200px;
+  margin: auto;
+  font-size: 22px;
+  text-align: center;
+  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(137, 23, 178, 1) 1%, rgba(251, 17, 37, 0.7455357142857143) 100%, rgba(0, 212, 255, 1) 100%);
+}
+
 .card__back__button {
   background-color: var(--color-background-light);
 }

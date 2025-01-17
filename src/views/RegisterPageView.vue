@@ -2,7 +2,6 @@
 import path from '@/components/constants/pathes'
 import defaultAvatar from '@/components/icons/avatar.png'
 import defaultWallpaper from '@/components/icons/wall.png'
-import WIAnimationSvg from '@/components/WIAnimationSvg.vue'
 import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { ref } from 'vue'
@@ -24,7 +23,6 @@ async function register() {
     const userCredential = await createUserWithEmailAndPassword(getAuth(), email.value, password.value)
     const user = userCredential.user
     console.log(user, 'successfully registered')
-
     const userData = {
       uid: user.uid,
       email: user.email,
@@ -34,7 +32,6 @@ async function register() {
       about: '',
       photoUrl: defaultAvatar,
       badges: [
-        { name: 'Аниме', BgColor: 'rgba(204, 34, 238, 0.45)', color: 'rgba(204, 34, 238, 1)' },
       ],
       subscribe: [],
     }
@@ -62,10 +59,14 @@ async function signInWithGoogle() {
     const userData = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName,
-      photoUrl: user.photoURL,
       createdAt: new Date(),
-
+      wallpaperUrl: defaultWallpaper,
+      displayName: user.displayName,
+      about: '',
+      photoUrl: user.photoURL,
+      badges: [
+      ],
+      subscribe: [],
     }
 
     await setDoc(doc(db, 'users', user.uid), userData, { merge: true })
@@ -105,8 +106,12 @@ async function signInWithGoogle() {
       >
         Зарегистрироваться
       </button>
-      <!-- <button class="register__button register__button--withGoogle" @click="signInWithGoogle">Login with
-                Google</button> -->
+      <button
+        class="register__button register__button--withGoogle"
+        @click="signInWithGoogle"
+      >
+        Google
+      </button>
       <p
         class="register__question"
         @click="toAuthPage"
@@ -114,7 +119,6 @@ async function signInWithGoogle() {
         есть аккаунт?
       </p>
     </form>
-    <WIAnimationSvg />
   </div>
 </template>
 
@@ -130,7 +134,8 @@ async function signInWithGoogle() {
   align-items: center;
   height: 100vh;
   font-size: 18px;
-  color: #ffd859;
+  color: var(--color-accent);
+  background-color: var(--color-background);
 }
 
 .register__form {
@@ -140,7 +145,8 @@ async function signInWithGoogle() {
   padding: 20px;
 
   border-radius: 20px;
-  background-color: #111827;
+  background-color: var(--color-background-light);
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .register h1 {
@@ -161,11 +167,10 @@ async function signInWithGoogle() {
   width: 300px;
   height: 20px;
   margin-bottom: 10px;
-  border: 2px solid #ffd859;
+  border: 2px solid var(--color-accent);
   padding: 8px;
   border-radius: 4px;
   outline: none;
-  background-color: white
 }
 
 .register__input::placeholder {
@@ -175,17 +180,21 @@ async function signInWithGoogle() {
 .register__button {
   font-size: 20px;
   color: #0d121b;
-  background-color: #ffd859;
+  background-color: var(--color-accent);
   border: none;
   border-radius: 5px;
   cursor: pointer;
   width: 320px;
   height: 40px;
   margin-bottom: 10px;
+  color: white;
 }
 
 .register__button:hover {
-  border: 3px solid #ffd859;
-  box-shadow: 0px 0px 15px #ffd859;
+  box-shadow: 0px 0px 15px var(--color-accent);
+}
+
+.register__button--withGoogle{
+  background-color: rgb(189, 7, 7);
 }
 </style>

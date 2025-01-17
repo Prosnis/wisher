@@ -70,7 +70,7 @@ onMounted(async () => {
     const uid = auth.currentUser.uid
     const { user: userData } = await getUserData(uid)
     currentUser.value = userData
-    userProfileUrl.value = `https://prosnis.github.io/wisher/user/${uid}`
+    userProfileUrl.value = `https://www.вишер.рф/user/${uid}`
     qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
   }
 })

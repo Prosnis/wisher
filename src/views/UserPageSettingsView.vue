@@ -17,10 +17,9 @@ const loading = ref(false)
 
 const currentUser = ref(null)
 const { getProfileData } = profileStore
-
 const formData = reactive({
-  name: '',
-  about: '',
+  name: profileStore.user.displayName,
+  about: profileStore.user.about,
   badges: [],
 })
 
@@ -35,10 +34,6 @@ const badgePicker = (badge) => {
   else {
     formData.badges.push(badge)
   }
-}
-
-const saveDecline = () => {
-  router.back()
 }
 
 const saveProfile = async () => {
@@ -79,7 +74,6 @@ onMounted(async () => {
       class="profile__spinner"
     />
     <form
-      v-if="profileStore.badges.length"
       class="form"
       @submit.prevent="saveProfile"
     >
@@ -108,7 +102,6 @@ onMounted(async () => {
             id="about"
             v-model="formData.about"
             class="form__list__textarea"
-            name=""
           />
         </li>
         <li class="form__list__item">
@@ -133,13 +126,6 @@ onMounted(async () => {
         </li>
       </ul>
       <div class="form__buttons">
-        <button
-          class="form__button form__button--decline"
-          type="button"
-          @click="saveDecline"
-        >
-          отмена
-        </button>
         <button class="form__button form__button--save">
           сохранить изменения
         </button>

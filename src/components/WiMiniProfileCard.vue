@@ -1,116 +1,74 @@
 <script setup>
-import { getAllUsers } from '@/services/GetAllUsers'
-import { computed, onMounted, ref } from 'vue'
+import path from '@/components/constants/pathes'
 import { useRouter } from 'vue-router'
-import path from './constants/pathes'
 
-const users = ref([])
-const currentPage = ref(0)
-const usersPerPage = 3
+const props = defineProps({
+  users: {
+    type: Array,
+    required: true,
+  },
+})
+
 const router = useRouter()
-const loading = ref(false)
-const hoverArr = [1, 2, 3]
 
-const paginatedUsers = computed(() => {
-  const start = currentPage.value * usersPerPage
-  const end = start + usersPerPage
-  return users.value.slice(start, end)
-})
-
-function nextPage() {
-  if ((currentPage.value + 1) * usersPerPage < users.value.length) {
-    currentPage.value++
-  }
-}
-
-function prevPage() {
-  if (currentPage.value > 0) {
-    currentPage.value--
-  }
-}
-
-async function toUser(userID) {
+async function toUserPage(userId) {
   try {
-    await router.push(`${path.user}/${userID}`)
+    await router.push(`${path.user}/${userId}`)
   }
   catch (err) {
-    console.log(err)
+    console.error('Ошибка при переходе:', err)
   }
 }
-
-onMounted(async () => {
-  try {
-    loading.value = true
-    users.value = await getAllUsers()
-  }
-  catch (err) {
-    console.log(err, 'err')
-  }
-  finally {
-    loading.value = false
-  }
-})
 </script>
 
 <template>
-  <div>
-    <div v-if="loading">
+  <div class="users__wrapper">
+    <div class="users__items">
       <div
-        v-for="(item, index) in hoverArr"
-        :key="index"
-        class="mini__profile hover"
-      />
-    </div>
-
-    <div
-      v-for="user in paginatedUsers"
-      v-else
-      :key="user.uid"
-      class="mini__profile"
-      @click="toUser(user.uid)"
-    >
-      <div class="mini__profile__wallpaper">
-        <img
-          class="profile__img profile__img--wallpaper"
-          :src="user.wallpaperUrl"
-          alt=""
-        >
-      </div>
-      <div class="mini__profile__avatar">
-        <img
-          class="profile__img profile__img--avatar"
-          :src="user.photoUrl"
-          alt=""
-        >
-      </div>
-      <div class="mini__profile__info">
-        <h3 class="mini__profile--title">
-          {{ user.displayName }}
-        </h3>
-        <span class="mini__profile--description">открыть профиль</span>
-      </div>
-    </div>
-
-    <div class="pagination__controls">
-      <button
-        class="pagination__button"
-        :disabled="currentPage === 0"
-        @click="prevPage"
+        v-for="user in props.users"
+        :key="user.uid"
+        class="mini__profile"
+        @click="toUserPage(user.uid)"
       >
-        Предыдущие
-      </button>
-      <button
-        class="pagination__button"
-        :disabled="(currentPage + 1) * usersPerPage >= users.length"
-        @click="nextPage"
-      >
-        Следующие
-      </button>
+        <div class="mini__profile__wallpaper">
+          <img
+            class="profile__img profile__img--wallpaper"
+            :src="user.wallpaperUrl"
+            alt=""
+          >
+        </div>
+        <div class="mini__profile__avatar">
+          <img
+            class="profile__img profile__img--avatar"
+            :src="user.photoUrl"
+            alt=""
+          >
+        </div>
+        <div class="mini__profile__info">
+          <h3 class="mini__profile--title">
+            {{ user.displayName }}
+          </h3>
+          <span class="mini__profile--description">открыть профиль</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.users__items {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.users__wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .hover {
   width: 100%;
   height: 100%;
@@ -139,7 +97,7 @@ onMounted(async () => {
 }
 
 .mini__profile--description {
-  color: #ffd859;
+  color: var(--color-background-light);
 }
 
 .mini__profile__wallpaper {
@@ -174,30 +132,10 @@ onMounted(async () => {
 .mini__profile {
   background-color: #111827;
   border-radius: 10px;
-  width: 400px;
+  width: 250px;
   text-align: center;
   height: 220px;
-  margin-bottom: 20px;
-}
-
-.pagination__controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.pagination__button {
-  padding: 10px 20px;
-  margin: 0 10px;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  overflow: hidden;
   cursor: pointer;
-}
-
-.pagination__button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
 }
 </style>

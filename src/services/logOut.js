@@ -4,6 +4,7 @@ export async function logout() {
   try {
     const auth = getAuth()
     await signOut(auth)
+    window.location.reload()
     console.log('Пользователь разлогинен')
   }
   catch (error) {

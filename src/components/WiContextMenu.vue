@@ -50,13 +50,14 @@ onBeforeUnmount(() => {
 
   .context__menu {
     position: absolute;
-    background: var(--color-background-light);
+    background: var(--color-secondary);
     border-radius: 10px;
     z-index: 1000;
     top: 60px;
     padding: 5px 0px;
     right: 20px;
-    width: 150px;
-    height: 80px;
+    width: 180px;
+    height: 50px;
+    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
   }
 </style>
