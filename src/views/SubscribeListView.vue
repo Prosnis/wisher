@@ -5,15 +5,14 @@ import { getSubscribeList } from '@/services/GetSubsList'
 import { useUserStore } from '@/stores/WiUserStore'
 import { onMounted, ref } from 'vue'
 
-const userStore = useUserStore()
-const subscribeList = ref([])
+const subscribeList = ref({})
 const loading = ref(false)
 
 onMounted(async () => {
   try {
+    const userStore = useUserStore()
     loading.value = true
     subscribeList.value = await getSubscribeList(userStore.user.subscribe)
-    console.log(userStore.user.subscribe, 'store')
   }
   catch (err) {
     console.log(err)

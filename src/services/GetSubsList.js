@@ -18,7 +18,6 @@ export async function getSubscribeList(subList) {
         }
       }),
     )
-    console.log(result, '123')
     return result.filter(user => user !== null)
   }
   catch (error) {

@@ -11,6 +11,7 @@ import SubscribeListView from './SubscribeListView.vue'
 import WiReservedListView from './WiReservedListView.vue'
 
 const route = useRoute()
+const loading = ref('false')
 
 const components = {
   WiUserWishesVue,
@@ -36,7 +37,16 @@ watch(
 )
 
 onMounted(async () => {
-  await getProfileData(route.params.uid)
+  try {
+    loading.value = true
+    await getProfileData(route.params.uid)
+  }
+  catch (err) {
+    console.log(err)
+  }
+  finally {
+    loading.value = false
+  }
 })
 </script>
 
@@ -47,7 +57,7 @@ onMounted(async () => {
     </div>
     <main class="user">
       <WiContentLoader
-        v-if="profileStore.skeletonLoad"
+        v-if="loading"
         class="skeleton"
         :width="1300"
         :height="345"
@@ -67,35 +77,28 @@ onMounted(async () => {
         </div>
       </section>
 
-      <WiContentLoader
-        v-if="profileStore.skeletonLoad"
-        class="skeleton"
-        :width="1300"
-        :height="67"
-      />
-      <div
-        v-else-if="!profileStore.skeletonLoad && profileStore.badges.length > 0"
-        class="profile__badges"
-      >
+      <div v-if="profileStore.badges.length > 0">
+        <WiContentLoader
+          v-if="profileStore.skeletonLoad"
+          class="skeleton"
+          :width="1300"
+          :height="67"
+        />
         <div
-          v-for="(badge, index) in profileStore.badges"
-          :key="index"
-          class="badge"
+          v-else-if="!profileStore.skeletonLoad && profileStore.badges.length > 0"
+          class="profile__badges"
         >
-          {{ badge.name }}
+          <div
+            v-for="(badge, index) in profileStore.badges"
+            :key="index"
+            class="badge"
+          >
+            {{ badge.name }}
+          </div>
         </div>
       </div>
 
-      <WiContentLoader
-        v-if="profileStore.skeletonLoad"
-        class="skeleton"
-        :width="1300"
-        :height="75"
-      />
-      <div
-        v-else
-        class="profile__nav"
-      >
+      <div class="profile__nav">
         <WiProfileNavbar
           v-if="profileStore.hasEditPermission"
           :active-view="currentComponent"

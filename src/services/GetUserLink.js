@@ -7,5 +7,5 @@ const userUid = ref(null)
 export async function getUserLink() {
   userUid.value = auth.currentUser.uid
 
-  return `https://prosnis.github.io/wisher/user/${userUid.value}`
+  return `https://www.вишер.рф/user/${userUid.value}`
 }

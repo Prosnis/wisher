@@ -26,35 +26,31 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <WiContentLoader
-      v-if="loading"
-      :width="1300"
-      :height="360"
+  <WiContentLoader
+    v-if="loading"
+    :width="1300"
+    :height="360"
+  />
+  <div
+    v-else-if="fillteredWishes.length > 0 && !loading"
+    class="reserved"
+  >
+    <WiCardCreate
+      v-for="wish in fillteredWishes"
+      :key="wish.id"
+      :wish="wish"
     />
-
-    <div
-      v-else-if="fillteredWishes.length > 0 && !loading"
-      class="reserved"
+  </div>
+  <div
+    v-else
+    class="empty"
+  >
+    <img
+      class="empty__image"
+      src="@/components/icons/empty.png"
+      alt=""
     >
-      <WiCardCreate
-        v-for="wish in fillteredWishes"
-        :key="wish.id"
-        :wish="wish"
-      />
-    </div>
-
-    <div
-      v-else
-      class="empty"
-    >
-      <img
-        class="empty__image"
-        src="@/components/icons/empty.png"
-        alt=""
-      >
-      <span>Здесь пока пусто...</span>
-    </div>
+    <span>Здесь пока пусто...</span>
   </div>
 </template>
 

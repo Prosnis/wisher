@@ -45,7 +45,6 @@ function register() {
     })
 }
 
-// Вход через Google
 function signInWithGoogle() {
   const auth = getAuth()
   const provider = new GoogleAuthProvider()
@@ -71,27 +70,6 @@ function signInWithGoogle() {
       @submit.prevent="register"
     >
       <h1>Log in</h1>
-      <input
-        v-model="email"
-        class="auth__input auth__input--email"
-        type="text"
-        placeholder="Email"
-      >
-      <input
-        v-model="password"
-        class="auth__input auth__input--password "
-        type="password"
-        placeholder="Password"
-      >
-      <p v-if="errMsg">
-        {{ errMsg }}
-      </p>
-      <button
-        class="auth__btn auth__btn--login"
-        type="submit"
-      >
-        Войти
-      </button>
       <button
         class="auth__btn auth__button--withGoogle"
         @click="signInWithGoogle"
@@ -182,7 +160,8 @@ function signInWithGoogle() {
   border: 3px solid #ffd859;
   box-shadow: 0px 0px 15px #ffd859;
 }
-.auth__button--withGoogle{
+
+.auth__button--withGoogle {
   background-color: rgb(189, 7, 7);
 }
 </style>

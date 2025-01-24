@@ -53,8 +53,8 @@ async function parseFromYndex() {
     form.img = result.image
     form.name = result.title
     form.description = result.description
-    form.link = result.link
-    form.price = result.price
+    form.link = urlToparse.value
+    form.price = result.price || 0
     formToggler()
     error.value = false
     classifiedHobbies(form.name)
