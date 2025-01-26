@@ -1,11 +1,11 @@
 <script setup>
+import WiContextMenu from '@/components/WiContextMenu.vue'
+import WiModal from '@/components/WiModal.vue'
 import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
-import { defineEmits, defineProps, onMounted, ref } from 'vue'
+import { defineEmits, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import WiContextMenu from '../WiContextMenu.vue'
-import WiModal from '../WiModal.vue'
 
-const props = defineProps({
+const { card } = defineProps({
   card: {
     type: Object,
     default: () => {},
@@ -19,7 +19,7 @@ const modalToggle = ref(false)
 const db = getFirestore()
 
 function toggleFulfillStatus() {
-  const newStatus = !props.card.fulfilled
+  const newStatus = !card.fulfilled
   emit('toggleFulfill', newStatus)
 }
 

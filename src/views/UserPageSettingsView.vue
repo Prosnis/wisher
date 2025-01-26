@@ -1,7 +1,7 @@
 <!-- eslint-disable antfu/top-level-function -->
 <script setup>
 import WiNavbar from '@/components/WiNavbar.vue'
-import { badges } from '@/services/UserBadgesStore'
+import { BADGES } from '@/constants/badges'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
@@ -111,7 +111,7 @@ onMounted(async () => {
           >Выберите интересы:</label>
           <div class="form__badge__wrapper">
             <div
-              v-for="(badge, index) in badges"
+              v-for="(badge, index) in BADGES"
               :key="index"
               :class="[isBadgePicked(badge) ? 'form__badge__picked' : 'form__badge']"
               :style="{

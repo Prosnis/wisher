@@ -1,8 +1,8 @@
 <script setup>
-import path from '@/components/constants/pathes'
+import { PATHS } from '@/constants/paths'
 import { useRouter } from 'vue-router'
 
-const props = defineProps({
+defineProps({
   users: {
     type: Array,
     required: true,
@@ -13,7 +13,7 @@ const router = useRouter()
 
 async function toUserPage(userId) {
   try {
-    await router.push(`${path.user}/${userId}`)
+    await router.push(`${PATHS.USER.PROFILE}/${userId}`)
   }
   catch (err) {
     console.error('Ошибка при переходе:', err)
@@ -25,7 +25,7 @@ async function toUserPage(userId) {
   <div class="users__wrapper">
     <div class="users__items">
       <div
-        v-for="user in props.users"
+        v-for="user in users"
         :key="user.uid"
         class="mini__profile"
         @click="toUserPage(user.uid)"
@@ -34,14 +34,14 @@ async function toUserPage(userId) {
           <img
             class="profile__img profile__img--wallpaper"
             :src="user.wallpaperUrl"
-            alt=""
+            alt="Обложка профиля"
           >
         </div>
         <div class="mini__profile__avatar">
           <img
             class="profile__img profile__img--avatar"
             :src="user.photoUrl"
-            alt=""
+            alt="Аватар профиля"
           >
         </div>
         <div class="mini__profile__info">

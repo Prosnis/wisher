@@ -1,5 +1,5 @@
 <script setup>
-import path from '@/components/constants/pathes'
+import { PATHS } from '@/constants/paths'
 import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -10,7 +10,7 @@ const errMsg = ref('')
 const router = useRouter()
 
 function toAuthPage() {
-  router.push(path.register).catch((err) => {
+  router.push(PATHS.AUTH.REGISTER).catch((err) => {
     console.error('Failed to navigate:', err)
   })
 }
@@ -22,7 +22,7 @@ function register() {
       const user = data.user
       console.log('Successfully logged in:', user)
 
-      router.push(`${path.user}/${user.uid}`).catch((err) => {
+      router.push(`${PATHS.USER.PROFILE}/${user.uid}`).catch((err) => {
         console.error('Failed to navigate:', err)
       })
     })

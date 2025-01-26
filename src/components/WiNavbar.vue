@@ -1,17 +1,19 @@
 <script setup>
-import path from '@/components/constants/pathes'
+import { PATHS } from '@/constants/paths'
 import { logout } from '@/services/logOut'
 import { useUserStore } from '@/stores/WiUserStore'
 import { getAuth } from 'firebase/auth'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const auth = getAuth()
+const notAuthorized = computed(() => !auth.currentUser)
 
 async function toUserPage() {
-  const userPagePath = `${path.user}/${userStore.userUID}`
+  const userPagePath = `${PATHS.USER.PROFILE}/${userStore.userUID}`
   if (route.path !== userPagePath) {
     await router.push(userPagePath)
   }
@@ -22,7 +24,7 @@ async function toUserPage() {
   <nav class="nav">
     <div>
       <router-link
-        :to="path.feed"
+        :to="PATHS.MAIN"
         class="nav__logo"
       >
         <span>вишер</span>
@@ -30,8 +32,8 @@ async function toUserPage() {
     </div>
 
     <router-link
-      v-if="!auth.currentUser"
-      :to="path.register"
+      v-if="notAuthorized"
+      :to="PATHS.AUTH.REGISTER"
       class="user"
     >
       <span class="nav__login__text">вход/регистрация<font-awesome-icon :icon="['fas', 'right-to-bracket']" /></span>
@@ -50,7 +52,7 @@ async function toUserPage() {
           <img
             class="user__img"
             :src="userStore.user.photoUrl"
-            alt=""
+            alt="Аватар профиля"
           >
           <span class="user__name"> {{ userStore.user.displayName }}</span>
         </div>

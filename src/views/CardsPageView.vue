@@ -2,9 +2,9 @@
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
-import { badgeAll } from '@/services/BadgeForSearch'
+import { BADGE_ALL } from '@/constants/badgeForSearch'
+import { BADGES } from '@/constants/badges'
 import { getAllWishes } from '@/services/GetAllWishes'
-import { badges } from '@/services/UserBadgesStore'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const wishes = ref(null)
@@ -14,12 +14,13 @@ const loading = ref(false)
 
 const currentPage = ref(1)
 const itemsPerPage = 10
+const combinedBadges = computed(() => [...BADGES, ...BADGE_ALL])
 
 const paginatedWishes = computed(() => {
   return filteredWishes.value.slice(0, currentPage.value * itemsPerPage)
 })
 
-function handleScroll() {
+function processScroll() {
   const bottomOffset = 10
   const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - bottomOffset
 
@@ -56,7 +57,7 @@ function badgesFilter(badge) {
 
 onMounted(async () => {
   try {
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', processScroll)
     loading.value = true
     const rawWishes = await getAllWishes()
     const wishesWithUserData = await Promise.all(
@@ -65,8 +66,8 @@ onMounted(async () => {
       }),
     )
     wishes.value = wishesWithUserData
-    badgePicker(badgeAll[0])
-    badgesFilter(badgeAll[0])
+    badgePicker(BADGE_ALL[0])
+    badgesFilter(BADGE_ALL[0])
   }
   catch (error) {
     console.error('Ошибка загрузки данных:', error)
@@ -76,7 +77,7 @@ onMounted(async () => {
   }
 })
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('scroll', processScroll)
 })
 </script>
 
@@ -86,7 +87,7 @@ onUnmounted(() => {
     <div class="cards__nav">
       <ul class="cards__list">
         <li
-          v-for="(badge, index) in [...badges, ...badgeAll]"
+          v-for="(badge, index) in combinedBadges"
           :key="index"
           class="cards__item"
           :style="{
@@ -107,7 +108,7 @@ onUnmounted(() => {
     />
 
     <div
-      v-else-if="filteredWishes.length && !loading"
+      v-else-if="filteredWishes.length"
       class="cards__wrapper"
     >
       <WiCardCreate
@@ -120,13 +121,13 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-else-if="filteredWishes.length === 0"
+      v-else
       class="empty"
     >
       <img
         class="empty__image"
         src="@/components/icons/empty.png"
-        alt=""
+        alt="Иконка пустого списка: здесь пока нет элементов"
       >
       <span>Здесь пока пусто...</span>
     </div>

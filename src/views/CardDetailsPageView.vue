@@ -8,7 +8,7 @@ import { getUserData } from '@/services/GetUserData'
 import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, updateDoc } from 'firebase/firestore'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const db = getFirestore()
@@ -18,6 +18,11 @@ const spinner = ref(false)
 
 const cardStore = useCardStore()
 const { getCardData } = cardStore
+
+const hideButton = computed(() => !cardStore.isOwner)
+const enableForReserve = computed(() => !cardStore.isReserved && auth.currentUser && !cardStore.card.fulfilled)
+const fulfilled = computed(() => cardStore.card.fulfilled)
+const guestMessage = computed(() => !auth.currentUser)
 
 async function toggleFulfill(newStatus) {
   try {
@@ -32,13 +37,13 @@ async function toggleFulfill(newStatus) {
 }
 
 async function toggleReserve() {
-  cardStore.hasEditPermission = true
+  cardStore.isReservedUser = true
   try {
     spinner.value = true
-    const currentUser = auth.currentUser
-    const userData = await getUserData(currentUser.uid)
+    const CURRENT_USER = auth.currentUser
+    const USER_DATA = await getUserData(CURRENT_USER.uid)
 
-    if (cardStore.isReserved && cardStore.reservedBy === currentUser.uid) {
+    if (cardStore.isReserved && cardStore.reservedBy === CURRENT_USER.uid) {
       await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: '' })
       cardStore.reservedBy = ''
       cardStore.isReserved = false
@@ -46,9 +51,9 @@ async function toggleReserve() {
     }
     else if (!cardStore.isReserved) {
       await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: auth.currentUser.uid })
-      cardStore.reservedBy = currentUser.uid
+      cardStore.reservedBy = CURRENT_USER.uid
       cardStore.isReserved = true
-      cardStore.reservedUser = userData.user
+      cardStore.reservedUser = USER_DATA.user
     }
   }
   catch (err) {
@@ -88,7 +93,7 @@ onMounted(async () => {
             <img
               class="card__image  card__image--user"
               :src="cardStore.user.photoUrl"
-              alt=""
+              alt="Аватар профиля"
             >
           </div>
           <router-link
@@ -114,7 +119,7 @@ onMounted(async () => {
         </div>
 
         <div
-          v-if="!cardStore.blockSelfReserve"
+          v-if="cardStore.isOwner"
           class="card__menu"
         >
           <WiCardMenu
@@ -131,7 +136,7 @@ onMounted(async () => {
               <img
                 class="card__image  card__image--description"
                 :src="cardStore.card.img"
-                alt=""
+                alt="Изображение желания"
               >
             </div>
           </div>
@@ -148,7 +153,7 @@ onMounted(async () => {
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/ozon.png"
-                  alt=""
+                  alt="ozon"
                 ></a>
               </div>
               <div class="card__links--item">
@@ -158,7 +163,7 @@ onMounted(async () => {
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/wb.png"
-                  alt=""
+                  alt="Wildverries"
                 ></a>
               </div>
               <div class="card__links--item">
@@ -168,7 +173,7 @@ onMounted(async () => {
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/ym.png"
-                  alt=""
+                  alt="yandex market"
                 ></a>
               </div>
             </div>
@@ -197,7 +202,7 @@ onMounted(async () => {
               class="card__description--reserved"
             >
               <button
-                v-if="cardStore.hasEditPermission"
+                v-if="cardStore.isReservedUser"
                 class="card__button card__button-free"
                 @click="toggleReserve"
               >
@@ -207,7 +212,7 @@ onMounted(async () => {
                 <img
                   class="card__description--stamp"
                   src="@/components/icons/reserved.png"
-                  alt=""
+                  alt="Зарезервировано"
                 >
               </div>
               <span class="card__reserved__text">Зарезервировано пользователем
@@ -221,24 +226,24 @@ onMounted(async () => {
             </div>
 
             <div
-              v-else-if="!cardStore.isReserved && auth.currentUser && !cardStore.card.fulfilled"
+              v-else-if="enableForReserve"
               class="card__description--reserved"
             >
               <button
-                v-if="cardStore.blockSelfReserve"
+                v-if="hideButton"
                 class="card__button card__button-reserved"
                 @click="toggleReserve"
               >
                 зарезервировать
               </button>
               <span
-                v-if="cardStore.blockSelfReserve"
+                v-if="hideButton"
                 class="card__reserved__text"
               >Pарезервируйте этот подарок, если
                 хотите его подарить.</span>
             </div>
 
-            <div v-else-if="cardStore.card.fulfilled">
+            <div v-else-if="fulfilled">
               <div class="card__status card__status--fulfilled">
                 Исполнено
                 <font-awesome-icon
@@ -249,7 +254,7 @@ onMounted(async () => {
             </div>
 
             <div
-              v-else-if="!auth.currentUser"
+              v-else-if="guestMessage"
               class="card__reserved__text"
             >
               <span>Для бронирования желаний нужно зарегистрироваться</span>

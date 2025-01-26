@@ -1,12 +1,12 @@
 <script setup>
 import WiSubscribeButton from '@/components/WiSubscribeButton.vue'
+import { PATHS } from '@/constants/paths'
 import { saveProfile } from '@/services/UserPictureUpdate'
 import { getAuth } from 'firebase/auth'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import path from '../constants/pathes'
 
-const props = defineProps({
+const { user, hasEditPermission } = defineProps({
   user: {
     type: Object,
     default: () => ({}),
@@ -21,6 +21,7 @@ const props = defineProps({
     type: String,
   },
 })
+
 const hoverWallaper = ref(false)
 const hoverAvatar = ref(false)
 const wallpaperFile = ref(null)
@@ -33,8 +34,11 @@ const auth = getAuth()
 
 function goToSettingsPage() {
   const uid = route.params.uid
-  router.push({ path: `${path.settings}/${uid}` })
+  router.push({ path: `${PATHS.USER.SETTINGS}/${uid}` })
 }
+const isWallaperOwner = computed(() => hoverWallaper.value && hasEditPermission)
+const isAvatarOwner = computed(() => hoverAvatar.value && hasEditPermission)
+const isAvailableToSubscribe = computed(() => !hasEditPermission && auth.currentUser && auth.currentUser.uid !== route.params.uid)
 
 function picturesEdit(target, event) {
   const file = event.target.files[0]
@@ -44,7 +48,7 @@ function picturesEdit(target, event) {
   else if (target === 'wallpaper') {
     wallpaperFile.value = file
   }
-  saveProfile(props.user, wallpaperFile, avatarFile, loading)
+  saveProfile(user, wallpaperFile, avatarFile, loading)
 }
 </script>
 
@@ -55,15 +59,15 @@ function picturesEdit(target, event) {
     @mouseleave="hoverWallaper = false"
   >
     <img
-      :src="props.user.wallpaperUrl"
-      alt="user-wallpaper"
+      :src="user.wallpaperUrl"
+      alt="Обложка профиля"
       loading="lazy"
       class="profile__wallapper-img"
       :style="{ opacity: imageLoaded ? 1 : 0 }"
       @load="imageLoaded = true"
     >
     <label
-      v-if="hoverWallaper && hasEditPermission"
+      v-if="isWallaperOwner"
       for="input-wallaper"
       class="profile__wallaper-edit"
     >
@@ -88,13 +92,13 @@ function picturesEdit(target, event) {
     >
       <img
         class="profile__photo"
-        :src="props.user.photoUrl"
-        alt="user-photo"
+        :src="user.photoUrl"
+        alt="Аватар профиля"
         loading="lazy"
       >
 
       <label
-        v-if="hoverAvatar && props.hasEditPermission"
+        v-if="isAvatarOwner"
         for="input-avatar"
         class="profile__photo profile__photo--edit"
       >
@@ -102,7 +106,7 @@ function picturesEdit(target, event) {
           id="input-avatar"
           class="profile__input profile__input--avatar"
           type="file"
-          @change="picturesEdit('avatar', $event)"
+          @change="picturesEdit('avatar')"
         >
         <font-awesome-icon
           class="profile__icon profile__icon-edit"
@@ -111,22 +115,22 @@ function picturesEdit(target, event) {
       </label>
       <div>
         <h2 class="profile__name">
-          {{ props.user.displayName }}
+          {{ user.displayName }}
         </h2>
         <p class="profile__about">
-          {{ props.user.about || 'Информация о пользователе отсутствует' }}
+          {{ user.about || 'Информация о пользователе отсутствует' }}
         </p>
       </div>
     </div>
     <button
-      v-if="props.hasEditPermission"
+      v-if="hasEditPermission"
       class="profile_setting_button"
       @click="goToSettingsPage"
     >
       <font-awesome-icon :icon="['fas', 'gear']" />редактировать профиль
     </button>
     <WiSubscribeButton
-      v-if="!props.hasEditPermission && auth.currentUser && auth.currentUser.uid !== route.params.uid"
+      v-if="isAvailableToSubscribe"
     />
   </div>
 </template>

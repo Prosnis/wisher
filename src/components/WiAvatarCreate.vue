@@ -1,19 +1,19 @@
 <script setup>
-const props = defineProps({
+import { computed } from 'vue'
+
+const { name } = defineProps({
   name: {
     type: String,
     required: true,
   },
 })
 
-function getInitial(name) {
-  return name.charAt(0).toUpperCase()
-}
+const initial = computed(() => name.charAt(0).toUpperCase())
 </script>
 
 <template>
   <div class="avatar">
-    <span class="avatar-letter">{{ getInitial(props.name) }}</span>
+    <span class="avatar-letter">{{ initial }}</span>
   </div>
 </template>
 

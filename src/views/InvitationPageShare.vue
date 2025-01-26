@@ -10,6 +10,7 @@ const uid = ref(null)
 const userLinkToCopy = ref(null)
 const auth = getAuth()
 const buttonText = ref('Скопировать ссылку')
+const URL = import.meta.env.VITE_API_URL
 
 async function copyLink() {
   const combinedText = `${invitationImageUrl.value}\n${userLinkToCopy.value}`
@@ -17,7 +18,7 @@ async function copyLink() {
   buttonText.value = 'Скопировано!'
 }
 
-function handleImageLoad(event) {
+function smoothLoad(event) {
   event.target.classList.add('loaded')
 }
 
@@ -32,37 +33,32 @@ onMounted(async () => {
   <WiNavbar />
   <div>
     <div
-      v-if="!invitationImageUrl"
-      class="invitation__container skeleton-loader"
-    />
-    <div
-      v-else
-      class="invitation__container"
+      :class="[invitationImageUrl ? 'invitation__container' : 'invitation__container skeleton-loader']"
     >
       <img
         :src="invitationImageUrl"
-        alt="Invitation Image"
+        alt="Изображение пригласительного"
         class="invitation__image"
         loading="lazy"
-        @load="handleImageLoad"
+        @load="smoothLoad"
       >
       <div class="invitation__links">
         <a
           target="_blank"
-          :href="`https://vk.com/share.php?url=${encodeURIComponent(invitationImageUrl)}&title=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://www.вишер.рф/user/${uid}`)}`"
+          :href="`https://vk.com/share.php?url=${encodeURIComponent(invitationImageUrl)}&title=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://${URL}/user/${uid}`)}`"
         >
           <img
             src="@/components/icons/svg/vk.svg"
-            alt=""
+            alt="Вконтакте"
           >
         </a>
         <a
           target="_blank"
-          :href="`https://t.me/share/url?url=${encodeURIComponent(invitationImageUrl)}&text=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://www.вишер.рф/user/${uid}`)}`"
+          :href="`https://t.me/share/url?url=${encodeURIComponent(invitationImageUrl)}&text=${encodeURIComponent(`Посмотреть и зарезервировать подарок можно тут: https://${URL}/user/${uid}`)}`"
         >
           <img
             src="@/components/icons/svg/tg.svg"
-            alt=""
+            alt="Телеграмм"
           >
         </a>
         <button
@@ -105,7 +101,6 @@ onMounted(async () => {
 
 .invitation__container {
   border-radius: 10px;
-  box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6);
   display: flex;
   flex-direction: column;
   width: 900px;

@@ -1,11 +1,11 @@
 import { getAuth } from 'firebase/auth'
-import { ref } from 'vue'
 
 const auth = getAuth()
-const userUid = ref(null)
+const userUid = null
+const URL = import.meta.env.VITE_API_URL
 
 export async function getUserLink() {
   userUid.value = auth.currentUser.uid
 
-  return `https://www.вишер.рф/user/${userUid.value}`
+  return `https://${URL}/user/${userUid.value}`
 }

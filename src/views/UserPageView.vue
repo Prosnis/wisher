@@ -3,7 +3,7 @@ import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
 import WiProfileNavbar from '@/components/WiProfileNavbar.vue'
 import WiUserPagePicturesEdit from '@/components/WiUser/WiUserPagePicturesEdit.vue'
-import WiUserWishesVue from '@/components/WiUser/WiUserWishes.vue'
+import WiUserWishes from '@/components/WiUser/WiUserWishes.vue'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -11,10 +11,10 @@ import SubscribeListView from './SubscribeListView.vue'
 import WiReservedListView from './WiReservedListView.vue'
 
 const route = useRoute()
-const loading = ref('false')
+const loading = ref(false)
 
 const components = {
-  WiUserWishesVue,
+  WiUserWishes,
   WiReservedListView,
   SubscribeListView,
 }
@@ -22,7 +22,7 @@ const components = {
 const profileStore = useProfileStore()
 const { getProfileData } = profileStore
 
-const currentComponent = ref('WiUserWishesVue')
+const currentComponent = ref('WiUserWishes')
 
 function changeView(componentName) {
   currentComponent.value = componentName
@@ -32,7 +32,7 @@ watch(
   () => route.params.uid,
   async (newUid) => {
     await getProfileData(newUid)
-    currentComponent.value = 'WiUserWishesVue'
+    currentComponent.value = 'WiUserWishes'
   },
 )
 
@@ -85,7 +85,7 @@ onMounted(async () => {
           :height="67"
         />
         <div
-          v-else-if="!profileStore.skeletonLoad && profileStore.badges.length > 0"
+          v-else
           class="profile__badges"
         >
           <div
@@ -101,20 +101,20 @@ onMounted(async () => {
       <div class="profile__nav">
         <WiProfileNavbar
           v-if="profileStore.hasEditPermission"
-          :active-view="currentComponent"
+          :active="currentComponent"
           @change-view="changeView"
         />
       </div>
 
       <div class="profile__wishes__wrapper">
         <WiContentLoader
-          v-show="profileStore.skeletonLoad"
+          v-if="loading"
           class="skeleton wishes"
           :width="1300"
           :height="300"
         />
         <div
-          v-show="!profileStore.skeletonLoad"
+          v-else
           class="wishes"
         >
           <component :is="components[currentComponent]" />

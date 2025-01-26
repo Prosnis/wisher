@@ -29,12 +29,12 @@ const categories = [
   'Косметология',
 ]
 
-const apiUrl = 'Bearer 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' // Замените на ваш токен
+const apiBearer = import.meta.env.VITE_API_BEARER
 const chunkSize = 10
 
 export async function classifyText(text) {
   try {
-    const results = []
+    let results = []
 
     for (let i = 0; i < categories.length; i += chunkSize) {
       const chunk = categories.slice(i, i + chunkSize)
@@ -43,7 +43,7 @@ export async function classifyText(text) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': apiUrl,
+          'Authorization': apiBearer,
         },
         body: JSON.stringify({
           inputs: text,
@@ -63,7 +63,7 @@ export async function classifyText(text) {
         score: data.scores[index],
       }))
 
-      results.push(...categoryScores.sort((a, b) => b.score - a.score).slice(0, 3))
+      results = results.concat(categoryScores.sort((a, b) => b.score - a.score).slice(0, 3))
     }
 
     return results

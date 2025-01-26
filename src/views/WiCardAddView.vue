@@ -1,11 +1,11 @@
 <script setup>
-import path from '@/components/constants/pathes'
 import defaultImage from '@/components/icons/box.jpg'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
+import { BADGES } from '@/constants/badges'
+import { PATHS } from '@/constants/paths'
 import { classifyText } from '@/services/GetCardHobby'
 import { YandexParser } from '@/services/GetFromYandex'
-import { badges } from '@/services/UserBadgesStore'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
@@ -38,7 +38,6 @@ const form = reactive({
   img: '',
   name: '',
   description: '',
-  price: '',
   date: new Date().toLocaleDateString(),
   link: '',
   badge: [],
@@ -54,7 +53,6 @@ async function parseFromYndex() {
     form.name = result.title
     form.description = result.description
     form.link = urlToparse.value
-    form.price = result.price || 0
     formToggler()
     error.value = false
     classifiedHobbies(form.name)
@@ -69,22 +67,11 @@ async function parseFromYndex() {
   }
 }
 
-function formatPrice(value) {
-  if (!value)
-    return ''
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    minimumFractionDigits: 0,
-  }).format(value)
-}
-
 function clearForm() {
   Object.assign(form, {
     img: '',
     name: '',
     description: '',
-    price: '',
     date: '',
     link: '',
   })
@@ -98,7 +85,6 @@ function createCardData(form) {
     name: form.name,
     hover: false,
     description: form.description || 'Описание отсутствует. ',
-    price: form.price || 0,
     date: form.date || new Date().toLocaleDateString(),
     link: form.link,
     reserve: '',
@@ -108,7 +94,7 @@ function createCardData(form) {
 }
 
 function toUserPage() {
-  router.push(`${path.user}/${auth.currentUser.uid}`)
+  router.push(`${PATHS.USER.PROFILE}/${auth.currentUser.uid}`)
 }
 
 async function CreateCard() {
@@ -173,7 +159,7 @@ async function classifiedHobbies(cardName) {
     const result = await classifyText(cardName)
     console.log('After classifyText:', result)
 
-    categories.value = badges.filter(badge =>
+    categories.value = BADGES.filter(badge =>
       result.some(res => badge.name.includes(res.label)),
     )
   }
@@ -265,20 +251,6 @@ async function classifiedHobbies(cardName) {
             <li class="form__list__item">
               <label
                 class="form__label"
-                for="price"
-              >Цена</label>
-              <input
-                id="price"
-                v-model="form.price"
-                class="form__input"
-                type="number"
-                maxlength="100"
-                oninput="this.value = this.value.slice(0, 10)"
-              >
-            </li>
-            <li class="form__list__item">
-              <label
-                class="form__label"
                 for="link"
               >Ссылка на товар</label>
               <input
@@ -344,11 +316,11 @@ async function classifiedHobbies(cardName) {
               <img
                 v-if="form.img"
                 :src="form.img"
-                alt=""
+                alt="Изображение карточки желания"
                 class="card__image"
               >
               <font-awesome-icon
-                v-if="!form.img"
+                v-else
                 class="card__icon--file"
                 :icon="['fas', 'file-image']"
               />
@@ -362,9 +334,6 @@ async function classifiedHobbies(cardName) {
             <h3 class="card__title">
               {{ form.name }}
             </h3>
-            <!-- <p class="card__price">
-            {{ formatPrice(form.price) }}
-          </p> -->
           </div>
           <button class="form__button--add">
             добавить
@@ -395,6 +364,7 @@ async function classifiedHobbies(cardName) {
   border: 1px solid var(--color-accent);
   padding: 10px;
   border-radius: 10px;
+  margin-top: auto;
 }
 
 .badge__icon--loading {

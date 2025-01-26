@@ -1,10 +1,10 @@
 <script setup>
-import path from '@/components/constants/pathes'
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
+import WiContentLoader from '@/components/WiContentLoader.vue'
+import { PATHS } from '@/constants/paths'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import WiContentLoader from '../WiContentLoader.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,19 +42,19 @@ onMounted(async () => {
       >
         <button
           class="wishes__button"
-          @click="() => router.push(path.cardAdd)"
+          @click="router.push(PATHS.CARDS.ADD)"
         >
           Добавить желание
         </button>
         <button
           class="wishes__button"
-          @click="() => router.push(path.invitationCard)"
+          @click="router.push(PATHS.CARDS.INVITATION_CREATE)"
         >
           Создать приглашение
         </button>
         <button
           class="wishes__button"
-          @click="() => router.push(path.cards)"
+          @click="router.push(PATHS.CARDS.MAIN)"
         >
           Желания пользователей
         </button>
@@ -75,7 +75,7 @@ onMounted(async () => {
         <img
           class="empty__image"
           src="@/components/icons/empty.png"
-          alt=""
+          alt="Иконка пустого списка: здесь пока нет элементов"
         >
         <span>Здесь пока пусто...</span>
       </div>

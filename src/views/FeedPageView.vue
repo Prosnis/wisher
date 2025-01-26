@@ -1,8 +1,8 @@
 <script setup>
-import path from '@/components/constants/pathes'
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import NavBar from '@/components/WiNavbar.vue'
+import { PATHS } from '@/constants/paths'
 import { getAllWishes } from '@/services/GetAllWishes'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -23,6 +23,7 @@ function hoverEnter(event) {
 function hoverLeft(event) {
   event.target.classList.remove('hover')
 }
+
 const totalPages = computed(() => Math.ceil(wishes.value.length / wishesPerPage))
 
 function nextPage() {
@@ -69,7 +70,7 @@ onUnmounted(() => {
           class="feed__item feed__item--login"
           @mouseenter="hoverEnter"
           @mouseleave="hoverLeft"
-          @click="() => router.push(path.register)"
+          @click="router.push(PATHS.AUTH.REGISTER)"
         >
           <h2 class="item__title">
             Присоединиться
@@ -85,7 +86,7 @@ onUnmounted(() => {
           class="feed__item feed__item--search "
           @mouseenter="hoverEnter"
           @mouseleave="hoverLeft"
-          @click="() => router.push(path.cards)"
+          @click="router.push(PATHS.CARDS.MAIN)"
         >
           <h2 class="item__title">
             Идеи подарков
@@ -99,9 +100,9 @@ onUnmounted(() => {
 
         <div
           class="feed__item feed__item--invitation "
-          @mouseenter="hoverEnter($event)"
-          @mouseleave="hoverLeft($event)"
-          @click="() => router.push(path.invitationCard)"
+          @mouseenter="hoverEnter"
+          @mouseleave="hoverLeft"
+          @click="router.push(PATHS.CARDS.INVITATION_CREATE)"
         >
           <h2 class="item__title">
             Cоздать приглашение

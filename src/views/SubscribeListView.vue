@@ -31,7 +31,7 @@ onMounted(async () => {
   />
 
   <div
-    v-else-if="subscribeList.length > 0 && !loading"
+    v-else-if="subscribeList.length > 0"
     class="subs"
   >
     <WiMiniProfileCard :users="subscribeList" />
@@ -44,7 +44,7 @@ onMounted(async () => {
     <img
       class="empty__image"
       src="@/components/icons/empty.png"
-      alt="empty__image"
+      alt="Иконка пустого списка: здесь пока нет элементов"
     >
     <span>Здесь пока пусто...</span>
   </div>

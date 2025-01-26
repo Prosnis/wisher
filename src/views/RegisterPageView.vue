@@ -1,6 +1,6 @@
 <script setup>
-import path from '@/components/constants/pathes'
 import defaultWallpaper from '@/components/icons/wall.png'
+import { PATHS } from '@/constants/paths'
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore'
 
@@ -37,7 +37,7 @@ async function signIn() {
 
     await setDoc(doc(db, 'users', user.uid), userData, { merge: true })
 
-    await router.push(`${path.user}/${user.uid}`).catch((err) => {
+    await router.push(`${PATHS.USER.PROFILE}/${user.uid}`).catch((err) => {
       console.error('Failed to navigate:', err)
     })
   }

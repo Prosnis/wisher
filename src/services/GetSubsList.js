@@ -1,7 +1,6 @@
 import { getUserData } from '@/services/GetUserData'
-import { ref } from 'vue'
 
-const subscribeMap = ref([])
+const subscribeMap = []
 
 export async function getSubscribeList(subList) {
   try {
@@ -9,7 +8,7 @@ export async function getSubscribeList(subList) {
       subList.map(async (item) => {
         try {
           const { user: userData } = await getUserData(item)
-          subscribeMap.value.push(userData)
+          subscribeMap.push(userData)
           return userData
         }
         catch (error) {

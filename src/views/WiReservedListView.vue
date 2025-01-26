@@ -32,7 +32,7 @@ onMounted(async () => {
     :height="360"
   />
   <div
-    v-else-if="fillteredWishes.length > 0 && !loading"
+    v-else-if="fillteredWishes.length > 0"
     class="reserved"
   >
     <WiCardCreate
@@ -48,7 +48,7 @@ onMounted(async () => {
     <img
       class="empty__image"
       src="@/components/icons/empty.png"
-      alt=""
+      alt="Иконка пустого списка: здесь пока нет элементов"
     >
     <span>Здесь пока пусто...</span>
   </div>

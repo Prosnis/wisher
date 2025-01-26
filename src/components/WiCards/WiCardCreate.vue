@@ -1,8 +1,8 @@
 <script setup>
-import path from '@/components/constants/pathes'
+import { PATHS } from '@/constants/paths'
 import { useRouter } from 'vue-router'
 
-const props = defineProps({
+defineProps({
   wish: {
     type: Object,
   },
@@ -18,7 +18,7 @@ const router = useRouter()
 
 async function goToCardPreview(wishID) {
   try {
-    await router.push(`${path.card}/${wishID}`)
+    await router.push(`${PATHS.CARDS.SINGLE}/${wishID}`)
     console.log('Navigation succeeded!')
   }
   catch (err) {
@@ -43,16 +43,16 @@ function hoverLeft(event) {
     @click="goToCardPreview(wish.id)"
   >
     <img
-      :src="props.wish.img"
-      alt=""
+      :src="wish.img"
+      alt="Изображение желания"
       class="card__image"
     >
     <h3 class="card__title">
-      {{ props.wish.name }}
+      {{ wish.name }}
     </h3>
     <p class="card__price" />
     <div class="card__status-container">
-      <div v-if="props.wish.fulfilled">
+      <div v-if="wish.fulfilled">
         <div class="card__status card__status--fulfilled">
           Исполнено
           <font-awesome-icon
@@ -61,7 +61,7 @@ function hoverLeft(event) {
           />
         </div>
       </div>
-      <div v-if="props.wish.reserve">
+      <div v-if="wish.reserve">
         <div class="card__status card__status--reserved">
           Забронировано
           <font-awesome-icon
