@@ -1,5 +1,7 @@
 <script setup>
 import path from '@/components/constants/pathes'
+import defaultAvatar from '@/components/icons/avatar.png'
+import defaultWallpaper from '@/components/icons/wall.png'
 import WIAnimationSvg from '@/components/WIAnimationSvg.vue'
 import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
@@ -27,14 +29,14 @@ async function register() {
       uid: user.uid,
       email: user.email,
       createdAt: new Date(),
-      wallpaperUrl: 'https://t4.ftcdn.net/jpg/08/11/25/41/360_F_811254149_AV6WMNTKdLZgMmyTDizY43EIMb8RgOul.jpg',
-      displayName: user.email,
+      wallpaperUrl: defaultWallpaper,
+      displayName: user.email.split('@')[0],
       about: '',
-      photoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPyGNr2qL63Sfugk2Z1-KBEwMGOfycBribew&s',
+      photoUrl: defaultAvatar,
       badges: [
         { name: 'Аниме', BgColor: 'rgba(204, 34, 238, 0.45)', color: 'rgba(204, 34, 238, 1)' },
       ],
-
+      subscribe: [],
     }
 
     await setDoc(doc(db, 'users', user.uid), userData)

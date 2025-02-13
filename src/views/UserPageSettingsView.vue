@@ -79,11 +79,13 @@ onMounted(async () => {
       class="profile__spinner"
     />
     <form
-      v-if="profileStore.badges"
+      v-if="profileStore.badges.length"
       class="form"
       @submit.prevent="saveProfile"
     >
-      <h1>Редактировать профиль</h1>
+      <h1 class="form__title">
+        Редактировать профиль
+      </h1>
       <ul class="form__list">
         <li class="form__list__item">
           <label
@@ -118,10 +120,10 @@ onMounted(async () => {
             <div
               v-for="(badge, index) in badges"
               :key="index"
-              class="form__badge"
+              :class="[isBadgePicked(badge) ? 'form__badge__picked' : 'form__badge']"
               :style="{
-                backgroundColor: isBadgePicked(badge) ? '#ffd859' : badge.BgColor,
-                color: isBadgePicked(badge) ? 'black' : badge.color,
+                backgroundColor: isBadgePicked(badge) ? '#0817ecb9' : badge.BgColor,
+                color: isBadgePicked(badge) ? '#f0f0f0' : '#818c99',
               }"
               @click="badgePicker(badge)"
             >
@@ -147,115 +149,136 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.form__title {
+  color: var(--color-text-secondary);
+}
+
 .profile__spinner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    --color: #f8f8dfaf;
-    background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
-    background-size: 200% 100%;
-    /* border-radius: 50px 50px 0 0; */
-    animation: loading 1.5s infinite;
-    z-index: 1;
-    opacity: 0.8;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  --color: #f8f8dfaf;
+  background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
+  background-size: 200% 100%;
+  /* border-radius: 50px 50px 0 0; */
+  animation: loading 1.5s infinite;
+  z-index: 1;
+  opacity: 0.8;
 }
 
 @keyframes loading {
-    0% {
-        background-position: 200% 0;
-    }
+  0% {
+    background-position: 200% 0;
+  }
 
-    100% {
-        background-position: -200% 0;
-    }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .form__buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
 
-.form__wrapper{
-    position: relative;
-    max-width: 800px;
-    margin: auto;
+.form__wrapper {
+  position: relative;
+  max-width: 800px;
+  margin: auto;
 }
 
 .form {
-    display: flex;
-    flex-direction: column;
-    background-color: #111827;
-    color: white;
-    margin: auto;
-    padding: 50px;
-    border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-secondary);
+  color: white;
+  margin: auto;
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .form__badge__wrapper {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.form__badge__picked {
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .form__badge {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .form__list {
-    list-style: none;
-    padding: 0;
+  list-style: none;
+  padding: 0;
 }
 
 .form__list__item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 .form__list__label {
-    flex: 0 0 150px;
-    margin-right: 10px;
+  flex: 0 0 150px;
+  margin-right: 10px;
+  color: var(--color-text-primary);
 }
 
 .form__list__input,
 .form__list__textarea,
 .form__badge {
-    flex: 1;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
 }
 
 .form__list__textarea {
-    resize: none;
-    min-height: 80px;
+  resize: none;
+  min-height: 80px;
 }
 
 .form__button {
-    display: flex;
-    align-items: center;
+  border: none;
+    background-color: var(--color-background-light);
     padding: 10px;
-    font-weight: 600;
-    border-radius: 10px;
-    border: 3px solid #0d121b;
-    background-color: #0d121b;
-    color: white;
     cursor: pointer;
-    transition: border 0.3s ease, background-color 0.3s ease;
+    border-radius: 10px;
+    font-size: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 35px;
+    margin: 20px;
+    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.form__button--save:hover {
-    border: 3px solid #ffd859;
-}
-
-.form__button--decline:hover {
-    border: 3px solid #f12525;
+.form__button:hover{
+  background-color: var(--color-accent);
+  color: var(--color-secondary);
 }
 </style>

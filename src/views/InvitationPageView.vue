@@ -19,6 +19,7 @@ const currentUser = ref({})
 const file = ref(null)
 const router = useRouter()
 const isActive = ref(false)
+const guest = ref(false)
 
 const form = reactive({
   title: '',
@@ -62,11 +63,16 @@ function goToInvitationPage() {
 }
 
 onMounted(async () => {
-  const uid = auth.currentUser.uid
-  const { user: userData } = await getUserData(uid)
-  currentUser.value = userData
-  userProfileUrl.value = `https://prosnis.github.io/wisher/user/${uid}`
-  qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
+  if (!auth.currentUser) {
+    guest.value = true
+  }
+  else {
+    const uid = auth.currentUser.uid
+    const { user: userData } = await getUserData(uid)
+    currentUser.value = userData
+    userProfileUrl.value = `https://prosnis.github.io/wisher/user/${uid}`
+    qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
+  }
 })
 </script>
 
@@ -147,6 +153,7 @@ onMounted(async () => {
         </ul>
       </div>
       <button
+        v-if="qrCodeDataUrl"
         :disabled="isActive"
         class="form__button"
         @click="saveCardAsImage"
@@ -196,20 +203,27 @@ onMounted(async () => {
       </div>
 
       <div class="invitation__qr">
-        <span class="qr__info">Сканируйте QR-код, чтобы ознакомиться со списком подарков.</span>
-        <WISpinner v-if="!qrCodeDataUrl" />
+        <span
+          v-if="qrCodeDataUrl"
+          class="qr__info"
+        >Сканируйте QR-код, чтобы ознакомиться со списком подарков.</span>
+        <WISpinner v-if="!qrCodeDataUrl && !guest" />
         <img
-          v-else
+          v-else-if="qrCodeDataUrl"
           :src="qrCodeDataUrl"
           alt="QR Code"
         >
+        <span
+          v-else
+          class="qr__info"
+        >После регистрации тут будет QR-код на ваш вишлсит и возможность отправить приглашение.</span>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.form__button{
+.form__button {
   margin: 0;
   display: flex;
   align-items: center;
@@ -217,15 +231,18 @@ onMounted(async () => {
   margin: auto;
   font-weight: 600;
   border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
+  border: none;
+  border: 3px solid var(--color-primary);
+  background-color: var(--color-accent);
   color: white;
   cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  font-size: 16px;
 }
 
-.form__button:hover{
-  border: 3px solid rgb(28, 215, 221);
+.form__button:active{
+  transform: translateY(2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .profile__spinner {
@@ -274,7 +291,7 @@ onMounted(async () => {
 }
 
 .picture__item--selected {
-  border: 2px solid black;
+  border: 2px solid var(--color-accent);
   width: 200px;
 }
 
@@ -307,7 +324,7 @@ onMounted(async () => {
   /* border-radius: 20px; */
 }
 
-.form__label{
+.form__label {
   flex: 0 0 150px;
   margin-right: 10px;
   display: flex;
@@ -334,7 +351,7 @@ onMounted(async () => {
 }
 
 .info__list__item-date {
-  color: rgb(28, 215, 221);
+  color: var(--color-accent);
   font-weight: 600;
   font-size: 20px;
 }
@@ -358,7 +375,7 @@ onMounted(async () => {
 
 .invitation {
   width: 100%;
-  border: rgb(28, 215, 221) 1px solid;
+  border: var(--color-accent) 1px solid;
   background: white;
   /* border-radius: 20px; */
   height: 700px;
@@ -375,14 +392,11 @@ onMounted(async () => {
 .invitation__wrapper {
   display: flex;
   position: relative;
-  border: 1px solid black;
   max-width: 1300px;
   margin: auto;
   min-height: 50vh;
-  padding: 20px;
-  /* border-radius: 20px; */
   gap: 20px;
-  background-color: #111827
+  background-color: var(--color-background);
 }
 
 .invitation__img {
@@ -407,7 +421,8 @@ onMounted(async () => {
   gap: 20px;
   flex-wrap: wrap;
   height: 200px;
-  background: rgb(28, 215, 221);
+  /* background: rgb(28, 215, 221); */
+  background: var(--color-accent);
 }
 
 .info__list__item {

@@ -24,16 +24,15 @@ function goBack() {
 .back__button{
     border: none;
     cursor: pointer;
-    background-color: transparent;
     margin-right: auto;
     transition: transform 0.3s ease;
 }
 .back__icon{
-    font-size: 50px;
-    color: white;
+    font-size: 30px;
+    color: var(--color-accent);
 }
 
 .back__button:hover {
-    transform: scale(1.3);
+    transform: scale(1);
 }
 </style>

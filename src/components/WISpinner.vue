@@ -17,7 +17,7 @@
 
 <style scoped>
 .lds-spinner {
-    color: #1c4c5b
+    color: #ffffff
 }
 
 .lds-spinner,

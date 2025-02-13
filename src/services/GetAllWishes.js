@@ -15,7 +15,7 @@ export async function getAllWishes() {
     return wishes
   }
   catch (error) {
-    console.error('Ошибка при получении пользователей:', error)
+    console.error('Ошибка при получении желаний:', error)
     return []
   }
 }

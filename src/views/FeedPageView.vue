@@ -21,8 +21,8 @@ function hoverLeft(event) {
     <div class="feed__wrapper">
       <div
         class="feed__item feed__item--login"
-        @mouseenter="hoverEnter($event)"
-        @mouseleave="hoverLeft($event)"
+        @mouseenter="hoverEnter"
+        @mouseleave="hoverLeft"
         @click="() => router.push(path.register)"
       >
         <h2 class="item__title">
@@ -37,8 +37,8 @@ function hoverLeft(event) {
 
       <div
         class="feed__item feed__item--search "
-        @mouseenter="hoverEnter($event)"
-        @mouseleave="hoverLeft($event)"
+        @mouseenter="hoverEnter"
+        @mouseleave="hoverLeft"
         @click="() => router.push(path.cards)"
       >
         <h2 class="item__title">
@@ -68,9 +68,9 @@ function hoverLeft(event) {
       </div>
 
       <div class="feed__item feed__item--users ">
-        <h2 class="item__title">
+        <!-- <h2 class="item__title">
           Пользователи
-        </h2>
+        </h2> -->
         <WiMiniProfileCard />
       </div>
     </div>
@@ -85,17 +85,6 @@ function hoverLeft(event) {
 .item__title {
   margin: 0;
   margin-bottom: 10px;
-}
-
-.hover {
-  width: 100%;
-  height: 100%;
-  --color: #131e36;
-  background: linear-gradient(90deg, var(--color) 5%, transparent 50%, var(--color) 75%);
-  background-size: 200% 100%;
-  animation: loading 3s infinite;
-  cursor: pointer;
-  box-sizing: border-box;
 }
 
 @keyframes loading {
@@ -119,7 +108,7 @@ function hoverLeft(event) {
   margin: auto;
   min-height: 85vh;
   padding: 20px;
-  background-color: #111827;
+  background-color: var(--color-secondary);
   border-radius: 10px;
   display: grid;
   grid-template-areas:
@@ -131,9 +120,9 @@ function hoverLeft(event) {
 }
 
 .feed__item {
-  background-color: #0d121b;
+  background-color: var(--color-background-light);
   border-radius: 10px;
-  color: #d9e6eb;
+  color: #070707;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -142,7 +131,7 @@ function hoverLeft(event) {
 }
 
 .feed__item:not(:last-child):hover {
-  color: #ffd859;
+  color: var(--color-accent);
 }
 
 .feed__item--login {
@@ -160,6 +149,6 @@ function hoverLeft(event) {
 .feed__item--users {
   grid-area: d;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
 }
 </style>

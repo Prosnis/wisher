@@ -1,7 +1,7 @@
 import { getUserData } from '@/services/GetUserData'
+import { useUserStore } from '@/stores/WiUserStore'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useUserStore } from './WiUserStore'
 
 export const useProfileStore = defineStore('profile', () => {
   const user = ref({})

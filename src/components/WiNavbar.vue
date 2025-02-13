@@ -1,75 +1,116 @@
 <script setup>
 import path from '@/components/constants/pathes'
+import { logout } from '@/services/logOut'
+import { useUserStore } from '@/stores/WiUserStore'
 import { getAuth } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const userStore = useUserStore()
+
+async function toUserPage() {
+  await router.push(`${path.user}/${userStore.userUID}`)
+  window.location.reload()
+}
 
 const userLink = ref(null)
 const auth = getAuth()
 onMounted(async () => {
-  userLink.value = await auth.currentUser.uid
+  if (auth.currentUser) {
+    userLink.value = await auth.currentUser.uid
+  }
 })
 </script>
 
 <template>
   <nav class="nav">
-    <ul class="nav__links">
-      <router-link
-        v-if="userLink"
-        :to="`${path.user}/${userLink}`"
-        class="nav__logo logo"
+    <div class="nav__empty" />
+    <router-link
+      v-if="userLink"
+      :to="path.feed"
+      class="nav__logo"
+    >
+      <span>wisher</span>
+    </router-link>
+    <router-link
+      v-if="!auth.currentUser"
+      class="user"
+      :to="path.register"
+    >
+      <span>войти</span>
+    </router-link>
+    <div
+      v-else
+      class="user"
+      @click="toUserPage"
+    >
+      <div
+        v-if="userStore.user"
+        class="user__wrapper"
       >
-        <span>ВИШЕР</span>
-      </router-link>
-      <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
-      <router-link
-        :to="path.feed"
-        class="navigate-link"
-      >
-        feed
-      </router-link>
-    </ul>
+        <img
+          class="user__img"
+          :src="userStore.user.photoUrl"
+          alt=""
+        >
+        <span class="user__name"> {{ userStore.user.displayName }}</span>
+        <button @click="logout()">
+          выйти
+        </button>
+      </div>
+    </div>
   </nav>
 </template>
 
 <style scoped>
-.nav__links a {
-  color: #ffd859;
-  text-decoration: none;
+.user__name {}
+
+.user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer
+}
+
+.user__wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.user__img {
+  width: 35px;
+  border-radius: 50%;
+  border: 1px solid black
 }
 
 .nav {
   display: flex;
-  justify-content: center;
-  /* background: #3598db; */
-  background-color: #111827;
+  justify-content: space-between;
+  background-color: var(--color-secondary);
   height: 60px;
-  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35); */
   margin-bottom: 20px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  width: 100%; /* Контейнер занимает всю ширину */
 }
 
-.nav__links {
+.nav__empty,
+.nav__logo,
+.user {
+  flex: 1;
   display: flex;
   align-items: center;
-  list-style-type: none;
-  gap: 20px;
-  color: #fafbfa;
-  margin: 0;
-  padding: 0;
-  font-size: 20px;
-  width: 80%;
-
+  justify-content: center;
 }
 
 .nav__logo {
-  font-size: 60px;
-  font-family: "Good dog", sans-serif;
-  /* margin-right: auto; */
+  font-size: 40px;
   margin: auto;
-}
-
-.login {
+  font-family: "Hachi Maru Pop", serif;
+  color: var(--color-accent);
   text-decoration: none;
-  color: inherit;
-  margin-left: auto;
 }
 </style>

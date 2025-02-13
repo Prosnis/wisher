@@ -1,5 +1,5 @@
 import { getUserData } from '@/services/GetUserData'
-import { getAuth } from 'firebase/auth'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, getFirestore } from 'firebase/firestore'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -22,12 +22,21 @@ export const useCardStore = defineStore('card', () => {
   const db = getFirestore()
   const auth = getAuth()
 
+  onAuthStateChanged(auth, (userCredential) => {
+    if (userCredential) {
+      currentUser.value = userCredential // Записываем текущего пользователя
+    }
+    else {
+      currentUser.value = null // Если пользователь не авторизован
+    }
+  })
+
   const getCardData = async (cardId) => {
     try {
       isLoading.value = true
+
       const userDoc = await getDoc(doc(db, 'wishes', cardId))
       const cardData = userDoc.exists() ? userDoc.data() : null
-      currentUser.value = auth.currentUser
 
       if (cardData) {
         card.value = cardData
@@ -37,7 +46,7 @@ export const useCardStore = defineStore('card', () => {
         const userData = await getUserData(card.value.userId)
         user.value = userData.user
 
-        if (currentUser.value.uid === card.value.userId) {
+        if (currentUser.value && currentUser.value.uid === card.value.userId) {
           blockSelfReserve.value = false
         }
       }
@@ -45,6 +54,7 @@ export const useCardStore = defineStore('card', () => {
       if (card.value.reserve) {
         const reservedUserData = await getUserData(card.value.reserve)
         reservedUser.value = reservedUserData.user
+
         if (currentUser.value && currentUser.value.uid === reservedUser.value.uid) {
           hasEditPermission.value = true
         }

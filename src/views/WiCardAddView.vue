@@ -2,13 +2,14 @@
 import path from '@/components/constants/pathes'
 import defaultImage from '@/components/icons/box.jpg'
 import WiNavbar from '@/components/WiNavbar.vue'
-import { classifyText } from '@/services/GetCardHobbi'
+import { classifyText } from '@/services/GetCardHobby'
 import { YandexParser } from '@/services/GetFromYandex'
 import { badges } from '@/services/UserBadgesStore'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { reactive, ref } from 'vue'
+import { ContentLoader } from 'vue-content-loader'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -20,6 +21,8 @@ const urlToparse = ref('')
 const formToggle = ref(true)
 const error = ref(false)
 const toggleText = ref('Заполнить вручную')
+const spinnerText = ref('Ожидаем название..')
+const disabledForm = ref(false)
 
 const categories = ref([])
 
@@ -38,10 +41,12 @@ const form = reactive({
   price: '',
   date: new Date().toLocaleDateString(),
   link: '',
+  badge: [],
 })
 
 async function parseFromYndex() {
   try {
+    disabledForm.value = true
     loading.value = true
     const url = urlToparse.value
     const result = await YandexParser(url)
@@ -51,12 +56,15 @@ async function parseFromYndex() {
     form.link = result.link
     form.price = result.price
     formToggler()
+    error.value = false
+    classifiedHobbies(form.name)
   }
   catch (err) {
     console.log('parseFromYandex', err)
     error.value = true
   }
   finally {
+    disabledForm.value = false
     loading.value = false
   }
 }
@@ -94,6 +102,8 @@ function createCardData(form) {
     date: form.date || new Date().toLocaleDateString(),
     link: form.link,
     reserve: '',
+    badge: form.badge,
+    fulfilled: false,
   }
 }
 
@@ -103,6 +113,7 @@ function toUserPage() {
 
 async function CreateCard() {
   const newCard = createCardData(form)
+  console.log('123')
 
   try {
     await setDoc(doc(db, 'wishes', newCard.id), newCard)
@@ -126,8 +137,28 @@ function previewCard(event) {
   }
 }
 
+function isBadgePicked(badge) {
+  return form.badge.some(pickedBadge => pickedBadge.name === badge.name)
+}
+
+function badgePicker(badge) {
+  const index = form.badge.findIndex(item => item.name === badge.name)
+  if (form.badge.length && index)
+    return
+  if (index !== -1) {
+    form.badge.splice(index, 1)
+  }
+  else {
+    form.badge.push(badge)
+  }
+}
+
 async function classifiedHobbies(cardName) {
+  if (!form.name)
+    return
   try {
+    spinnerText.value = 'Подбираем категорию..'
+    categories.value = []
     const result = await classifyText(cardName)
     categories.value = badges.filter(badge =>
       result.some(res => badge.name.includes(res.label)),
@@ -137,305 +168,373 @@ async function classifiedHobbies(cardName) {
     console.error(error)
     categories.value = []
   }
+  finally {
+    spinnerText.value = 'Выберите подходящую категорию:'
+  }
 }
 </script>
 
 <template>
   <WiNavbar />
-  <form
-    class="form"
-    @submit.prevent="CreateCard"
-  >
-    <h1 class="form__title">
-      Добавить желание
-    </h1>
-    <button
-      class="form__btn form__btn--toggle"
-      @click.prevent.stop="formToggler"
-    >
-      {{ toggleText }}
-    </button>
 
-    <div
-      v-if="loading"
-      class="form__create--byLink profile__spinner"
-    />
-
-    <div
-      v-if="formToggle"
-      class="form__create--byLink"
-    >
-      <h2 class="form__create__tittle">
-        Используйте ссылку на товар в <span class="form__create__span"> <a
-          class="form__span--link"
-          target="_blank"
-          href="https://market.yandex.ru/"
-        > Яндекс Маркет</a></span>
-      </h2>
+  <div class="container">
+    <div class="parser">
+      <span class="parser__title">Найти товар на <a
+        href="https://market.yandex.ru/"
+        target="_blank"
+        class="parser__title--link"
+      >Яндекс Маркет</a></span>
       <input
         id="link"
         v-model="urlToparse"
-        class="form__input--byLink"
+        class="parser__input"
         type="text"
         maxlength="200"
         required
       >
       <button
-        class="form__btn form__btn--byLink"
+        class="parser__button"
         @click.prevent.stop="parseFromYndex"
       >
-        Найти товар <font-awesome-icon
-          class="form__icon form__icon--byLink"
-          :icon="['fas', 'arrow-right']"
-        />
+        Создать желание по ссылке
       </button>
-      <span v-if="error">К сожалению, произошла ошибка. Пожалуйста, проверьте ссылку или заполните карточку <ins
-        class="form__create__error"
-        @click.prevent.stop="formToggler"
-      >вручную</ins></span>
+      <span :class="[error ? 'parser__error' : 'parser__error--visible']">Произошла ошибка. Пожалуйста, проверьте ссылку
+        или заполните форму вручную.</span>
     </div>
 
-    <div
-      v-else
-      class="form__wrapper"
-    >
-      <ul class="form__list">
-        <li>
-          <label
-            class="form__label"
-            for="name"
-          >Название:</label>
-          <input
-            id="name"
-            v-model="form.name"
-            class="form__input"
-            type="text"
-            required
-            maxlength="30"
-            @change="classifiedHobbies(form.name)"
-          >
-        </li>
-        <li>
-          <label
-            class="form__label"
-            for="description"
-          >Описание</label>
-          <textarea
-            id="description"
-            v-model="form.description"
-            class="form__textarea"
-            type="text"
-            maxlength="100"
+    <form @submit.prevent="CreateCard">
+      <fieldset
+        :disabled="disabledForm"
+        class="form fieldset"
+      >
+        <ContentLoader
+          v-if="loading"
+          class="form__preview"
+          viewBox="0 0 430 540"
+          :speed="2"
+          primary-color="#f5f7fa"
+          secondary-color="#eaeff5"
+        >
+          <rect
+            x="0"
+            y="0"
+            rx="10"
+            ry="10"
+            width="430"
+            height="540"
           />
-        </li>
-        <li>
-          <label
-            class="form__label"
-            for="price"
-          >Цена</label>
-          <input
-            id="price"
-            v-model="form.price"
-            class="form__input"
-            type="number"
-            maxlength="100"
-            oninput="this.value = this.value.slice(0, 10)"
-          >
-        </li>
-        <li>
-          <label
-            class="form__label"
-            for="link"
-          >Ссылка на товар</label>
-          <input
-            id="link"
-            v-model="form.link"
-            class="form__input"
-            type="text"
-            maxlength="200"
-          >
-        </li>
+        </ContentLoader>
 
         <div
-          v-for="(badge, index) in categories"
-          :key="index"
-          class="form__badge"
-          :style="{
-            backgroundColor: badge.BgColor,
-            color: badge.color,
-          }"
+          v-else
+          class="form__input__group"
+          :disabled="disabledForm"
         >
-          {{ badge.name }}
-        </div>
-      </ul>
+          <ul class="form__list">
+            <li class="form__list__item">
+              <label
+                class="form__label"
+                for="name"
+              >Название:</label>
+              <input
+                id="name"
+                v-model="form.name"
+                class="form__input"
+                type="text"
+                required
+                maxlength="80"
+                @change="classifiedHobbies(form.name)"
+              >
+            </li>
+            <li class="form__list__item">
+              <label
+                class="form__label"
+                for="description"
+              >Описание</label>
+              <textarea
+                id="description"
+                v-model="form.description"
+                class="form__textarea"
+                type="text"
+                maxlength="100"
+              />
+            </li>
+            <li class="form__list__item">
+              <label
+                class="form__label"
+                for="price"
+              >Цена</label>
+              <input
+                id="price"
+                v-model="form.price"
+                class="form__input"
+                type="number"
+                maxlength="100"
+                oninput="this.value = this.value.slice(0, 10)"
+              >
+            </li>
+            <li class="form__list__item">
+              <label
+                class="form__label"
+                for="link"
+              >Ссылка на товар</label>
+              <input
+                id="link"
+                v-model="form.link"
+                class="form__input"
+                type="text"
+                maxlength="200"
+              >
+            </li>
 
-      <div class="form__preview__card">
-        <label
-          class="card__label card__label--file"
-          for="file-input"
+            <li class="form__badge__item">
+              <div>
+                <div
+                  v-if="categories.length > 0"
+                  class="form__badge__wrapper"
+                >
+                  <div
+                    v-for="(badge, index) in categories"
+                    :key="index"
+                    :class="[isBadgePicked(badge) ? 'form__badge__picked' : 'form__badge']"
+                    :style="{
+                      backgroundColor: isBadgePicked(badge) ? '#0817ecb9' : '#f5f7fa',
+                      color: isBadgePicked(badge) ? '#f0f0f0' : '#0817ecb9',
+                    }"
+                    @click="badgePicker(badge)"
+                  >
+                    {{ badge.name }}
+                  </div>
+                </div>
+                <div
+                  v-else
+                  class="form__badge__spinner"
+                >
+                  <span>{{ spinnerText }}</span>
+                  <font-awesome-icon
+                    class="badge__icon--loading"
+                    :icon="['fas', 'circle-notch']"
+                    spin
+                  />
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <ContentLoader
+          v-if="loading"
+          class="form__preview"
+          viewBox="0 0 430 540"
+          :speed="2"
+          primary-color="#f5f7fa"
+          secondary-color="#eaeff5"
         >
-          <img
-            v-if="form.img"
-            :src="form.img"
-            alt=""
-            class="card__image"
-          >
-          <font-awesome-icon
-            v-if="!form.img"
-            class="card__icon--file"
-            :icon="['fas', 'file-image']"
+          <rect
+            x="0"
+            y="0"
+            rx="10"
+            ry="10"
+            width="430"
+            height="540"
           />
-          <input
-            id="file-input"
-            class="card__input card__input--file"
-            type="file"
-            @change="previewCard($event)"
-          >
-        </label>
-        <h3 class="card__title">
-          {{ form.name }}
-        </h3>
-        <p class="card__price">
-          {{ formatPrice(form.price) }}
-        </p>
-      </div>
-    </div>
-    <button
-      v-if="!formToggle"
-      class="form__btn form__btn--add"
-    >
-      добавить
-    </button>
-  </form>
+        </ContentLoader>
+
+        <div
+          v-else
+          class="form__preview"
+        >
+          <div class="form__preview__card">
+            <label
+              class="card__label card__label--file"
+              for="file-input"
+            >
+              <img
+                v-if="form.img"
+                :src="form.img"
+                alt=""
+                class="card__image"
+              >
+              <font-awesome-icon
+                v-if="!form.img"
+                class="card__icon--file"
+                :icon="['fas', 'file-image']"
+              />
+              <input
+                id="file-input"
+                class="card__input card__input--file"
+                type="file"
+                @change="previewCard($event)"
+              >
+            </label>
+            <h3 class="card__title">
+              {{ form.name }}
+            </h3>
+            <!-- <p class="card__price">
+            {{ formatPrice(form.price) }}
+          </p> -->
+          </div>
+          <button class="form__button--add">
+            добавить
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
 </template>
 
 <style scoped>
+.fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.form__badge__spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  gap: 20px;
+}
+
+.form__badge__item {
+  border: 1px solid var(--color-accent);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.badge__icon--loading {
+  color: var(--color-accent);
+  font-size: 100px;
+  opacity: 0.8;
+}
+
+.form__badge__wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px;
+}
+
+.form__badge__picked {
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 5px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 16px;
+  font-weight: 600;
+}
+
 .form__badge {
   cursor: pointer;
   display: flex;
   align-items: center;
   white-space: nowrap;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.form__create__error {
-  color: #ffd859;
-  cursor: pointer;
+.parser__error {
+  color: red;
+  font-size: 14px;
 }
 
-.form__span--link {
-  color: #ffd859;
+.parser__error--visible {
+  height: 15px;
+  visibility: hidden;
 }
 
-.form__create--Bylink {
-  display: flex;
-  flex-direction: column;
-  border: #ffd859 1px solid;
-  padding: 10px;
+.parser__title--link {
+  color: var(--color-accent);
+}
+
+.parser__title {
+  font-weight: 600;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+.parser {
   border-radius: 10px;
-  gap: 20px;
-
-}
-
-.profile__spinner {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  --color: #f8f8dfaf;
-  background: linear-gradient(90deg, var(--color) 25%, transparent 50%, var(--color) 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  z-index: 1;
-  opacity: 0.8;
+  background-color: var(--color-secondary);
+  height: 150px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
 }
 
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
+.parser__input {
+  width: 400px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid var(--color-text-secondary);
+  outline: none;
 }
 
-.card__title {
-  padding: 2px;
+.parser__input:focus {
+  border: 1px solid var(--color-accent);
+}
+
+.parser__button {
+  width: 408px;
+  height: 30px;
+  border: none;
+  border: 3px solid var(--color-primary);
+  background-color: var(--color-accent);
+  color: var(--color-background);
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.parser__button:active{
+  transform: translateY(2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .form {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: white;
-  background-color: #161f32;
-  padding: 50px;
-  width: 800px;
-  overflow: hidden;
-  position: relative;
-  height: 650px;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
 
+.form__list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.form__list__item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.form__input__group {
+  width: 420px;
+  height: 500px;
+  background-color: var(--color-secondary);
+  padding: 20px;
   border-radius: 10px;
-  max-width: 1000px;
-  margin: 40px auto;
-  background-color: #111827
-}
-
-.user__info--date {
-  font-size: 15px;
-}
-
-.user__info--info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 20px;
-}
-
-.card__label--file {
-  width: 100%;
-  border: 1px solid #ccc;
-  height: 250px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.card__image {
-  width: 100%;
-  border: 1px solid #ccc;
-  height: 300px;
-  object-fit: cover;
-}
-
-.card__user__info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: auto;
-  padding: 5px;
-}
-
-.user__info--avatarImg {
-  border: 1px solid black;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-}
-
-.card__price {
-  position: absolute;
-  z-index: 1;
-  right: 5%;
-  top: 5%;
-  background-color: rgb(2, 1, 1);
-  padding: 2px;
-  font-weight: 600;
-  margin: 0;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .form__preview__card {
@@ -452,16 +551,36 @@ async function classifiedHobbies(cardName) {
   overflow: hidden;
 }
 
-.form__wrapper {
+.form__preview {
+  background-color: var(--color-secondary);
+  padding: 20px;
+  width: 420px;
+  height: 500px;
+  border-radius: 10px;
   display: flex;
-  gap: 50px;
-  align-items: center;
-}
-
-.form__list li {
-  display: flex;
+  justify-content: center;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  flex-direction: column;
   align-items: center;
   gap: 20px;
+}
+
+.form__button--add {
+  height: 30px;
+  border: none;
+  border: 3px solid var(--color-primary);
+  background-color: var(--color-accent);
+  color: var(--color-background);
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+}
+
+.form__button--add:active{
+  transform: translateY(2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .form__input,
@@ -469,8 +588,16 @@ async function classifiedHobbies(cardName) {
   height: 25px;
   margin-bottom: 10px;
   width: 300px;
-  border: 1px solid #ccc;
+  border: 1px solid #818c99;
   border-radius: 5px;
+  transition: border 0.3s ease;
+  padding: 5px;
+}
+
+.form__input:focus,
+.form__textarea:focus {
+  border: 1px solid #0817ecb9;
+  outline: none;
 }
 
 .form__textarea {
@@ -480,11 +607,25 @@ async function classifiedHobbies(cardName) {
 
 .form__label {
   flex: 0 0 150px;
+  color: var(--color-text-primary);
 }
 
-.form__list {
-  list-style-type: none;
-  padding: 0;
+.card__label--file {
+  width: 100%;
+  border: 1px solid #ccc;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card__image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
 }
 
 .card__icon--file {
@@ -498,60 +639,4 @@ async function classifiedHobbies(cardName) {
   height: 0.1px;
   opacity: 0;
 }
-
-.form__btn {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
-  color: white;
-  cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
-}
-
-.form__btn:hover:not(.form__btn--byLink) {
-  border: 3px solid #ffd859;
-}
-
-.form__create--byLink {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  margin: auto 0;
-}
-
-.form__icon--byLink {
-  margin-left: 10px;
-}
-
-.form__input--byLink {
-  width: 550px;
-  height: 30px;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.form__btn--byLink {
-  font-size: 25px;
-  width: 580px;
-  height: 30px;
-  margin: 0;
-  padding: 25px;
-  display: flex;
-  justify-content: center;
-  background-color: #ffd859;
-  color: #0d121b;
-}
-
-.form__create__tittle {
-  margin: 0;
-}
-
-.form__btn--toggle {}
 </style>
