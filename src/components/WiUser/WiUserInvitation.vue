@@ -1,7 +1,7 @@
 <script setup>
+import WiNavbar from '@/components/WiNavbar.vue'
 import { getInvitationImageUrl } from '@/services/GetUserInvitation'
 import { onMounted, ref } from 'vue'
-import WiNavbar from '../WiNavbar.vue'
 
 const invitationImageUrl = ref(null)
 
@@ -16,7 +16,7 @@ onMounted(async () => {
     <img
       v-if="invitationImageUrl"
       :src="invitationImageUrl"
-      alt="Invitation Image"
+      alt="Изображение пригласительного"
     >
     <p v-else>
       Приглашение не найдено или недоступно

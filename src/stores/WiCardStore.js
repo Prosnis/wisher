@@ -13,8 +13,8 @@ export const useCardStore = defineStore('card', () => {
 
   const isLoading = ref(true)
 
-  const blockSelfReserve = ref(true)
-  const hasEditPermission = ref(false)
+  const isOwner = ref(false)
+  const isReservedUser = ref(false)
 
   const reservedBy = ref('')
   const isReserved = ref(false)
@@ -24,10 +24,10 @@ export const useCardStore = defineStore('card', () => {
 
   onAuthStateChanged(auth, (userCredential) => {
     if (userCredential) {
-      currentUser.value = userCredential // Записываем текущего пользователя
+      currentUser.value = userCredential
     }
     else {
-      currentUser.value = null // Если пользователь не авторизован
+      currentUser.value = null
     }
   })
 
@@ -35,28 +35,29 @@ export const useCardStore = defineStore('card', () => {
     try {
       isLoading.value = true
 
-      const userDoc = await getDoc(doc(db, 'wishes', cardId))
-      const cardData = userDoc.exists() ? userDoc.data() : null
+      const USER_DOC = await getDoc(doc(db, 'wishes', cardId))
+      const CARD_DATA = USER_DOC.exists() ? USER_DOC.data() : null
 
-      if (cardData) {
-        card.value = cardData
+      if (CARD_DATA) {
+        card.value = CARD_DATA
         reservedBy.value = card.value.reserve || ''
         isReserved.value = !!card.value.reserve
 
         const userData = await getUserData(card.value.userId)
         user.value = userData.user
 
-        if (currentUser.value && currentUser.value.uid === card.value.userId) {
-          blockSelfReserve.value = false
+        if (card.value.reserve) {
+          const reservedUserData = await getUserData(card.value.reserve)
+          reservedUser.value = reservedUserData.user
         }
-      }
 
-      if (card.value.reserve) {
-        const reservedUserData = await getUserData(card.value.reserve)
-        reservedUser.value = reservedUserData.user
-
-        if (currentUser.value && currentUser.value.uid === reservedUser.value.uid) {
-          hasEditPermission.value = true
+        if (currentUser.value) {
+          isOwner.value = currentUser.value.uid === card.value.userId
+          isReservedUser.value = currentUser.value.uid === card.value.reserve
+        }
+        else {
+          isOwner.value = false
+          isReservedUser.value = false
         }
       }
     }
@@ -67,5 +68,5 @@ export const useCardStore = defineStore('card', () => {
       isLoading.value = false
     }
   }
-  return { isLoading, currentUser, isReserved, reservedBy, user, blockSelfReserve, reservedUser, hasEditPermission, card, getCardData }
+  return { isLoading, currentUser, isReserved, reservedBy, user, isOwner, reservedUser, isReservedUser, card, getCardData }
 })

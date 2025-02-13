@@ -1,5 +1,6 @@
 export async function YandexParser(productUrl) {
-  const url = 'http://212.22.90.119:3000/fetch-product'
+  // const url = 'http://localhost:3000/fetch-product'
+  const url = 'https://www.xn--b1agi7a0b.xn--p1ai/api/fetch-product'
 
   try {
     const response = await fetch(url, {

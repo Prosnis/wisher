@@ -1,10 +1,9 @@
 <script setup>
-import path from '@/components/constants/pathes'
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
+import WiContentLoader from '@/components/WiContentLoader.vue'
+import { PATHS } from '@/constants/paths'
 import { useProfileStore } from '@/stores/WiProfileStore'
-import { getAuth } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
-import { ContentLoader } from 'vue-content-loader'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -12,7 +11,6 @@ const router = useRouter()
 const profileStore = useProfileStore()
 const { getProfileData } = profileStore
 const skeleton = ref(false)
-const auth = getAuth()
 
 onMounted(async () => {
   try {
@@ -29,23 +27,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <ContentLoader
+  <WiContentLoader
     v-if="skeleton"
+    :width="1300"
+    :height="400"
     class="skeleton__wishes"
-    viewBox="0 0 1300 400"
-    :speed="2"
-    primary-color="#f5f7fa"
-    secondary-color="#c9c5c5"
-  >
-    <rect
-      x="0"
-      y="0"
-      rx="10"
-      ry="10"
-      width="1300"
-      height="400"
-    />
-  </ContentLoader>
+  />
 
   <div v-else>
     <section class="wishes__list">
@@ -55,19 +42,19 @@ onMounted(async () => {
       >
         <button
           class="wishes__button"
-          @click="() => router.push(path.cardAdd)"
+          @click="router.push(PATHS.CARDS.ADD)"
         >
           Добавить желание
         </button>
         <button
           class="wishes__button"
-          @click="() => router.push(path.invitationCard)"
+          @click="router.push(PATHS.CARDS.INVITATION_CREATE)"
         >
           Создать приглашение
         </button>
         <button
           class="wishes__button"
-          @click="() => router.push(path.cards)"
+          @click="router.push(PATHS.CARDS.MAIN)"
         >
           Желания пользователей
         </button>
@@ -88,7 +75,7 @@ onMounted(async () => {
         <img
           class="empty__image"
           src="@/components/icons/empty.png"
-          alt=""
+          alt="Иконка пустого списка: здесь пока нет элементов"
         >
         <span>Здесь пока пусто...</span>
       </div>
@@ -97,11 +84,12 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.wishes__buttons{
+.wishes__buttons {
   display: flex;
   justify-content: center;
 }
-.wishes__button{
+
+.wishes__button {
   margin: 0;
   display: flex;
   align-items: center;
@@ -120,15 +108,16 @@ onMounted(async () => {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.wishes__button:hover{
+.wishes__button:hover {
   background-color: var(--color-background-light);
   color: var(--color-accent);
 }
 
-.skeleton__wishes{
+.skeleton__wishes {
   width: 1300px;
   height: 400px;
 }
+
 .empty__image {
   width: 200px;
 }

@@ -25,25 +25,25 @@ const categories = [
   'Кино и сериалы',
   'Активный отдых',
   'Электроника',
-  'Видеоблогинг',
+  'Интерьер и уют',
   'Косметология',
 ]
 
-const apiUrl = import.meta.env.VITE_API_BEARER
+const apiBearer = import.meta.env.VITE_API_BEARER
 const chunkSize = 10
 
 export async function classifyText(text) {
   try {
-    const results = []
+    let results = []
 
     for (let i = 0; i < categories.length; i += chunkSize) {
       const chunk = categories.slice(i, i + chunkSize)
 
-      const response = await fetch('https://api-inference.huggingface.co/models/MoritzLaurer/bge-m3-zeroshot-v2.0', {
+      const response = await fetch('https://api-inference.huggingface.co/models/facebook/bart-large-mnli', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': apiUrl,
+          'Authorization': apiBearer,
         },
         body: JSON.stringify({
           inputs: text,
@@ -52,26 +52,24 @@ export async function classifyText(text) {
       })
 
       if (!response.ok) {
-        throw new Error(`Ошибка HTTP: ${response.status}`)
+        const errorText = await response.text()
+        throw new Error(`Ошибка HTTP ${response.status}: ${errorText}`)
       }
 
       const data = await response.json()
 
-      const { labels, scores } = data
-
-      const categoryScores = labels.map((label, index) => ({
+      const categoryScores = data.labels.map((label, index) => ({
         label,
-        score: scores[index],
+        score: data.scores[index],
       }))
 
-      const sorted = categoryScores.sort((a, b) => b.score - a.score)
-      results.push(...sorted.slice(0, 3))
+      results = results.concat(categoryScores.sort((a, b) => b.score - a.score).slice(0, 3))
     }
 
-    console.log('Результаты классификации:', results)
     return results
   }
   catch (error) {
     console.error('Ошибка при запросе:', error.message)
+    return []
   }
 }

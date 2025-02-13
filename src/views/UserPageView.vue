@@ -1,20 +1,20 @@
 <script setup>
+import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
 import WiProfileNavbar from '@/components/WiProfileNavbar.vue'
 import WiUserPagePicturesEdit from '@/components/WiUser/WiUserPagePicturesEdit.vue'
-import WiUserWishesVue from '@/components/WiUser/WiUserWishes.vue'
+import WiUserWishes from '@/components/WiUser/WiUserWishes.vue'
 import { useProfileStore } from '@/stores/WiProfileStore'
-import { onMounted, ref } from 'vue'
-import { ContentLoader } from 'vue-content-loader'
-import { useRoute, useRouter } from 'vue-router'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import SubscribeListView from './SubscribeListView.vue'
 import WiReservedListView from './WiReservedListView.vue'
 
-const router = useRouter()
 const route = useRoute()
+const loading = ref(false)
 
 const components = {
-  WiUserWishesVue,
+  WiUserWishes,
   WiReservedListView,
   SubscribeListView,
 }
@@ -22,14 +22,31 @@ const components = {
 const profileStore = useProfileStore()
 const { getProfileData } = profileStore
 
-const currentComponent = ref('WiUserWishesVue')
+const currentComponent = ref('WiUserWishes')
 
 function changeView(componentName) {
   currentComponent.value = componentName
 }
 
+watch(
+  () => route.params.uid,
+  async (newUid) => {
+    await getProfileData(newUid)
+    currentComponent.value = 'WiUserWishes'
+  },
+)
+
 onMounted(async () => {
-  await getProfileData(route.params.uid)
+  try {
+    loading.value = true
+    await getProfileData(route.params.uid)
+  }
+  catch (err) {
+    console.log(err)
+  }
+  finally {
+    loading.value = false
+  }
 })
 </script>
 
@@ -39,22 +56,12 @@ onMounted(async () => {
       <WiNavbar />
     </div>
     <main class="user">
-      <ContentLoader
-        v-if="profileStore.skeletonLoad"
-        viewBox="0 0 1300 365"
-        :speed="2"
-        primary-color="#f5f7fa"
-        secondary-color="#c9c5c5"
-      >
-        <rect
-          x="0"
-          y="0"
-          rx="10"
-          ry="10"
-          width="1300"
-          height="345"
-        />
-      </ContentLoader>
+      <WiContentLoader
+        v-if="loading"
+        class="skeleton"
+        :width="1300"
+        :height="345"
+      />
 
       <section
         v-else
@@ -70,70 +77,47 @@ onMounted(async () => {
         </div>
       </section>
 
-      <ContentLoader
-        v-if="profileStore.skeletonLoad"
-        class="skeleton"
-        viewBox="0 0 1300 67"
-        :speed="2"
-        primary-color="#f5f7fa"
-        secondary-color="#c9c5c5"
-      >
-        <rect
-          x="0"
-          y="0"
-          rx="10"
-          ry="10"
-          width="1300"
-          height="67"
+      <div v-if="profileStore.badges.length > 0">
+        <WiContentLoader
+          v-if="profileStore.skeletonLoad"
+          class="skeleton"
+          :width="1300"
+          :height="67"
         />
-      </ContentLoader>
-
-      <div
-        v-else
-        class="profile__badges test__profile"
-      >
         <div
-          v-for="(badge, index) in profileStore.badges"
-          :key="index"
-          class="badge"
+          v-else
+          class="profile__badges"
         >
-          {{ badge.name }}
+          <div
+            v-for="(badge, index) in profileStore.badges"
+            :key="index"
+            class="badge"
+          >
+            {{ badge.name }}
+          </div>
         </div>
       </div>
 
-      <ContentLoader
-        v-if="profileStore.skeletonLoad "
-        class="skeleton"
-        viewBox="0 0 1300 75"
-        :speed="2"
-        primary-color="#f5f7fa"
-        secondary-color="#c9c5c5"
-      >
-        <rect
-          x="0"
-          y="0"
-          rx="10"
-          ry="10"
-          width="1300"
-          height="75"
-        />
-      </ContentLoader>
-
-      <div
-        v-else
-        class="profile__nav"
-      >
+      <div class="profile__nav">
         <WiProfileNavbar
           v-if="profileStore.hasEditPermission"
+          :active="currentComponent"
           @change-view="changeView"
         />
       </div>
 
       <div class="profile__wishes__wrapper">
-        <div class="wishes">
-          <keep-alive>
-            <component :is="components[currentComponent]" />
-          </keep-alive>
+        <WiContentLoader
+          v-if="loading"
+          class="skeleton wishes"
+          :width="1300"
+          :height="300"
+        />
+        <div
+          v-else
+          class="wishes"
+        >
+          <component :is="components[currentComponent]" />
         </div>
       </div>
     </main>
@@ -141,12 +125,14 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.skeleton{
+.skeleton {
   margin-bottom: 20px;
 }
-.profile__nav{
+
+.profile__nav {
   margin-bottom: 20px;
 }
+
 .profile__wishes__wrapper {
   display: flex;
   flex-direction: column;
@@ -168,7 +154,7 @@ onMounted(async () => {
   flex-wrap: wrap;
   max-width: 100%;
   gap: 5px;
-  justify-content: space-evenly;
+  justify-content: center;
   align-content: center;
   /* background-color: #111827; */
   background-color: var(--color-secondary);
@@ -192,6 +178,7 @@ onMounted(async () => {
   position: relative;
   display: flex;
   width: 100%;
+  margin-bottom: 20px;
 }
 
 .profile {
@@ -199,7 +186,7 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   border-radius: 10px;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
   /* background-color: #111827; */
   background-color: var(--color-secondary);
   width: 100%;
@@ -208,11 +195,6 @@ onMounted(async () => {
 
 .profile__name {
   margin: 20px;
-  color: #F7F6F5;
-}
-
-.profile__about {
-  margin: 0 0 20px;
   color: #F7F6F5;
 }
 

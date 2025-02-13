@@ -1,4 +1,4 @@
-export const badges = [
+export const BADGES = [
   { name: 'Искусство', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Музыка', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Танцы', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
@@ -25,6 +25,6 @@ export const badges = [
   { name: 'Кино и сериалы', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Активный отдых', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Электроника', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
-  { name: 'Видеоблогинг', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
+  { name: 'Интерьер и уют', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Косметология', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
 ]

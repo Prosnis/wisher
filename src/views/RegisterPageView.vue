@@ -1,120 +1,63 @@
 <script setup>
-import path from '@/components/constants/pathes'
-import defaultAvatar from '@/components/icons/avatar.png'
 import defaultWallpaper from '@/components/icons/wall.png'
-import WIAnimationSvg from '@/components/WIAnimationSvg.vue'
-import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
-import { doc, getFirestore, setDoc } from 'firebase/firestore'
-import { ref } from 'vue'
+import { PATHS } from '@/constants/paths'
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore'
+
 import { useRouter } from 'vue-router'
 
-const email = ref('')
-const password = ref('')
 const router = useRouter()
 const db = getFirestore()
+const auth = getAuth()
 
-function toAuthPage() {
-  router.push(path.auth).catch((err) => {
-    console.error('Failed to navigate:', err)
-  })
-}
-
-async function register() {
+async function signIn() {
   try {
-    const userCredential = await createUserWithEmailAndPassword(getAuth(), email.value, password.value)
-    const user = userCredential.user
-    console.log(user, 'successfully registered')
-
-    const userData = {
-      uid: user.uid,
-      email: user.email,
-      createdAt: new Date(),
-      wallpaperUrl: defaultWallpaper,
-      displayName: user.email.split('@')[0],
-      about: '',
-      photoUrl: defaultAvatar,
-      badges: [
-        { name: 'Аниме', BgColor: 'rgba(204, 34, 238, 0.45)', color: 'rgba(204, 34, 238, 1)' },
-      ],
-      subscribe: [],
-    }
-
-    await setDoc(doc(db, 'users', user.uid), userData)
-
-    await router.push(`${path.user}/${user.uid}`).catch((err) => {
-      console.error('Failed to navigate:', err)
-    })
-  }
-  catch (error) {
-    console.error('Error during registration:', error.code, error.message)
-  }
-}
-
-async function signInWithGoogle() {
-  const auth = getAuth()
-  const provider = new GoogleAuthProvider()
-
-  try {
+    const provider = new GoogleAuthProvider()
     const result = await signInWithPopup(auth, provider)
     const user = result.user
-    console.log(user, 'successfully logged in with Google')
+    console.log(user, 'successfully logged')
 
+    const userRef = doc(db, 'users', user.uid)
+    const userSnap = await getDoc(userRef)
+    const existingData = userSnap.exists() ? userSnap.data() : {}
+
+    console.log(userSnap.data(), 'snap')
     const userData = {
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName,
-      photoUrl: user.photoURL,
-      createdAt: new Date(),
-
+      createdAt: existingData.createdAt || new Date(),
+      wallpaperUrl: existingData.wallpaperUrl || defaultWallpaper,
+      displayName: existingData.displayName || user.reloadUserInfo.screenName,
+      about: existingData.about || '',
+      photoUrl: existingData.photoURL || user.photoURL,
+      badges: existingData.badges || [
+      ],
+      subscribe: existingData.subscribe || [],
     }
 
     await setDoc(doc(db, 'users', user.uid), userData, { merge: true })
 
-    await router.push(`${path.user}/${user.uid}`).catch((err) => {
+    await router.push(`${PATHS.USER.PROFILE}/${user.uid}`).catch((err) => {
       console.error('Failed to navigate:', err)
     })
   }
   catch (error) {
-    console.error('Error during Google sign-in:', error.message)
+    console.log(error)
   }
 }
 </script>
 
 <template>
   <div class="register">
-    <form
-      class="register__form"
-      @submit.prevent="register"
-    >
-      <h1>Sign in</h1>
-      <input
-        v-model="email"
-        class="register__input register__input--email"
-        type="text"
-        placeholder="Email"
-      >
-      <input
-        v-model="password"
-        class="register__input register__input--password"
-        type="password"
-        placeholder="Password"
-      >
+    <form class="register__form">
+      <h1>Войти</h1>
       <button
-        class="register__button register__button--login"
-        type="submit"
+        class="register__button register__button--withGoogle"
+        @click.prevent="signIn"
       >
-        Зарегистрироваться
+        Google
       </button>
-      <!-- <button class="register__button register__button--withGoogle" @click="signInWithGoogle">Login with
-                Google</button> -->
-      <p
-        class="register__question"
-        @click="toAuthPage"
-      >
-        есть аккаунт?
-      </p>
     </form>
-    <WIAnimationSvg />
   </div>
 </template>
 
@@ -130,7 +73,8 @@ async function signInWithGoogle() {
   align-items: center;
   height: 100vh;
   font-size: 18px;
-  color: #ffd859;
+  color: var(--color-accent);
+  background-color: var(--color-background);
 }
 
 .register__form {
@@ -140,7 +84,8 @@ async function signInWithGoogle() {
   padding: 20px;
 
   border-radius: 20px;
-  background-color: #111827;
+  background-color: var(--color-background-light);
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .register h1 {
@@ -161,11 +106,10 @@ async function signInWithGoogle() {
   width: 300px;
   height: 20px;
   margin-bottom: 10px;
-  border: 2px solid #ffd859;
+  border: 2px solid var(--color-accent);
   padding: 8px;
   border-radius: 4px;
   outline: none;
-  background-color: white
 }
 
 .register__input::placeholder {
@@ -175,17 +119,21 @@ async function signInWithGoogle() {
 .register__button {
   font-size: 20px;
   color: #0d121b;
-  background-color: #ffd859;
+  background-color: var(--color-accent);
   border: none;
   border-radius: 5px;
   cursor: pointer;
   width: 320px;
   height: 40px;
   margin-bottom: 10px;
+  color: white;
 }
 
 .register__button:hover {
-  border: 3px solid #ffd859;
-  box-shadow: 0px 0px 15px #ffd859;
+  box-shadow: 0px 0px 15px var(--color-accent);
+}
+
+.register__button--withGoogle {
+  background-color: rgb(189, 7, 7);
 }
 </style>

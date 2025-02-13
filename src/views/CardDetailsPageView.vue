@@ -1,14 +1,14 @@
 <script setup>
 import WiBackButton from '@/components/WiBackButton.vue'
 import WiCardMenu from '@/components/WiCards/WiCardMenu.vue'
+import WiContentLoader from '@/components/WiContentLoader.vue'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
 import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, updateDoc } from 'firebase/firestore'
-import { onMounted, ref, watch } from 'vue'
-import { ContentLoader } from 'vue-content-loader'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const db = getFirestore()
@@ -19,24 +19,31 @@ const spinner = ref(false)
 const cardStore = useCardStore()
 const { getCardData } = cardStore
 
-watch(cardStore.card, (newCard) => {
-  if (newCard.reserve) {
-    cardStore.blockSelfReserve = cardStore.currentUser.uid !== newCard.userId
-    console.log(cardStore.blockSelfReserve = cardStore.currentUser.uid !== newCard.userId)
+const hideButton = computed(() => !cardStore.isOwner)
+const enableForReserve = computed(() => !cardStore.isReserved && auth.currentUser && !cardStore.card.fulfilled)
+const fulfilled = computed(() => cardStore.card.fulfilled)
+const guestMessage = computed(() => !auth.currentUser)
+
+async function toggleFulfill(newStatus) {
+  try {
+    const cardRef = doc(db, 'wishes', cardStore.card.id)
+    await updateDoc(cardRef, { fulfilled: newStatus })
+
+    cardStore.card.fulfilled = newStatus
   }
-  else {
-    cardStore.blockSelfReserve = true
+  catch (error) {
+    console.error('Ошибка при изменении статуса fulfilled', error)
   }
-})
+}
 
 async function toggleReserve() {
-  cardStore.hasEditPermission = true
+  cardStore.isReservedUser = true
   try {
     spinner.value = true
-    const currentUser = auth.currentUser
-    const userData = await getUserData(currentUser.uid)
+    const CURRENT_USER = auth.currentUser
+    const USER_DATA = await getUserData(CURRENT_USER.uid)
 
-    if (cardStore.isReserved && cardStore.reservedBy === currentUser.uid) {
+    if (cardStore.isReserved && cardStore.reservedBy === CURRENT_USER.uid) {
       await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: '' })
       cardStore.reservedBy = ''
       cardStore.isReserved = false
@@ -44,9 +51,9 @@ async function toggleReserve() {
     }
     else if (!cardStore.isReserved) {
       await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: auth.currentUser.uid })
-      cardStore.reservedBy = currentUser.uid
+      cardStore.reservedBy = CURRENT_USER.uid
       cardStore.isReserved = true
-      cardStore.reservedUser = userData.user
+      cardStore.reservedUser = USER_DATA.user
     }
   }
   catch (err) {
@@ -68,25 +75,16 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-  <div class="card">
+  <div
+    v-if="cardStore"
+    class="card"
+  >
     <WiBackButton class="card__back__button" />
-
-    <ContentLoader
+    <WiContentLoader
       v-if="cardStore.isLoading"
-      viewBox="0 0 1000 700"
-      :speed="2"
-      primary-color="#f5f7fa"
-      secondary-color="#c9c5c5"
-    >
-      <rect
-        x="0"
-        y="0"
-        rx="10"
-        ry="10"
-        width="1000"
-        height="700"
-      />
-    </ContentLoader>
+      :width="1000"
+      :height="700"
+    />
 
     <div v-else>
       <div class="card__user__info">
@@ -95,7 +93,7 @@ onMounted(async () => {
             <img
               class="card__image  card__image--user"
               :src="cardStore.user.photoUrl"
-              alt=""
+              alt="Аватар профиля"
             >
           </div>
           <router-link
@@ -120,10 +118,17 @@ onMounted(async () => {
           <span v-else>не указал ссылку</span>
         </div>
 
-        <div class="card__menu">
-          <WiCardMenu v-if="!cardStore.blockSelfReserve" />
+        <div
+          v-if="cardStore.isOwner"
+          class="card__menu"
+        >
+          <WiCardMenu
+            :card="cardStore.card"
+            @toggle-fulfill="toggleFulfill"
+          />
         </div>
       </div>
+
       <div class="card__wrapper">
         <div class="card__images">
           <div class="card__description">
@@ -131,7 +136,7 @@ onMounted(async () => {
               <img
                 class="card__image  card__image--description"
                 :src="cardStore.card.img"
-                alt=""
+                alt="Изображение желания"
               >
             </div>
           </div>
@@ -148,7 +153,7 @@ onMounted(async () => {
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/ozon.png"
-                  alt=""
+                  alt="ozon"
                 ></a>
               </div>
               <div class="card__links--item">
@@ -158,7 +163,7 @@ onMounted(async () => {
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/wb.png"
-                  alt=""
+                  alt="Wildverries"
                 ></a>
               </div>
               <div class="card__links--item">
@@ -168,7 +173,7 @@ onMounted(async () => {
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/ym.png"
-                  alt=""
+                  alt="yandex market"
                 ></a>
               </div>
             </div>
@@ -197,7 +202,7 @@ onMounted(async () => {
               class="card__description--reserved"
             >
               <button
-                v-if="cardStore.hasEditPermission"
+                v-if="cardStore.isReservedUser"
                 class="card__button card__button-free"
                 @click="toggleReserve"
               >
@@ -207,7 +212,7 @@ onMounted(async () => {
                 <img
                   class="card__description--stamp"
                   src="@/components/icons/reserved.png"
-                  alt=""
+                  alt="Зарезервировано"
                 >
               </div>
               <span class="card__reserved__text">Зарезервировано пользователем
@@ -221,24 +226,35 @@ onMounted(async () => {
             </div>
 
             <div
-              v-else-if="!cardStore.isReserved && auth.currentUser && !cardStore.card.fulfilled"
+              v-else-if="enableForReserve"
               class="card__description--reserved"
             >
               <button
-                v-if="cardStore.blockSelfReserve"
+                v-if="hideButton"
                 class="card__button card__button-reserved"
                 @click="toggleReserve"
               >
                 зарезервировать
               </button>
               <span
-                v-if="cardStore.blockSelfReserve"
+                v-if="hideButton"
                 class="card__reserved__text"
               >Pарезервируйте этот подарок, если
                 хотите его подарить.</span>
             </div>
+
+            <div v-else-if="fulfilled">
+              <div class="card__status card__status--fulfilled">
+                Исполнено
+                <font-awesome-icon
+                  :icon="['fas', 'check']"
+                  class="card__status--icon"
+                />
+              </div>
+            </div>
+
             <div
-              v-else-if="!auth.currentUser"
+              v-else-if="guestMessage"
               class="card__reserved__text"
             >
               <span>Для бронирования желаний нужно зарегистрироваться</span>
@@ -251,6 +267,21 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.card__status {
+  margin-bottom: 5px;
+  color: white;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.card__status--fulfilled {
+  width: 200px;
+  margin: auto;
+  font-size: 22px;
+  text-align: center;
+  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(137, 23, 178, 1) 1%, rgba(251, 17, 37, 0.7455357142857143) 100%, rgba(0, 212, 255, 1) 100%);
+}
+
 .card__back__button {
   background-color: var(--color-background-light);
 }

@@ -1,18 +1,18 @@
 <script setup>
-import { images } from '@/components/constants/inivationImages'
-import path from '@/components/constants/pathes'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
+import { INVITATION_IMAGES } from '@/constants/inivationImages'
+import { PATHS } from '@/constants/paths'
 import { generateQrCode } from '@/services/GetQRCode'
 import { getUserData } from '@/services/GetUserData'
 import { saveInvitationToDB } from '@/services/SaveInvitationToDB'
 import { getAuth } from 'firebase/auth'
 import html2canvas from 'html2canvas'
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const qrCodeDataUrl = ref(null)
-const selectedImage = ref(images[0])
+const selectedImage = ref(INVITATION_IMAGES[0])
 const auth = getAuth()
 const userProfileUrl = ref('')
 const currentUser = ref({})
@@ -20,6 +20,7 @@ const file = ref(null)
 const router = useRouter()
 const isActive = ref(false)
 const guest = ref(false)
+const URL = import.meta.env.VITE_API_URL
 
 const form = reactive({
   title: '',
@@ -55,12 +56,13 @@ function goToInvitationPage() {
 
   if (currentUser) {
     const uid = currentUser.uid
-    router.push({ path: `${path.invitationCard}/${uid}` })
+    router.push({ path: `${PATHS.CARDS.INVITATION_CREATE}/${uid}` })
   }
   else {
     console.error('goToInvitationPage')
   }
 }
+const isLoading = computed(() => !qrCodeDataUrl.value && !guest.value)
 
 onMounted(async () => {
   if (!auth.currentUser) {
@@ -70,7 +72,7 @@ onMounted(async () => {
     const uid = auth.currentUser.uid
     const { user: userData } = await getUserData(uid)
     currentUser.value = userData
-    userProfileUrl.value = `https://prosnis.github.io/wisher/user/${uid}`
+    userProfileUrl.value = `https://${URL}/user/${uid}`
     qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
   }
 })
@@ -138,7 +140,7 @@ onMounted(async () => {
       <div class="form__picture">
         <ul class="form__picture__list">
           <li
-            v-for="(image, index) in images"
+            v-for="(image, index) in INVITATION_IMAGES"
             :key="index"
             class="picture__item"
             :class="[{ 'picture__item--selected': selectedImage.includes(image) }]"
@@ -147,7 +149,7 @@ onMounted(async () => {
             <img
               class="item__image"
               :src="image"
-              alt=""
+              alt="Изображение для пригласительного"
             >
           </li>
         </ul>
@@ -170,27 +172,27 @@ onMounted(async () => {
         <ul class="info__list">
           <li class="info__list__item info__list__item-title">
             <h1
-              v-if="!form.title"
+              v-if="form.title"
               class="info__list__item--title"
             >
-              День рождения!
+              {{ form.title }}
             </h1>
             <h1 v-else>
-              {{ form.title }}
+              День рождения!
             </h1>
           </li>
           <li class="info__list__item info__list__item-date">
-            <span v-if="!form.date"> {{ new Date().toLocaleDateString() }}</span>
-            <span v-else>{{ form.date }}</span>
+            <span v-if="form.date"> {{ form.date }}</span>
+            <span v-else>{{ new Date().toLocaleDateString() }}</span>
           </li>
           <li class="info__list__item info__list__item-description">
-            <span v-if="!form.description">Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый
+            <span v-if="form.description">{{ form.description }}</span>
+            <span v-else>Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый
               котел», который находится по адресу Косой переулок, 1.</span>
-            <span v-else> {{ form.description }}</span>
           </li>
           <li class="info__list__item info__list__item-signature">
-            <span v-if="!form.signature"> Tom Riddle</span>
-            <span v-else>{{ form.signature }}</span>
+            <span v-if="form.signature"> {{ form.signature }}</span>
+            <span v-else>Tom Riddle</span>
           </li>
         </ul>
       </div>
@@ -198,25 +200,29 @@ onMounted(async () => {
         <img
           class="card__image"
           :src="selectedImage"
-          alt=""
+          alt="Изображение для пригласительного"
         >
       </div>
 
       <div class="invitation__qr">
-        <span
-          v-if="qrCodeDataUrl"
-          class="qr__info"
-        >Сканируйте QR-код, чтобы ознакомиться со списком подарков.</span>
-        <WISpinner v-if="!qrCodeDataUrl && !guest" />
-        <img
-          v-else-if="qrCodeDataUrl"
-          :src="qrCodeDataUrl"
-          alt="QR Code"
-        >
+        <template v-if="qrCodeDataUrl">
+          <span class="qr__info">
+            Сканируйте QR-код, чтобы ознакомиться со списком подарков.
+          </span>
+          <img
+            :src="qrCodeDataUrl"
+            alt="QR Code"
+          >
+        </template>
+
+        <WISpinner v-else-if="isLoading" />
+
         <span
           v-else
           class="qr__info"
-        >После регистрации тут будет QR-код на ваш вишлсит и возможность отправить приглашение.</span>
+        >
+          После регистрации тут будет QR-код на ваш вишлсит и возможность отправить приглашение.
+        </span>
       </div>
     </div>
   </div>

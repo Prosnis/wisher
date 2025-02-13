@@ -1,14 +1,33 @@
 <script setup>
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
+import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
+import { BADGE_ALL } from '@/constants/badgeForSearch'
+import { BADGES } from '@/constants/badges'
 import { getAllWishes } from '@/services/GetAllWishes'
-import { getUserData } from '@/services/GetUserData'
-import { badges } from '@/services/UserBadgesStore'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const wishes = ref(null)
 const pickedbadge = ref([])
 const filteredWishes = ref([])
+const loading = ref(false)
+
+const currentPage = ref(1)
+const itemsPerPage = 10
+const combinedBadges = computed(() => [...BADGES, ...BADGE_ALL])
+
+const paginatedWishes = computed(() => {
+  return filteredWishes.value.slice(0, currentPage.value * itemsPerPage)
+})
+
+function processScroll() {
+  const bottomOffset = 10
+  const isBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - bottomOffset
+
+  if (isBottom && paginatedWishes.value.length < filteredWishes.value.length) {
+    currentPage.value += 1
+  }
+}
 
 function isBadgePicked(badge) {
   return pickedbadge.value.some(pickedBadge => pickedBadge.name === badge.name)
@@ -22,26 +41,43 @@ function badgePicker(badge) {
 }
 
 function badgesFilter(badge) {
-  filteredWishes.value = wishes.value.filter(item => item.badge.some(el => el.name === badge.name))
-  console.log(badge.name)
-  console.log(filteredWishes.value)
+  try {
+    loading.value = true
+    if (badge.name === 'Все категории') {
+      filteredWishes.value = wishes.value
+    }
+    else {
+      filteredWishes.value = wishes.value.filter(item => item.badge.some(el => el.name === badge.name))
+    }
+  }
+  finally {
+    loading.value = false
+  }
 }
 
 onMounted(async () => {
   try {
+    window.addEventListener('scroll', processScroll)
+    loading.value = true
     const rawWishes = await getAllWishes()
     const wishesWithUserData = await Promise.all(
       rawWishes.map(async (wish) => {
-        const { user: userData } = await getUserData(wish.userId)
-        return { ...wish, userData }
+        return { ...wish }
       }),
     )
     wishes.value = wishesWithUserData
-    filteredWishes.value = wishesWithUserData
+    badgePicker(BADGE_ALL[0])
+    badgesFilter(BADGE_ALL[0])
   }
   catch (error) {
     console.error('Ошибка загрузки данных:', error)
   }
+  finally {
+    loading.value = false
+  }
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', processScroll)
 })
 </script>
 
@@ -51,7 +87,7 @@ onMounted(async () => {
     <div class="cards__nav">
       <ul class="cards__list">
         <li
-          v-for="(badge, index) in badges"
+          v-for="(badge, index) in combinedBadges"
           :key="index"
           class="cards__item"
           :style="{
@@ -64,19 +100,65 @@ onMounted(async () => {
         </li>
       </ul>
     </div>
-    <div class="cards__wrapper">
+    <WiContentLoader
+      v-if="loading"
+      class="cards__wrapper"
+      :width="1300"
+      :height="600"
+    />
+
+    <div
+      v-else-if="filteredWishes.length"
+      class="cards__wrapper"
+    >
       <WiCardCreate
-        v-for="wish in filteredWishes"
+        v-for="wish in paginatedWishes"
         :key="wish.id"
         :wish="wish"
         :user-img="wish.userData?.photoUrl"
         :user-name="wish.userData?.displayName"
       />
     </div>
+
+    <div
+      v-else
+      class="empty"
+    >
+      <img
+        class="empty__image"
+        src="@/components/icons/empty.png"
+        alt="Иконка пустого списка: здесь пока нет элементов"
+      >
+      <span>Здесь пока пусто...</span>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.cards__nav {
+  background-color: var(--color-secondary);
+  border-radius: 10px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  margin-bottom: 20px;
+}
+
+.empty__image {
+  width: 350px;
+}
+
+.empty {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  color: var(--color-text-secondary);
+  background-color: var(--color-secondary);
+  border-radius: 10px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  margin-bottom: 20px;
+  min-height: 80vh;
+}
+
 .cards__item {
   text-align: center;
   padding: 8px;
@@ -93,13 +175,14 @@ onMounted(async () => {
   padding: 20px;
   justify-content: center;
 }
+
 .cards {
   max-width: 1300px;
   margin: auto;
   min-height: 85vh;
-  padding: 20px;
-  background-color: var(--color-secondary);
-  border-radius: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .cards__wrapper {
@@ -107,6 +190,11 @@ onMounted(async () => {
   gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
+  background-color: var(--color-secondary);
+  border-radius: 10px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  padding: 20px;
+  min-height: 70vh;
 }
 
 .form__badge__picked {

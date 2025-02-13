@@ -1,37 +1,35 @@
 <script setup>
-import { onBeforeUnmount, onMounted, reactive } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-const toggle = reactive({
-  visible: false,
-})
+const visible = ref(false)
 
 function hideMenu() {
-  toggle.visible = false
+  visible.value = false
 }
 
-function handleClickOutside(event) {
+function onClickOutside(event) {
   const container = event.target.closest('.context__menu__container')
   if (!container)
     hideMenu()
 }
 
 onMounted(() => {
-  window.addEventListener('mousedown', handleClickOutside)
+  window.addEventListener('mousedown', onClickOutside)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('mousedown', handleClickOutside)
+  window.removeEventListener('mousedown', onClickOutside)
 })
 </script>
 
 <template>
   <div
     class="context__menu__container"
-    @click=" toggle.visible = !toggle.visible"
+    @click="visible = !visible"
   >
     <slot />
     <div
-      v-if="toggle.visible"
+      v-if="visible"
       class="context__menu"
       @click.stop
     >
@@ -50,13 +48,14 @@ onBeforeUnmount(() => {
 
   .context__menu {
     position: absolute;
-    background: var(--color-background-light);
+    background: var(--color-secondary);
     border-radius: 10px;
     z-index: 1000;
     top: 60px;
     padding: 5px 0px;
     right: 20px;
-    width: 150px;
-    height: 80px;
+    width: 180px;
+    height: 50px;
+    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
   }
 </style>
