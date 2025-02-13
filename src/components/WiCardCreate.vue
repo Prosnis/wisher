@@ -1,6 +1,6 @@
 <script setup>
 import path from '@/components/constants/pathes'
-import {  useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   wish: {
@@ -43,7 +43,7 @@ function hoverLeft(event) {
 
 <template>
   <div
-    :class="{'card': !props.wish.reserve, 'card__reserve': props.wish.reserve}"
+    :class="{ card: !props.wish.reserve, card__reserve: props.wish.reserve }"
     :data-id="wish.id"
     @mouseenter="hoverEnter($event)"
     @mouseleave="hoverLeft($event)"
@@ -54,7 +54,7 @@ function hoverLeft(event) {
       alt=""
       class="card__image"
     >
-    <h3 card__title>
+    <h3 class="card__title">
       {{ wish.name }}
     </h3>
     <p class="card__price">
@@ -96,6 +96,11 @@ function hoverLeft(event) {
   }
 }
 
+
+.card__title{
+  text-overflow: ellipsis;
+  max-height: calc(2 * 1.5em); /* 2 строки при line-height: 1.5 */
+}
 .user__info--date {
   font-size: 15px;
 }
@@ -133,10 +138,11 @@ p {
 .card__user__info {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 10px;
   margin-top: auto;
   padding: 5px;
-
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .user__info--avatarImg {
@@ -154,6 +160,7 @@ p {
   background-color: white;
   padding: 2px;
   font-weight: 600;
+  color: black;
 }
 
 .card {
@@ -175,7 +182,7 @@ p {
   position: relative;
   width: 260px;
   height: 420px;
-   border: 3px solid #f14158; 
+   border: 3px solid #f14158;
   display: flex;
   flex-direction: column;
   align-items: center;

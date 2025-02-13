@@ -1,92 +1,69 @@
 <script setup>
 import WiCardCreate from '@/components/WiCardCreate.vue'
 import WiCardsAdd from '@/components/WiCardsAdd.vue'
-import WiModal from '@/components/WiModal.vue'
-import { getUserData } from '@/services/GetUserData'
+import { useProfileStore } from '@/stores/WiProfileStore'
+import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-const props = defineProps({
-  user: {
-    type: Object,
-    default: () => ({}),
-  },
-  hasEditPermission: {
-    type: Boolean,
-    default: () => false,
-  },
-  profileUserUid: {
-    type: String,
-  },
-})
-const modalAddCard = ref(null)
-const userWishList = ref([])
+const route = useRoute()
+const profileStore = useProfileStore()
+const { user, wishes, hasEditPermission, } = storeToRefs(profileStore)
+const { getProfileData } = profileStore
+const addCardToggle = ref(false)
+const buttonText = ref('Добавить')
 
-onMounted(async () => {
-  try {
-    const { wishes: userWishes } = await getUserData(props.profileUserUid)
-    userWishList.value = userWishes
-  }
-  catch (error) {
-    console.error('Ошибка при получении желаний:', error)
-  }
-})
 
-function showModalAddCard() {
-  modalAddCard.value.openModal()
+const addCardBtn = () => {
+  addCardToggle.value = !addCardToggle.value
+  addCardToggle.value === false ? buttonText.value = 'Добавить' : buttonText.value = 'Отменить'
 }
-
 function handleAddWish(cardData) {
-  userWishList.value.push(cardData)
+  wishes.value.push(cardData)
+  addCardBtn()
 }
+
+onMounted(() => {
+  getProfileData(route.params.uid)
+})
 </script>
 
 <template>
-  <h2 class="whishes__title">Список желаний</h2>
-  <button
-    v-if="hasEditPermission"
-    class="profile__button profile__button--addWish"
-    @click="showModalAddCard"
-  >
-    Добавить
+  <h2 class="whishes__title">
+    Список желаний
+  </h2>
+  <button v-if="hasEditPermission" 
+      class="profile__button profile__button--addWish" 
+      @click="addCardBtn">
+    {{ buttonText }}
   </button>
-  <WiModal ref="modalAddCard">
-    <WiCardsAdd
-      :user-img="props.user.photoUrl"
-      :user-name="props.user.displayName"
-      @handle-add-wish="handleAddWish"
-    />
-  </WiModal>
-  <section
-    v-if="userWishList.length"
-    class="wishes__list"
-  >
+
+
+  <WiCardsAdd v-if="addCardToggle" :user-img="user.photoUrl" :user-name="user.displayName"
+    @handle-add-wish="handleAddWish" />
+
+
+
+
+  <section v-if="wishes.length" class="wishes__list">
     <div class="whishes__cards">
-      <WiCardCreate
-        v-for="wish in userWishList"
-        :key="wish.id"
-        :wish="wish"
-        :user-img="props.user.photoUrl"
-        :user-name="props.user.displayName"
-      />
+      <WiCardCreate v-for="wish in wishes" :key="wish.id" :wish="wish" :user-img="user.photoUrl"
+        :user-name="user.displayName" />
     </div>
   </section>
-  <div
-    v-else
-    class="wishes__empty"
-  >
-    <img
-      src="../assets//empty-box.png"
-      alt="empty-box"
-      loading="lazy"
-    >
+
+
+  <div v-else class="wishes__empty">
+    <img src="../assets//empty-box.png" alt="empty-box" loading="lazy">
     <p>У пользователя пока нет желаний.</p>
   </div>
 </template>
 
 <style scoped>
-.whishes__title{
+.whishes__title {
   color: white;
 }
+
 .wishes__empty {
   display: flex;
   flex-direction: column;
@@ -112,6 +89,7 @@ function handleAddWish(cardData) {
   margin: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 10px;
   margin: 10px;
   font-weight: 600;
@@ -121,9 +99,11 @@ function handleAddWish(cardData) {
   color: white;
   cursor: pointer;
   transition: border 0.3s ease, background-color 0.3s ease;
+  width: 900px;
+  font-size: 22px;
 }
 
-.profile__button--addWish:hover{
+.profile__button--addWish:hover {
   border: 3px solid #ffd859;
 }
 </style>

@@ -9,16 +9,17 @@ export const useUserStore = defineStore('user', () => {
   const userUID = ref(null)
   const user = ref(null)
 
-  const  getData = async () => {
-    const {user: userData} = await getUserData(userUID.value)
+  const getData = async () => {
+    const { user: userData } = await getUserData(userUID.value)
     user.value = userData
   }
 
   onAuthStateChanged(auth, (currentUser) => {
-    if(currentUser) {
+    if (currentUser) {
       userUID.value = currentUser.uid
       getData()
-    }else {
+    }
+    else {
       userUID.value = null
       user.value = null
     }

@@ -11,10 +11,10 @@ module.exports = {
     'no-console': 'off',
     'vue/max-attributes-per-line': ['error', {
       singleline: {
-        max: 2,
+        max: 1,
       },
       multiline: {
-        max: 2,
+        max: 1,
       },
     }],
   },
