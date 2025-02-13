@@ -104,7 +104,7 @@ function signInWithGoogle() {
     align-items: center;
     height: 100vh;
     font-size: 18px;
-    color: #1f56ce;
+    color: #ffd859;
 }
 
 .auth__form {
@@ -112,9 +112,8 @@ function signInWithGoogle() {
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    border: #1f56ce 1px solid;
     border-radius: 20px;
-    box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35);
+    background-color: #111827
 
 }
 
@@ -151,13 +150,18 @@ function signInWithGoogle() {
 
 .auth__btn {
   font-size: 20px;
-    color: white;
-    background-color: #1f56ce;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 320px;
-    height: 40px;
-    margin-bottom: 10px;
+  color: #0d121b;
+  background-color: #ffd859;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 320px;
+  height: 40px;
+  margin-bottom: 10px;
+}
+
+.auth__btn:hover {
+  border: 3px solid #ffd859;
+  box-shadow: 0px 0px 15px #ffd859;
 }
 </style>
