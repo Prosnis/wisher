@@ -2,21 +2,14 @@
 import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import WiContextMenu from './WiContextMenu.vue'
-import WiModal from './WiModal.vue'
+import WiContextMenu from '../WiContextMenu.vue'
+import WiModal from '../WiModal.vue'
 
 const currentCard = ref(null)
 const router = useRouter()
 const route = useRoute()
-const modalRef = ref(null)
+const modalToggle = ref(false)
 const db = getFirestore()
-
-function openModal() {
-  modalRef.value.openModal()
-}
-function closeModal() {
-  modalRef.value.closeModal()
-}
 
 async function deleteCard() {
   try {
@@ -37,15 +30,18 @@ onMounted(() => {
 
 <template>
   <WiContextMenu>
-    <template #menu>
+    <template #menu="{ hideMenu }">
       <ul class="card__menu__list">
-        <li class="card__menu__item card__menu__item--edit">
+        <li
+          class="card__menu__item card__menu__item--edit"
+          @click="() => { hideMenu() }"
+        >
           <font-awesome-icon :icon="['fas', 'pen']" />
           Редактировать
         </li>
         <li
           class="card__menu__item card__menu__item--delete"
-          @click="openModal"
+          @click="() => { hideMenu(); modalToggle = true }"
         >
           <font-awesome-icon
             :icon="['fas', 'trash-can']"
@@ -59,14 +55,16 @@ onMounted(() => {
     />
   </WiContextMenu>
 
-  <WiModal ref="modalRef">
+  <WiModal v-model="modalToggle">
     <div class="menu__modal__content">
-      <h3>Удалить подарок?</h3>
-      <span>Восстановить его будет невозможно.</span>
+      <h3 class="menu__modal--confirm">
+        Удалить карточку?
+      </h3>
+      <span class="menu__modal--remind">Восстановить её будет невозможно.</span>
       <div class="menu__modal__buttons">
         <button
           class="menu__modal__button menu__modal__button--decline"
-          @click="closeModal"
+          @click="modalToggle = false"
         >
           нет, я
           передумал
@@ -92,14 +90,16 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  width: 500px;
+  cursor: default;
 }
-.menu__modal__content h3{
+.menu__modal--confirm{
   padding: 0;
   margin: 0;
-  font-size: 28px;
+  font-size: 32px;
 }
 
-.menu__modal__content span{
+.menu__modal--remind{
   font-size: 16px;
 }
 
@@ -111,17 +111,19 @@ onMounted(() => {
   margin: 10px;
   font-weight: 600;
   border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
   color: white;
   cursor: pointer;
   transition: border 0.3s ease, background-color 0.3s ease;
+  border: none;
 }
-.menu__modal__button--decline:hover {
-  border: 3px solid #ffd859;
+.menu__modal__button--decline{
+  background-color: #ffd859;
+  color: rgb(255, 255, 255);
 }
-.menu__modal__button--accept:hover {
-  border: 3px solid #ee2517;
+
+.menu__modal__button--accept{
+  background-color: #ff6c59;
+  color: rgb(250, 250, 250);
 }
 
 .card__menu__list{
@@ -139,7 +141,7 @@ onMounted(() => {
   color: red;
 }
 
-.card__menu__list li:hover{
+.card__menu__item:hover{
   background-color: #cfd3cf;
 }
 

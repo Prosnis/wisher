@@ -9,6 +9,8 @@ const router = createRouter({
     { path: path.feed, component: () => import('@/views/FeedPageView.vue') },
     { path: path.invitationCard, component: () => import('@/views/InvitationPageView.vue') },
     { path: path.auth, component: () => import('@/views/AuthPageView.vue') },
+    { path: path.cards, component: () => import('@/views/CardsPageView.vue') },
+    { path: path.cardAdd, component: () => import('@/views/WiCardAddView.vue') },
     // { path: '/wisher/modal',component: () => import('@/services/EditUserPage.vue')},
     {
       path: `${path.user}/:uid`,
@@ -39,7 +41,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    { path: path.main, component: () => import('@/views/RegisterPageView.vue') },
+    { path: path.main, component: () => import('@/views/FeedPageView.vue') },
   ],
 })
 

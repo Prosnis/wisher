@@ -4,13 +4,19 @@ import { ref } from 'vue'
 import { useUserStore } from './WiUserStore'
 
 export const useProfileStore = defineStore('profile', () => {
+  const user = ref({})
   const userStore = useUserStore()
-  const profileUID = ref(null)
-  const user = ref(null)
-  const badges = ref(null)
+  const profileUID = ref('')
+
+  const badges = ref([])
+  const wishes = ref([])
+
   const hasEditPermission = ref(false)
   const skeletonLoad = ref(true)
-  const wishes = ref(null)
+
+  const addWish = (cardData) => {
+    wishes.value.push(cardData)
+  }
 
   const getProfileData = async (uid) => {
     try {
@@ -35,5 +41,5 @@ export const useProfileStore = defineStore('profile', () => {
       skeletonLoad.value = false
     }
   }
-  return { profileUID, user, wishes, badges, hasEditPermission, skeletonLoad, getProfileData }
+  return { profileUID, user, wishes, badges, hasEditPermission, skeletonLoad, getProfileData, addWish }
 })
