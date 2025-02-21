@@ -2,9 +2,8 @@
 import defaultImage from '@/components/icons/box.jpg'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
-import { BADGES } from '@/constants/badges'
 import { PATHS } from '@/constants/paths'
-import { classifyText } from '@/services/GetCardHobby'
+import { classifiedHobbies } from '@/services/GetCardHobby'
 import { YandexParser } from '@/services/GetFromYandex'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
@@ -55,7 +54,7 @@ async function parseFromYndex() {
     form.link = urlToparse.value
     formToggler()
     error.value = false
-    classifiedHobbies(form.name)
+    categories.value = await classifiedHobbies(form.name)
   }
   catch (err) {
     console.log('parseFromYandex', err)
@@ -99,7 +98,6 @@ function toUserPage() {
 
 async function CreateCard() {
   const newCard = createCardData(form)
-  console.log('123')
 
   try {
     await setDoc(doc(db, 'wishes', newCard.id), newCard)
@@ -136,40 +134,6 @@ function badgePicker(badge) {
   }
   else {
     form.badge.push(badge)
-  }
-}
-
-let isProcessing = false
-
-async function classifiedHobbies(cardName) {
-  if (isProcessing)
-    return
-  isProcessing = true
-
-  if (!form?.name || form.name.trim() === '') {
-    console.error('form.name is undefined or empty')
-    isProcessing = false
-    return
-  }
-
-  try {
-    spinnerText.value = 'Подбираем категорию..'
-    categories.value = []
-    console.log('Before classifyText:', cardName)
-    const result = await classifyText(cardName)
-    console.log('After classifyText:', result)
-
-    categories.value = BADGES.filter(badge =>
-      result.some(res => badge.name.includes(res.label)),
-    )
-  }
-  catch (error) {
-    console.error('Error in classifiedHobbies:', error)
-    categories.value = []
-  }
-  finally {
-    spinnerText.value = 'Выберите подходящую категорию:'
-    isProcessing = false
   }
 }
 </script>

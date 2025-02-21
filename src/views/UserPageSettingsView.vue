@@ -1,32 +1,43 @@
-<!-- eslint-disable antfu/top-level-function -->
-<script setup>
+<script setup lang="ts">
+import type { Badge } from '@/types/interfaces/user'
+import type { User as FirebaseUser } from 'firebase/auth'
+
 import WiNavbar from '@/components/WiNavbar.vue'
 import { BADGES } from '@/constants/badges'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
+import { Button } from 'primevue'
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const auth = getAuth()
 const route = useRoute()
 const router = useRouter()
-const profileStore = useProfileStore()
 const db = getFirestore()
-const loading = ref(false)
 
-const currentUser = ref(null)
+const profileStore = useProfileStore()
+
+const loading = ref<boolean>(false)
+
+const currentUser = ref<FirebaseUser | null>(null)
 const { getProfileData } = profileStore
-const formData = reactive({
-  name: profileStore.user.displayName,
-  about: profileStore.user.about,
-  badges: [],
+
+interface FormData {
+  name: string
+  about: string | ''
+  badges: Badge[] 
+}
+const formData = reactive<FormData>({
+  name: profileStore.user?.displayName || '',
+  about: profileStore.user?.about || '',
+  badges: profileStore.user?.badges || [],
 })
 
-const isBadgePicked = (badge) => {
+const isBadgePicked = (badge : Badge) : boolean => {
   return formData.badges.some(pickedBadge => pickedBadge.name === badge.name)
 }
-const badgePicker = (badge) => {
+const badgePicker = (badge : Badge) : void => {
   const index = formData.badges.findIndex(item => item.name === badge.name)
   if (index !== -1) {
     formData.badges.splice(index, 1)
@@ -38,30 +49,34 @@ const badgePicker = (badge) => {
 
 const saveProfile = async () => {
   loading.value = true
-  currentUser.value = auth.currentUser
-  const userDocRef = doc(db, 'users', currentUser.value.uid)
-  const userSnapshot = await getDoc(userDocRef)
-  const userData = userSnapshot.exists() ? userSnapshot.data() : {}
-  const updates = {
-    displayName: formData.name !== '' ? formData.name : (currentUser.value.displayName || userData.displayName),
-    about: formData.about !== '' ? formData.about : (currentUser.value.about || userData.about),
-    badges: formData.badges,
+  if(auth.currentUser) {
+    currentUser.value =  auth.currentUser
+    const uid : string = currentUser.value.uid
+    const userDocRef = doc(db, 'users', uid)
+    const userSnapshot = await getDoc(userDocRef)
+    const userData = userSnapshot.exists() ? userSnapshot.data() : {}
+    const updates = {
+      displayName: formData.name !== '' ? formData.name : (currentUser.value.displayName || userData.displayName),
+      about: formData.about !== '' ? formData.about : userData.about,
+      badges: formData.badges,
+    }
+    try {
+      await updateDoc(userDocRef, updates)
+      console.log('Профиль успешно обновлен')
+    }
+    catch (error) {
+      console.error('Ошибка при обновлении профиля:', error)
+    }
+    finally {
+      loading.value = false
+    }
+    router.back()
   }
-  try {
-    await updateDoc(userDocRef, updates)
-    console.log('Профиль успешно обновлен')
-  }
-  catch (error) {
-    console.error('Ошибка при обновлении профиля:', error)
-  }
-  finally {
-    loading.value = false
-  }
-  router.back()
 }
 
 onMounted(async () => {
-  await getProfileData(route.params.uid)
+  const uid = route.params.uid as string
+  await getProfileData(uid)
   formData.badges = [...profileStore.badges]
 })
 </script>
@@ -126,9 +141,12 @@ onMounted(async () => {
         </li>
       </ul>
       <div class="form__buttons">
-        <button class="form__button form__button--save">
-          сохранить изменения
-        </button>
+        <Button
+          type="submit"
+          label="Сохранить"
+          icon="pi pi-check"
+          icon-pos="right"
+        />
       </div>
     </form>
   </div>
@@ -249,21 +267,21 @@ onMounted(async () => {
 
 .form__button {
   border: none;
-    background-color: var(--color-background-light);
-    padding: 10px;
-    cursor: pointer;
-    border-radius: 10px;
-    font-size: 20px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 35px;
-    margin: 20px;
-    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-    transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--color-background-light);
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 35px;
+  margin: 20px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.form__button:hover{
+.form__button:hover {
   background-color: var(--color-accent);
   color: var(--color-secondary);
 }

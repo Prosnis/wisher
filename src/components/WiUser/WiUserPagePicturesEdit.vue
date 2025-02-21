@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import WiSubscribeButton from '@/components/WiSubscribeButton.vue'
 import { PATHS } from '@/constants/paths'
 import { saveProfile } from '@/services/UserPictureUpdate'

@@ -1,4 +1,6 @@
-export const BADGES = [
+import type { Badge } from '@/types/interfaces/user'
+
+export const BADGES: Badge[] = [
   { name: 'Искусство', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Музыка', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Танцы', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
@@ -27,4 +29,8 @@ export const BADGES = [
   { name: 'Электроника', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Интерьер и уют', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
   { name: 'Косметология', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
+]
+
+export const BADGE_ALL: Badge[] = [
+  { name: 'Все категории', BgColor: 'rgba(255, 255, 255, 1)', color: 'rgba(0, 0, 0, 1)' },
 ]

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import { PATHS } from '@/constants/paths'
@@ -8,14 +8,18 @@ import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
+
 const profileStore = useProfileStore()
+
+const skeleton = ref<boolean>(false)
+
 const { getProfileData } = profileStore
-const skeleton = ref(false)
 
 onMounted(async () => {
   try {
     skeleton.value = true
-    await getProfileData(route.params.uid)
+    const uid = route.params.uid as string
+    await getProfileData(uid)
   }
   catch (err) {
     console.log(err)
@@ -59,7 +63,7 @@ onMounted(async () => {
           Желания пользователей
         </button>
       </div>
-      <div class="whishes__cards">
+      <div class="whishes__cards" v-if="profileStore.user">
         <WiCardCreate
           v-for="wish in profileStore.wishes"
           :key="wish.id"

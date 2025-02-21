@@ -1,4 +1,4 @@
-import { PATHS } from '@/constants/paths.js'
+import { PATHS } from '@/constants/paths'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 

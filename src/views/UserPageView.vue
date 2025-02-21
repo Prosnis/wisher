@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
 import WiProfileNavbar from '@/components/WiProfileNavbar.vue'
@@ -11,9 +11,15 @@ import SubscribeListView from './SubscribeListView.vue'
 import WiReservedListView from './WiReservedListView.vue'
 
 const route = useRoute()
-const loading = ref(false)
+const loading = ref<boolean>(false)
 
-const components = {
+interface ComponentsMap {
+  WiUserWishes: typeof WiUserWishes;
+  WiReservedListView: typeof WiReservedListView;
+  SubscribeListView: typeof SubscribeListView;
+}
+
+const components : ComponentsMap = {
   WiUserWishes,
   WiReservedListView,
   SubscribeListView,
@@ -22,16 +28,16 @@ const components = {
 const profileStore = useProfileStore()
 const { getProfileData } = profileStore
 
-const currentComponent = ref('WiUserWishes')
+const currentComponent = ref<string>('WiUserWishes')
 
-function changeView(componentName) {
+function changeView(componentName : string) : void {
   currentComponent.value = componentName
 }
 
 watch(
   () => route.params.uid,
   async (newUid) => {
-    await getProfileData(newUid)
+    await getProfileData(newUid as string)
     currentComponent.value = 'WiUserWishes'
   },
 )
@@ -39,10 +45,11 @@ watch(
 onMounted(async () => {
   try {
     loading.value = true
-    await getProfileData(route.params.uid)
+    const uid = route.params.uid as string
+    await getProfileData(uid)
   }
   catch (err) {
-    console.log(err)
+    console.log('Пользователь не автроризован', err)
   }
   finally {
     loading.value = false
@@ -67,7 +74,7 @@ onMounted(async () => {
         v-else
         class="user__info"
       >
-        <div class="profile">
+        <div class="profile" v-if="profileStore.user">
           <WiUserPagePicturesEdit
             :user="profileStore.user"
             :has-edit-permission="profileStore.hasEditPermission"
@@ -117,7 +124,7 @@ onMounted(async () => {
           v-else
           class="wishes"
         >
-          <component :is="components[currentComponent]" />
+        <component :is="components[currentComponent as keyof ComponentsMap]" />
         </div>
       </div>
     </main>

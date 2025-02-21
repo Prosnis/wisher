@@ -1,41 +1,52 @@
-<script setup>
+<script setup lang="ts">
 import WiNavbar from '@/components/WiNavbar.vue'
 import { getInvitationImageUrl } from '@/services/GetUserInvitation'
 import { getUserLink } from '@/services/GetUserLink'
 import { getAuth } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
 
-const invitationImageUrl = ref(null)
-const uid = ref(null)
-const userLinkToCopy = ref(null)
+const invitationImageUrl = ref<string | null>(null)
+const uid = ref<string | null>(null)
+const userLinkToCopy = ref<string | null>(null)
 const auth = getAuth()
-const buttonText = ref('Скопировать ссылку')
+const buttonText = ref<string>('Скопировать ссылку')
 const URL = import.meta.env.VITE_API_URL
 
-async function copyLink() {
+async function copyInvitationLink() {
   const combinedText = `${invitationImageUrl.value}\n${userLinkToCopy.value}`
   await navigator.clipboard.writeText(combinedText)
   buttonText.value = 'Скопировано!'
 }
 
-function smoothLoad(event) {
-  event.target.classList.add('loaded')
+function smoothLoad(event: Event) {
+  const eventTarget = event.target as HTMLImageElement
+  eventTarget.classList.add('loaded')
 }
 
 onMounted(async () => {
-  invitationImageUrl.value = await getInvitationImageUrl()
-  uid.value = auth.currentUser.uid
-  userLinkToCopy.value = `Посмотреть и зарезервировать подарок можно тут: ${await getUserLink()}`
+  const currentUser = auth.currentUser
+  if (currentUser) {
+    uid.value = currentUser.uid
+    try {
+      invitationImageUrl.value = await getInvitationImageUrl()
+      userLinkToCopy.value = `Посмотреть и зарезервировать подарок можно тут: ${await getUserLink()}`
+    }
+    catch (error) {
+      console.error('Ошибка при загрузке данных:', error)
+    }
+  }
+  else {
+    console.log('Пользователь не авторизован')
+  }
 })
 </script>
 
 <template>
   <WiNavbar />
   <div>
-    <div
-      :class="[invitationImageUrl ? 'invitation__container' : 'invitation__container skeleton-loader']"
-    >
+    <div :class="[invitationImageUrl ? 'invitation__container' : 'invitation__container skeleton-loader']">
       <img
+        v-if="invitationImageUrl"
         :src="invitationImageUrl"
         alt="Изображение пригласительного"
         class="invitation__image"
@@ -63,7 +74,7 @@ onMounted(async () => {
         </a>
         <button
           class="invitation__btn"
-          @click="copyLink"
+          @click="copyInvitationLink"
         >
           {{ buttonText }}
         </button>
@@ -77,7 +88,8 @@ onMounted(async () => {
   display: flex;
   gap: 10px;
 }
-.invitation__btn  {
+
+.invitation__btn {
   margin: 0;
   display: flex;
   align-items: center;
@@ -94,7 +106,7 @@ onMounted(async () => {
   font-size: 16px;
 }
 
-.invitation__btn:active{
+.invitation__btn:active {
   transform: translateY(2px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }

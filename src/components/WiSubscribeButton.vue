@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+// import type { User as FirebaseUser } from 'firebase/auth'
+
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
@@ -7,45 +9,48 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const auth = getAuth()
 const db = getFirestore()
-const userSubscribe = ref([])
-const currentUser = ref(null)
-const isSubscribed = ref(false)
+
+const userSubscribe = ref<string[]>([])
+const currentUserUid = ref<string>('')
+const isSubscribed = ref<boolean>(false)
 
 async function saveSubscribe() {
-  const userDocRef = doc(db, 'users', currentUser.value.uid)
   try {
-    await updateDoc(userDocRef, { subscribe: userSubscribe.value })
+    if (auth.currentUser) {
+      const userDocRef = doc(db, 'users', currentUserUid.value)
+      await updateDoc(userDocRef, { subscribe: userSubscribe.value })
+    }
   }
   catch (error) {
-    console.error('err', error)
+    console.error('Пользователь не авторизирован', error)
   }
 }
 
 function subscribe() {
-  const index = userSubscribe.value.findIndex(item => item === route.params.uid)
+  const uid = route.params.uid as string
+  const index = userSubscribe.value.findIndex(item => item === uid)
   if (index !== -1) {
     userSubscribe.value.splice(index, 1)
     isSubscribed.value = false
-    console.log('otpiska')
   }
   else {
-    userSubscribe.value.push(route.params.uid)
+    userSubscribe.value.push(uid)
     isSubscribed.value = true
-    console.log('podpisan')
   }
   saveSubscribe()
 }
 
 onMounted(async () => {
   if (auth.currentUser) {
-    currentUser.value = auth.currentUser
-    const userDocRef = doc(db, 'users', currentUser.value.uid)
+    currentUserUid.value = auth.currentUser.uid
+    const userDocRef = doc(db, 'users', currentUserUid.value)
     try {
       const docSnapshot = await getDoc(userDocRef)
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data()
         userSubscribe.value = userData.subscribe || []
-        isSubscribed.value = userSubscribe.value.includes(route.params.uid)
+        const uid = route.params.uid as string
+        isSubscribed.value = userSubscribe.value.includes(uid)
       }
     }
     catch (error) {

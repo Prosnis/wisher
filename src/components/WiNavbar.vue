@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { PATHS } from '@/constants/paths'
 import { logout } from '@/services/logOut'
 import { useUserStore } from '@/stores/WiUserStore'

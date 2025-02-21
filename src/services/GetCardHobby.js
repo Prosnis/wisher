@@ -1,3 +1,5 @@
+import { BADGES } from '@/constants/badges'
+
 const categories = [
   'Искусство',
   'Музыка',
@@ -71,5 +73,18 @@ export async function classifyText(text) {
   catch (error) {
     console.error('Ошибка при запросе:', error.message)
     return []
+  }
+}
+
+export async function classifiedHobbies(cardName) {
+  try {
+    const result = await classifyText(cardName)
+
+    return BADGES.filter(badge =>
+      result.some(res => badge.name.includes(res.label)),
+    )
+  }
+  catch (error) {
+    console.error('Error in classifiedHobbies:', error)
   }
 }

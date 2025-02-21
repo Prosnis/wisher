@@ -15,4 +15,4 @@ export const PATHS = {
   },
   INVITATIONS_TO_SHARE: '/invitations',
   MAIN: '/',
-}
+} as const

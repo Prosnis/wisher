@@ -1,32 +1,44 @@
-<script setup>
+<script setup lang="ts">
+import type { User } from '@/types/interfaces/user'
+
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiMiniProfileCard from '@/components/WiMiniProfileCard.vue'
 import { getSubscribeList } from '@/services/GetSubsList'
 import { useUserStore } from '@/stores/WiUserStore'
 import { onMounted, ref } from 'vue'
 
-const subscribeList = ref({})
-const loading = ref(false)
+const subscribeList = ref<User[] | []>([])
+const loading = ref<boolean>(false)
+const userStore = useUserStore()
 
-onMounted(async () => {
+const fetchSubscribeList = async () => {
   try {
-    const userStore = useUserStore()
     loading.value = true
-    subscribeList.value = await getSubscribeList(userStore.user.subscribe)
+    if (userStore.user && userStore.user.subscribe) {
+      subscribeList.value = await getSubscribeList(userStore.user.subscribe)
+    }
+    else {
+      subscribeList.value = []
+    }
   }
   catch (err) {
-    console.log(err)
+    console.error('Ошибка при получении списка подписок:', err)
+    subscribeList.value = []
   }
   finally {
     loading.value = false
   }
+}
+
+onMounted(async () => {
+  fetchSubscribeList()
 })
 </script>
 
 <template>
   <WiContentLoader
     v-if="loading"
-    :width="1300"
+    :width="400"
     :height="260"
   />
 

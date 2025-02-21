@@ -1,4 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
+
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Aura from '@primevue/themes/aura'
@@ -21,12 +22,17 @@ const firebaseConfig = {
   messagingSenderId: '26276656992',
   appId: '1:26276656992:web:8ed1d29b416b0d58341005',
 }
+
 const firebaseApp = initializeApp(firebaseConfig)
+
 const db = getFirestore(firebaseApp)
+
 library.add(fas)
 const app = createApp(App)
 const pinia = createPinia()
+
 app.component('font-awesome-icon', FontAwesomeIcon)
+
 app.use(pinia)
 app.use(router)
 app.use(PrimeVue, {
@@ -35,4 +41,5 @@ app.use(PrimeVue, {
   },
 })
 app.mount('#app')
+
 export { db }

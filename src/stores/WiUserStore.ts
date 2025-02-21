@@ -1,3 +1,5 @@
+import type { User } from '@/types/interfaces/user'
+import type { User as FirebaseUser } from 'firebase/auth'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { doc, getFirestore, onSnapshot } from 'firebase/firestore'
 import { defineStore } from 'pinia'
@@ -7,19 +9,19 @@ const auth = getAuth()
 const db = getFirestore()
 
 export const useUserStore = defineStore('user', () => {
-  const userUID = ref(null)
-  const user = ref(null)
-  let unsubscribe = null
+  const userUID = ref<string | null>(null)
+  const user = ref<User | null>(null)
+  let unsubscribe: (() => void) | null = null
 
-  const subscribeToUserData = (uid) => {
-    if (unsubscribe) {
+  const subscribeToUserData = (uid: string): void => {
+    if (typeof unsubscribe === 'function') {
       unsubscribe()
     }
 
     const userDocRef = doc(db, 'users', uid)
     unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
-        user.value = docSnapshot.data()
+        user.value = docSnapshot.data() as User
       }
       else {
         user.value = null
@@ -27,7 +29,7 @@ export const useUserStore = defineStore('user', () => {
     })
   }
 
-  onAuthStateChanged(auth, (currentUser) => {
+  onAuthStateChanged(auth, (currentUser: FirebaseUser | null) => {
     if (currentUser) {
       userUID.value = currentUser.uid
       subscribeToUserData(currentUser.uid)
@@ -35,7 +37,7 @@ export const useUserStore = defineStore('user', () => {
     else {
       userUID.value = null
       user.value = null
-      if (unsubscribe) {
+      if (typeof unsubscribe === 'function') {
         unsubscribe()
         unsubscribe = null
       }

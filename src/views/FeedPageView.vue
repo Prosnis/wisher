@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+import type { Wish } from '@/types/interfaces/wish'
+
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import NavBar from '@/components/WiNavbar.vue'
@@ -7,34 +9,35 @@ import { getAllWishes } from '@/services/GetAllWishes'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const wishes = ref([{}])
+const wishes = ref<Wish[]>([])
 const router = useRouter()
-const loading = ref(false)
+const loading = ref<boolean>(false)
 
 const wishesPerPage = 8
-const currentPage = ref(0)
+const currentPage = ref<number>(0)
+let intervalId: ReturnType<typeof setInterval>
 
-const isTransitioning = ref(false)
+const isTransitioning = ref<boolean>(false)
 
-function hoverEnter(event) {
-  event.target.classList.add('hover')
+function hoverEnter(event: MouseEvent): void {
+  const target = event.currentTarget as HTMLElement
+  target.classList.add('hover')
 }
 
-function hoverLeft(event) {
-  event.target.classList.remove('hover')
+function hoverLeft(event: MouseEvent): void {
+  const target = event.currentTarget as HTMLElement
+  target.classList.remove('hover')
 }
 
-const totalPages = computed(() => Math.ceil(wishes.value.length / wishesPerPage))
+const totalPages = computed(() => Math.ceil((wishes.value.length) / wishesPerPage))
 
-function nextPage() {
+function nextPage(): void {
   isTransitioning.value = true
   setTimeout(() => {
     currentPage.value = (currentPage.value + 1) % totalPages.value
     isTransitioning.value = false
   }, 500)
 }
-
-let intervalId
 
 const paginatedUsers = computed(() => {
   const start = currentPage.value * wishesPerPage
@@ -57,7 +60,9 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  clearInterval(intervalId)
+  if (intervalId !== null) {
+    clearInterval(intervalId)
+  }
 })
 </script>
 

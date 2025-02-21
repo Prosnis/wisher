@@ -1,16 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 
-defineProps({
-  active: {
-    type: String,
-  },
-})
+interface Props {
+  active: string
+}
+defineProps<Props>()
 
 const emit = defineEmits(['changeView'])
-const activeView = ref('WiUserWishes')
+const activeView = ref<string>('WiUserWishes')
 
-function changeView(view) {
+function changeView(view:string) : void {
   activeView.value = view
   emit('changeView', view)
 }

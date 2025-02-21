@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -20,19 +20,20 @@ function goBack() {
   </button>
 </template>
 
-<style scoped>
-.back__button{
+<style lang="scss" scoped>
+.back__button {
     border: none;
     cursor: pointer;
     margin-right: auto;
-    transition: transform 0.3s ease;
-}
-.back__icon{
-    font-size: 30px;
-    color: var(--color-accent);
-}
 
-.back__button:hover {
-    transform: scale(1);
+    .back__icon {
+        font-size: 30px;
+        color: var(--color-accent);
+        transition: transform 0.3s ease;
+    }
+
+    &:hover .back__icon {
+        transform: scale(1.1);
+    }
 }
 </style>

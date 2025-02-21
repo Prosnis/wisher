@@ -1,17 +1,16 @@
-<script setup>
+<script setup lang="ts">
+import type { User } from '@/types/interfaces/user'
 import { PATHS } from '@/constants/paths'
 import { useRouter } from 'vue-router'
 
-defineProps({
-  users: {
-    type: Array,
-    required: true,
-  },
-})
+interface Props {
+  users: User[]
+}
+defineProps<Props>()
 
 const router = useRouter()
 
-async function toUserPage(userId) {
+async function toUserPage(userId: string) {
   try {
     await router.push(`${PATHS.USER.PROFILE}/${userId}`)
   }

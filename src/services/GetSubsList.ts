@@ -1,14 +1,12 @@
+import type { User } from '@/types/interfaces/user'
 import { getUserData } from '@/services/GetUserData'
 
-const subscribeMap = []
-
-export async function getSubscribeList(subList) {
+export async function getSubscribeList(subList: string[]): Promise<User[] | []> {
   try {
     const result = await Promise.all(
       subList.map(async (item) => {
         try {
           const { user: userData } = await getUserData(item)
-          subscribeMap.push(userData)
           return userData
         }
         catch (error) {

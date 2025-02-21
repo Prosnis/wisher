@@ -1,47 +1,55 @@
-<script setup>
+<script setup lang='ts'>
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
 import { INVITATION_IMAGES } from '@/constants/inivationImages'
 import { PATHS } from '@/constants/paths'
 import { generateQrCode } from '@/services/GetQRCode'
-import { getUserData } from '@/services/GetUserData'
 import { saveInvitationToDB } from '@/services/SaveInvitationToDB'
 import { getAuth } from 'firebase/auth'
 import html2canvas from 'html2canvas'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const qrCodeDataUrl = ref(null)
-const selectedImage = ref(INVITATION_IMAGES[0])
-const auth = getAuth()
-const userProfileUrl = ref('')
-const currentUser = ref({})
-const file = ref(null)
-const router = useRouter()
-const isActive = ref(false)
-const guest = ref(false)
-const URL = import.meta.env.VITE_API_URL
+const qrCodeDataUrl = ref<string | null>(null)
+const selectedImage = ref<string>(INVITATION_IMAGES[0])
+const userProfileUrl = ref<string | null>(null)
+const currentUserUid = ref<string | null>(null)
+const guest = ref<boolean>(false)
+const isActive = ref<boolean>(false)
+const file = ref<string | null>(null)
 
-const form = reactive({
+const auth = getAuth()
+const router = useRouter()
+
+const URL: string = import.meta.env.VITE_API_URL
+
+interface Form {
+  title: string
+  date: string
+  description: string
+  signature: string
+}
+
+const form: Form = reactive({
   title: '',
   date: '',
   description: '',
   signature: '',
 })
 
-function selectImage(image) {
+function selectImage(image: string): void {
   selectedImage.value = image
 }
 
-async function saveCardAsImage() {
-  const card = document.getElementById('card')
+async function saveCardAsImage(): Promise<void> {
+  const card = document.getElementById('card') as HTMLElement | null
   try {
     isActive.value = true
-    const canvas = await html2canvas(card)
+    const canvas = await html2canvas(card as HTMLCanvasElement)
     const imageDataUrl = canvas.toDataURL('image/png')
     file.value = imageDataUrl
     await saveInvitationToDB(imageDataUrl)
-    goToInvitationPage()
+    routeToShare()
   }
   catch (error) {
     console.error('Ошибка при сохранении изображения:', error)
@@ -51,15 +59,12 @@ async function saveCardAsImage() {
   }
 }
 
-function goToInvitationPage() {
-  const currentUser = auth.currentUser
-
-  if (currentUser) {
-    const uid = currentUser.uid
-    router.push({ path: `${PATHS.CARDS.INVITATION_CREATE}/${uid}` })
+function routeToShare(): void {
+  if (auth.currentUser) {
+    router.push({ path: `${PATHS.CARDS.INVITATION_CREATE}/${currentUserUid.value}` })
   }
   else {
-    console.error('goToInvitationPage')
+    console.error('Пользователь не авторизован')
   }
 }
 const isLoading = computed(() => !qrCodeDataUrl.value && !guest.value)
@@ -69,10 +74,8 @@ onMounted(async () => {
     guest.value = true
   }
   else {
-    const uid = auth.currentUser.uid
-    const { user: userData } = await getUserData(uid)
-    currentUser.value = userData
-    userProfileUrl.value = `https://${URL}/user/${uid}`
+    currentUserUid.value = auth.currentUser.uid
+    userProfileUrl.value = `https://${URL}/user/${currentUserUid.value}`
     qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
   }
 })

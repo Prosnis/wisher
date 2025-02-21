@@ -1,31 +1,32 @@
-<script setup>
+<script setup lang="ts">
+import type { Wish } from '@/types/interfaces/wish'
 import WiContextMenu from '@/components/WiContextMenu.vue'
 import WiModal from '@/components/WiModal.vue'
 import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
-import { defineEmits, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-const { card } = defineProps({
-  card: {
-    type: Object,
-    default: () => {},
-  },
-})
-const emit = defineEmits(['toggle-fulfill'])
-const currentCard = ref(null)
+interface Props {
+  card: Wish
+}
+
+const props = defineProps<Props>()
+
+const emit = defineEmits(['toggleFulfill'])
+const currentCard = ref<string | null>(null)
+const modalToggle = ref<boolean>(false)
 const router = useRouter()
 const route = useRoute()
-const modalToggle = ref(false)
 const db = getFirestore()
 
 function toggleFulfillStatus() {
-  const newStatus = !card.fulfilled
+  const newStatus = !props.card.fulfilled
   emit('toggleFulfill', newStatus)
 }
 
 async function deleteCard() {
   try {
-    const cardRef = doc(db, 'wishes', currentCard.value)
+    const cardRef = doc(db, 'wishes', currentCard.value as string)
     await deleteDoc(cardRef)
     console.log(`карточка id: ${currentCard.value} удалена.`)
   }
@@ -36,7 +37,7 @@ async function deleteCard() {
 }
 
 onMounted(() => {
-  currentCard.value = route.params.uid
+  currentCard.value = route.params.uid as string
 })
 </script>
 
@@ -96,19 +97,28 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.card__menu__item--fulfilled{
+.card__menu__list {
+  color: black;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card__menu__item--fulfilled {
   color: green;
   font-size: 15px;
   padding: 5px;
 }
-.menu__icon{
+
+.menu__icon {
   margin: 0px 10px 0px 10px;
 }
-.menu__modal__buttons{
+
+.menu__modal__buttons {
   display: flex;
 }
 
-.menu__modal__content{
+.menu__modal__content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -116,17 +126,18 @@ onMounted(() => {
   width: 500px;
   cursor: default;
 }
-.menu__modal--confirm{
+
+.menu__modal--confirm {
   padding: 0;
   margin: 0;
   font-size: 32px;
 }
 
-.menu__modal--remind{
+.menu__modal--remind {
   font-size: 16px;
 }
 
-.menu__modal__button{
+.menu__modal__button {
   margin: 0;
   display: flex;
   align-items: center;
@@ -139,36 +150,31 @@ onMounted(() => {
   transition: border 0.3s ease, background-color 0.3s ease;
   border: none;
 }
-.menu__modal__button--decline{
+
+.menu__modal__button--decline {
   background-color: #ffd859;
   color: rgb(255, 255, 255);
 }
 
-.menu__modal__button--accept{
+.menu__modal__button--accept {
   background-color: #ff6c59;
   color: rgb(250, 250, 250);
 }
 
-.card__menu__list{
-  color: black;
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-.card__menu__item{
+.card__menu__item {
   font-size: 15px;
   padding: 5px;
 }
 
-.card__menu__item--delete{
+.card__menu__item--delete {
   color: red;
 }
 
-.card__menu__item:hover{
+.card__menu__item:hover {
   background-color: var(--color-background-light);
 }
 
-.card__menu--icon{
+.card__menu--icon {
   padding: 25px;
   font-size: 30px;
   color: black;

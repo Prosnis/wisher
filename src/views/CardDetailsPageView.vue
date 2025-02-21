@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import WiBackButton from '@/components/WiBackButton.vue'
 import WiCardMenu from '@/components/WiCards/WiCardMenu.vue'
 import WiContentLoader from '@/components/WiContentLoader.vue'
@@ -14,17 +14,22 @@ import { useRoute } from 'vue-router'
 const db = getFirestore()
 const auth = getAuth()
 const route = useRoute()
-const spinner = ref(false)
+const spinner = ref<boolean>(false)
 
 const cardStore = useCardStore()
 const { getCardData } = cardStore
 
 const hideButton = computed(() => !cardStore.isOwner)
-const enableForReserve = computed(() => !cardStore.isReserved && auth.currentUser && !cardStore.card.fulfilled)
-const fulfilled = computed(() => cardStore.card.fulfilled)
+const enableForReserve = computed(() => !cardStore.isReserved && auth.currentUser && !cardStore.card?.fulfilled)
+const fulfilled = computed(() => cardStore.card?.fulfilled ?? false)
 const guestMessage = computed(() => !auth.currentUser)
+const cardName = computed(() => cardStore.card?.name ?? '')
 
-async function toggleFulfill(newStatus) {
+async function toggleFulfill(newStatus: boolean): Promise<void> {
+  if (!cardStore.card) {
+    console.error('Карточка не загружена')
+    return
+  }
   try {
     const cardRef = doc(db, 'wishes', cardStore.card.id)
     await updateDoc(cardRef, { fulfilled: newStatus })
@@ -37,20 +42,28 @@ async function toggleFulfill(newStatus) {
 }
 
 async function toggleReserve() {
-  cardStore.isReservedUser = true
+  if (!cardStore.card) {
+    console.error('Карточка не загружена')
+    return
+  }
   try {
+    cardStore.isReservedUser = true
     spinner.value = true
     const CURRENT_USER = auth.currentUser
+    if (!CURRENT_USER) {
+      cardStore.isReservedUser = false
+      return
+    }
     const USER_DATA = await getUserData(CURRENT_USER.uid)
 
     if (cardStore.isReserved && cardStore.reservedBy === CURRENT_USER.uid) {
       await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: '' })
       cardStore.reservedBy = ''
       cardStore.isReserved = false
-      cardStore.reservedUser = {}
+      cardStore.reservedUser = null
     }
     else if (!cardStore.isReserved) {
-      await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: auth.currentUser.uid })
+      await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: CURRENT_USER.uid })
       cardStore.reservedBy = CURRENT_USER.uid
       cardStore.isReserved = true
       cardStore.reservedUser = USER_DATA.user
@@ -65,7 +78,8 @@ async function toggleReserve() {
 }
 onMounted(async () => {
   try {
-    await getCardData(route.params.uid)
+    const UID = route.params.uid as string
+    await getCardData(UID)
   }
   catch (err) {
     console.error('не удалось загрузить данные карточки:', err)
@@ -92,23 +106,23 @@ onMounted(async () => {
           <div class="card__img-wrapper--avatar">
             <img
               class="card__image  card__image--user"
-              :src="cardStore.user.photoUrl"
+              :src="cardStore.user?.photoUrl ?? '@/components/icons/avatar.png'"
               alt="Аватар профиля"
             >
           </div>
           <router-link
-            :to="{ name: 'UserProfile', params: { uid: cardStore.user.uid } }"
+            :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }"
             class="card__user-name"
           >
-            {{ cardStore.user.displayName }}
+            {{ cardStore.user?.displayName }}
           </router-link>
           <span
-            v-if="cardStore.card.link"
+            v-if="cardStore.card?.link"
             class="card__user__link-title"
           >
             поделился ссылкой
             <a
-              :href="cardStore.card.link"
+              :href="cardStore.card?.link"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -123,6 +137,7 @@ onMounted(async () => {
           class="card__menu"
         >
           <WiCardMenu
+            v-if="cardStore.card"
             :card="cardStore.card"
             @toggle-fulfill="toggleFulfill"
           />
@@ -135,7 +150,7 @@ onMounted(async () => {
             <div class="card__img__wrapper--description">
               <img
                 class="card__image  card__image--description"
-                :src="cardStore.card.img"
+                :src="cardStore.card?.img ?? '@/components/icons/box.png'"
                 alt="Изображение желания"
               >
             </div>
@@ -148,7 +163,7 @@ onMounted(async () => {
             <div class="card__links-wrapper">
               <div class="card__links--item">
                 <a
-                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardStore.card.name)}`"
+                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardName)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
@@ -158,7 +173,7 @@ onMounted(async () => {
               </div>
               <div class="card__links--item">
                 <a
-                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardStore.card.name)}`"
+                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardName)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
@@ -168,7 +183,7 @@ onMounted(async () => {
               </div>
               <div class="card__links--item">
                 <a
-                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardStore.card.name)}`"
+                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardName)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
@@ -183,9 +198,9 @@ onMounted(async () => {
         <div class="card__description__info">
           <div class="card__description__user">
             <h1 class="user__title">
-              {{ cardStore.card.name }}
+              {{ cardStore.card?.name }}
             </h1>
-            <span class="user__description">{{ cardStore.card.description }}</span>
+            <span class="user__description">{{ cardStore.card?.description }}</span>
           </div>
 
           <WISpinner
@@ -217,10 +232,10 @@ onMounted(async () => {
               </div>
               <span class="card__reserved__text">Зарезервировано пользователем
                 <router-link
-                  :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser.uid } }"
+                  :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
                   class="card__user-name"
                 >
-                  {{ cardStore.reservedUser.displayName }}
+                  {{ cardStore.reservedUser?.displayName }}
                 </router-link>
               </span>
             </div>

@@ -1,20 +1,22 @@
-<script setup>
+<script setup lang="ts">
+import type { User } from '@/types/interfaces/user'
+import type { User as FirebaseUser } from 'firebase/auth'
+
 import defaultWallpaper from '@/components/icons/wall.png'
 import { PATHS } from '@/constants/paths'
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore'
-
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const db = getFirestore()
 const auth = getAuth()
 
-async function signIn() {
+async function signIn(): Promise<void> {
   try {
     const provider = new GoogleAuthProvider()
     const result = await signInWithPopup(auth, provider)
-    const user = result.user
+    const user = result.user as FirebaseUser
     console.log(user, 'successfully logged')
 
     const userRef = doc(db, 'users', user.uid)
@@ -22,12 +24,12 @@ async function signIn() {
     const existingData = userSnap.exists() ? userSnap.data() : {}
 
     console.log(userSnap.data(), 'snap')
-    const userData = {
+    const userData: User = {
       uid: user.uid,
       email: user.email,
       createdAt: existingData.createdAt || new Date(),
       wallpaperUrl: existingData.wallpaperUrl || defaultWallpaper,
-      displayName: existingData.displayName || user.reloadUserInfo.screenName,
+      displayName: existingData.displayName || user.displayName,
       about: existingData.about || '',
       photoUrl: existingData.photoURL || user.photoURL,
       badges: existingData.badges || [

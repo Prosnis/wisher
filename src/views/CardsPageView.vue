@@ -1,23 +1,24 @@
-<script setup>
+<script setup lang="ts">
+import type { Badge, Wish } from '@/types/interfaces/wish'
+
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
-import { BADGE_ALL } from '@/constants/badgeForSearch'
-import { BADGES } from '@/constants/badges'
+import { BADGE_ALL, BADGES } from '@/constants/badges'
 import { getAllWishes } from '@/services/GetAllWishes'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-const wishes = ref(null)
-const pickedbadge = ref([])
-const filteredWishes = ref([])
-const loading = ref(false)
+const wishes = ref<Wish[]>([])
+const pickedbadge = ref<Badge[]>([])
+const filteredWishes = ref<Wish[]>([])
+const loading = ref<boolean>(false)
 
-const currentPage = ref(1)
-const itemsPerPage = 10
+const currentPage = ref<number>(1)
+const itemsPerPage: number = 10
 const combinedBadges = computed(() => [...BADGES, ...BADGE_ALL])
 
 const paginatedWishes = computed(() => {
-  return filteredWishes.value.slice(0, currentPage.value * itemsPerPage)
+  return filteredWishes.value.slice(0, currentPage.value * itemsPerPage) as Wish[]
 })
 
 function processScroll() {
@@ -29,25 +30,25 @@ function processScroll() {
   }
 }
 
-function isBadgePicked(badge) {
-  return pickedbadge.value.some(pickedBadge => pickedBadge.name === badge.name)
+function isBadgePicked(badge: Badge): boolean {
+  return pickedbadge.value.some((pickedBadge: Badge) => pickedBadge.name === badge.name)
 }
 
-function badgePicker(badge) {
-  const index = pickedbadge.value.findIndex(item => item.name === badge.name)
+function badgePicker(badge: Badge): void {
+  const index = pickedbadge.value.findIndex((item: Badge) => item.name === badge.name)
   if (index === -1) {
     pickedbadge.value = [badge]
   }
 }
 
-function badgesFilter(badge) {
+function badgesFilter(badge: Badge): void {
   try {
     loading.value = true
     if (badge.name === 'Все категории') {
       filteredWishes.value = wishes.value
     }
     else {
-      filteredWishes.value = wishes.value.filter(item => item.badge.some(el => el.name === badge.name))
+      filteredWishes.value = wishes.value.filter((item: Wish) => item.badge?.some((el: Badge) => el.name === badge.name))
     }
   }
   finally {
@@ -59,13 +60,7 @@ onMounted(async () => {
   try {
     window.addEventListener('scroll', processScroll)
     loading.value = true
-    const rawWishes = await getAllWishes()
-    const wishesWithUserData = await Promise.all(
-      rawWishes.map(async (wish) => {
-        return { ...wish }
-      }),
-    )
-    wishes.value = wishesWithUserData
+    wishes.value = await getAllWishes()
     badgePicker(BADGE_ALL[0])
     badgesFilter(BADGE_ALL[0])
   }
@@ -115,8 +110,6 @@ onUnmounted(() => {
         v-for="wish in paginatedWishes"
         :key="wish.id"
         :wish="wish"
-        :user-img="wish.userData?.photoUrl"
-        :user-name="wish.userData?.displayName"
       />
     </div>
 

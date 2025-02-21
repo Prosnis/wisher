@@ -1,3 +1,5 @@
+import type { User } from '@/types/interfaces/user'
+
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, updateDoc } from 'firebase/firestore'
 import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from 'firebase/storage'
@@ -6,13 +8,19 @@ const db = getFirestore()
 const storage = getStorage()
 const auth = getAuth()
 
-async function uploadImage(file, path) {
-  const fileRef = storageRef(storage, path)
-  await uploadBytes(fileRef, file)
-  return await getDownloadURL(fileRef)
+async function uploadImage(file: Blob | Uint8Array | ArrayBuffer, path: string): Promise<string> {
+  try {
+    const fileRef = storageRef(storage, path)
+    await uploadBytes(fileRef, file)
+    const downloadUrl = await getDownloadURL(fileRef)
+    return downloadUrl
+  } catch(error) {
+    console.log(error)
+    throw new Error('Ошибка при загрузке файла:');
+  }
 }
 
-export async function saveProfile(user, wallpaperFile, avatarFile, loading) {
+export async function saveProfile(user: User, wallpaperFile: string | null, avatarFile: string | null) {
   loading.value = true
 
   const currentUser = auth.currentUser

@@ -1,14 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import { ContentLoader } from 'vue-content-loader'
 
-defineProps({
-  width: {
-    type: Number,
-  },
-  height: {
-    type: Number,
-  },
-})
+interface Props {
+  width: number
+  height: number
+}
+
+defineProps<Props>()
 </script>
 
 <template>

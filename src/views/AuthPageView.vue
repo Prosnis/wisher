@@ -1,12 +1,8 @@
 <script setup>
 import { PATHS } from '@/constants/paths'
-import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth'
-import { ref } from 'vue'
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 
-const email = ref('')
-const password = ref('')
-const errMsg = ref('')
 const router = useRouter()
 
 function toAuthPage() {
@@ -14,37 +10,6 @@ function toAuthPage() {
     console.error('Failed to navigate:', err)
   })
 }
-
-function register() {
-  const auth = getAuth()
-  signInWithEmailAndPassword(auth, email.value, password.value)
-    .then((data) => {
-      const user = data.user
-      console.log('Successfully logged in:', user)
-
-      router.push(`${PATHS.USER.PROFILE}/${user.uid}`).catch((err) => {
-        console.error('Failed to navigate:', err)
-      })
-    })
-    .catch((error) => {
-      console.log(error.code)
-      console.log(error.message)
-      switch (error.code) {
-        case 'auth/invalid-email':
-          errMsg.value = 'Неправильный адрес электронной почты'
-          break
-        case 'auth/user-not-found':
-          errMsg.value = 'Аккаунт с таким адресом электронной почты не найден'
-          break
-        case 'auth/wrong-password':
-          errMsg.value = 'Неправильный пароль'
-          break
-        default:
-          errMsg.value = 'Адрес электронной почты или пароль введены неверно'
-      }
-    })
-}
-
 function signInWithGoogle() {
   const auth = getAuth()
   const provider = new GoogleAuthProvider()
@@ -58,7 +23,6 @@ function signInWithGoogle() {
     })
     .catch((error) => {
       console.error('Error during Google sign-in:', error)
-      errMsg.value = 'Не удалось войти через Google. Попробуйте еще раз.'
     })
 }
 </script>
@@ -67,7 +31,6 @@ function signInWithGoogle() {
   <div class="auth">
     <form
       class="auth__form"
-      @submit.prevent="register"
     >
       <h1>Log in</h1>
       <button

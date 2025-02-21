@@ -1,10 +1,9 @@
-<script setup>
-defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
-})
+<script setup lang="ts">
+interface Props {
+  modelValue: boolean
+}
+
+defineProps<Props>()
 </script>
 
 <template>

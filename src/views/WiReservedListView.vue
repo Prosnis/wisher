@@ -1,4 +1,5 @@
-<script setup>
+<script setup lang="ts">
+import type { Wish } from '@/types/interfaces/wish'
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
 import WiContentLoader from '@/components/WiContentLoader.vue'
 import { getAllWishes } from '@/services/GetAllWishes'
@@ -6,9 +7,9 @@ import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const allWishes = ref([])
-const fillteredWishes = ref([])
-const loading = ref(false)
+const allWishes = ref<Wish[]>([])
+const fillteredWishes = ref<Wish[]>([])
+const loading = ref<boolean>(false)
 
 onMounted(async () => {
   try {
@@ -54,7 +55,9 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@use '@/styles/_colors' as color;
+
 .empty__image {
   width: 200px;
 }
@@ -64,15 +67,16 @@ onMounted(async () => {
   justify-content: center;
   flex-direction: column;
   align-items: center;
+
   padding: 50px;
-  color: var(--color-text-secondary);
+  color: color.$color-text-secondary;
 }
 
 .reserved {
   display: flex;
+  justify-content: center;
   gap: 20px;
   padding: 20px;
   flex-wrap: wrap;
-  justify-content: center;
 }
 </style>
