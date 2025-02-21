@@ -14,12 +14,12 @@ const route = useRoute()
 const loading = ref<boolean>(false)
 
 interface ComponentsMap {
-  WiUserWishes: typeof WiUserWishes;
-  WiReservedListView: typeof WiReservedListView;
-  SubscribeListView: typeof SubscribeListView;
+  WiUserWishes: typeof WiUserWishes
+  WiReservedListView: typeof WiReservedListView
+  SubscribeListView: typeof SubscribeListView
 }
 
-const components : ComponentsMap = {
+const components: ComponentsMap = {
   WiUserWishes,
   WiReservedListView,
   SubscribeListView,
@@ -30,7 +30,7 @@ const { getProfileData } = profileStore
 
 const currentComponent = ref<string>('WiUserWishes')
 
-function changeView(componentName : string) : void {
+function changeView(componentName: string): void {
   currentComponent.value = componentName
 }
 
@@ -74,7 +74,10 @@ onMounted(async () => {
         v-else
         class="user__info"
       >
-        <div class="profile" v-if="profileStore.user">
+        <div
+          v-if="profileStore.user"
+          class="profile"
+        >
           <WiUserPagePicturesEdit
             :user="profileStore.user"
             :has-edit-permission="profileStore.hasEditPermission"
@@ -124,7 +127,7 @@ onMounted(async () => {
           v-else
           class="wishes"
         >
-        <component :is="components[currentComponent as keyof ComponentsMap]" />
+          <component :is="components[currentComponent as keyof ComponentsMap]" />
         </div>
       </div>
     </main>

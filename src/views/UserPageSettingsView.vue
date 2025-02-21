@@ -26,7 +26,7 @@ const { getProfileData } = profileStore
 interface FormData {
   name: string
   about: string | ''
-  badges: Badge[] 
+  badges: Badge[]
 }
 const formData = reactive<FormData>({
   name: profileStore.user?.displayName || '',
@@ -34,10 +34,10 @@ const formData = reactive<FormData>({
   badges: profileStore.user?.badges || [],
 })
 
-const isBadgePicked = (badge : Badge) : boolean => {
+const isBadgePicked = (badge: Badge): boolean => {
   return formData.badges.some(pickedBadge => pickedBadge.name === badge.name)
 }
-const badgePicker = (badge : Badge) : void => {
+const badgePicker = (badge: Badge): void => {
   const index = formData.badges.findIndex(item => item.name === badge.name)
   if (index !== -1) {
     formData.badges.splice(index, 1)
@@ -49,9 +49,9 @@ const badgePicker = (badge : Badge) : void => {
 
 const saveProfile = async () => {
   loading.value = true
-  if(auth.currentUser) {
-    currentUser.value =  auth.currentUser
-    const uid : string = currentUser.value.uid
+  if (auth.currentUser) {
+    currentUser.value = auth.currentUser
+    const uid: string = currentUser.value.uid
     const userDocRef = doc(db, 'users', uid)
     const userSnapshot = await getDoc(userDocRef)
     const userData = userSnapshot.exists() ? userSnapshot.data() : {}

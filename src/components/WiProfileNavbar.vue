@@ -9,7 +9,7 @@ defineProps<Props>()
 const emit = defineEmits(['changeView'])
 const activeView = ref<string>('WiUserWishes')
 
-function changeView(view:string) : void {
+function changeView(view: string): void {
   activeView.value = view
   emit('changeView', view)
 }

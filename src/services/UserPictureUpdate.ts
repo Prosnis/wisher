@@ -14,9 +14,10 @@ async function uploadImage(file: Blob | Uint8Array | ArrayBuffer, path: string):
     await uploadBytes(fileRef, file)
     const downloadUrl = await getDownloadURL(fileRef)
     return downloadUrl
-  } catch(error) {
+  }
+  catch (error) {
     console.log(error)
-    throw new Error('Ошибка при загрузке файла:');
+    throw new Error('Ошибка при загрузке файла:')
   }
 }
 

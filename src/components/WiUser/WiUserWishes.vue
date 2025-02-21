@@ -63,7 +63,10 @@ onMounted(async () => {
           Желания пользователей
         </button>
       </div>
-      <div class="whishes__cards" v-if="profileStore.user">
+      <div
+        v-if="profileStore.user"
+        class="whishes__cards"
+      >
         <WiCardCreate
           v-for="wish in profileStore.wishes"
           :key="wish.id"

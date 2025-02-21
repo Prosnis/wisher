@@ -1,5 +1,6 @@
-import type { ParsedData } from "@/types/interfaces/dataFromParse"
-export async function YandexParser(productUrl:string) : Promise<ParsedData> {
+import type { ParsedData } from '@/types/interfaces/dataFromParse'
+
+export async function YandexParser(productUrl: string): Promise<ParsedData> {
   const url = 'http://localhost:3000/fetch-product'
   // const url = 'https://www.xn--b1agi7a0b.xn--p1ai/api/fetch-product'
 
@@ -16,7 +17,7 @@ export async function YandexParser(productUrl:string) : Promise<ParsedData> {
       throw new Error(`Ошибка HTTP: ${response.status}`)
     }
 
-    const data : ParsedData = await response.json()
+    const data: ParsedData = await response.json()
     console.log('Данные о товаре:', data)
 
     return data
