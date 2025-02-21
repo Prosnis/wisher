@@ -1,27 +1,59 @@
-<script setup>
-import path from '@/components/constants/pathes'
+<script setup lang="ts">
+import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
-import WiUserPagePicturesEdit from '@/components/WiUserPagePicturesEdit.vue'
-import WiUserWishesVue from '@/components/WiUserWishes.vue'
+import WiProfileNavbar from '@/components/WiProfileNavbar.vue'
+import WiUserPagePicturesEdit from '@/components/WiUser/WiUserPagePicturesEdit.vue'
+import WiUserWishes from '@/components/WiUser/WiUserWishes.vue'
 import { useProfileStore } from '@/stores/WiProfileStore'
-import { storeToRefs } from 'pinia'
-import { onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import SubscribeListView from './SubscribeListView.vue'
+import WiReservedListView from './WiReservedListView.vue'
 
-const router = useRouter()
 const route = useRoute()
+const loading = ref<boolean>(false)
 
-const profileStore = useProfileStore()
-const { user, badges, hasEditPermission, skeletonLoad, profileUID } = storeToRefs(profileStore)
-const { getProfileData } = profileStore
-
-function goToSettingsPage() {
-  const uid = route.params.uid
-  router.push({ path: `${path.settings}/${uid}` })
+interface ComponentsMap {
+  WiUserWishes: typeof WiUserWishes
+  WiReservedListView: typeof WiReservedListView
+  SubscribeListView: typeof SubscribeListView
 }
 
-onMounted(() => {
-  getProfileData(route.params.uid)
+const components: ComponentsMap = {
+  WiUserWishes,
+  WiReservedListView,
+  SubscribeListView,
+}
+
+const profileStore = useProfileStore()
+const { getProfileData } = profileStore
+
+const currentComponent = ref<string>('WiUserWishes')
+
+function changeView(componentName: string): void {
+  currentComponent.value = componentName
+}
+
+watch(
+  () => route.params.uid,
+  async (newUid) => {
+    await getProfileData(newUid as string)
+    currentComponent.value = 'WiUserWishes'
+  },
+)
+
+onMounted(async () => {
+  try {
+    loading.value = true
+    const uid = route.params.uid as string
+    await getProfileData(uid)
+  }
+  catch (err) {
+    console.log('Пользователь не автроризован', err)
+  }
+  finally {
+    loading.value = false
+  }
 })
 </script>
 
@@ -30,142 +62,133 @@ onMounted(() => {
     <div>
       <WiNavbar />
     </div>
-
     <main class="user">
-      <div v-show="skeletonLoad" class="skeleton-loader user__info" />
-      <section class="user__info">
-        <div v-if="!skeletonLoad && user && user.displayName" class="profile">
-          <WiUserPagePicturesEdit :user="user" :has-edit-permission="hasEditPermission" />
-          <div class="profile__settings">
-            <button v-if="hasEditPermission" class="profile__button profile__button--edit" @click="goToSettingsPage">
-              Редактировать профиль
-            </button>
-            <div v-if="!hasEditPermission" style="height: 55px;" />
-          </div>
+      <WiContentLoader
+        v-if="loading"
+        class="skeleton"
+        :width="1300"
+        :height="345"
+      />
 
-          <h2 class="profile__name">
-            {{ user.displayName }}
-          </h2>
-          <p class="profile__about">
-            {{ user.about || 'Информация о пользователе отсутствует' }}
-          </p>
-
-          <div class="profile__badges">
-            <div v-for="(badge, index) in badges" :key="index" class="badge">
-              {{ badge.name }}
-            </div>
-          </div>
+      <section
+        v-else
+        class="user__info"
+      >
+        <div
+          v-if="profileStore.user"
+          class="profile"
+        >
+          <WiUserPagePicturesEdit
+            :user="profileStore.user"
+            :has-edit-permission="profileStore.hasEditPermission"
+            :user-name="profileStore.user.displayName"
+            :user-about="profileStore.user.about"
+          />
         </div>
       </section>
 
-      <div class="wishes">
-        <WiUserWishesVue v-if="user"/>
+      <div v-if="profileStore.badges.length > 0">
+        <WiContentLoader
+          v-if="profileStore.skeletonLoad"
+          class="skeleton"
+          :width="1300"
+          :height="67"
+        />
+        <div
+          v-else
+          class="profile__badges"
+        >
+          <div
+            v-for="(badge, index) in profileStore.badges"
+            :key="index"
+            class="badge"
+          >
+            {{ badge.name }}
+          </div>
+        </div>
+      </div>
+
+      <div class="profile__nav">
+        <WiProfileNavbar
+          v-if="profileStore.hasEditPermission"
+          :active="currentComponent"
+          @change-view="changeView"
+        />
+      </div>
+
+      <div class="profile__wishes__wrapper">
+        <WiContentLoader
+          v-if="loading"
+          class="skeleton wishes"
+          :width="1300"
+          :height="300"
+        />
+        <div
+          v-else
+          class="wishes"
+        >
+          <component :is="components[currentComponent as keyof ComponentsMap]" />
+        </div>
       </div>
     </main>
   </div>
 </template>
 
 <style scoped>
-.skeleton-loader {
-  height: 600px;
-  --color: #f0f2f5;
-  background-repeat: no-repeat;
-  animation: fade 1s linear infinite alternate;
-  margin-bottom: 50px;
-
-  background-image:
-    radial-gradient(circle 97px, var(--color) 100%, transparent 0%),
-    radial-gradient(circle 100px, rgb(255, 255, 255) 100%, transparent 0%),
-    linear-gradient(var(--color) 30px, transparent 0%),
-    linear-gradient(var(--color) 30px, transparent 0%),
-    linear-gradient(var(--color) 30px, transparent 0%),
-    linear-gradient(var(--color) 30px, transparent 0%),
-    linear-gradient(var(--color) 300px, transparent 0%);
-
-  background-size:
-    200px 200px,
-    200px 200px,
-    10% 30px,
-    30% 30px,
-    40% 30px,
-    15% 30px,
-    100%;
-
-  background-position:
-    550px 200px,
-    550px 200px,
-    585px 410px,
-    450px 470px,
-    385px 540px,
-    1090px 320px,
-    0px 0px;
+.skeleton {
+  margin-bottom: 20px;
 }
 
-@keyframes fade {
-  from {
-    opacity: 0.6;
-  }
+.profile__nav {
+  margin-bottom: 20px;
+}
 
-  to {
-    opacity: 1;
-  }
+.profile__wishes__wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .wishes {
   border-radius: 10px;
-  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6); */
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #111827
+  /* background-color: #111827 */
+  background-color: var(--color-secondary);
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .profile__badges {
   display: flex;
   flex-wrap: wrap;
-  max-width: 700px;
-  justify-content: center;
-  padding: 20px;
+  max-width: 100%;
   gap: 5px;
-  margin-bottom: 20px;
-}
-
-.profile__button--edit {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
+  justify-content: center;
+  align-content: center;
+  /* background-color: #111827; */
+  background-color: var(--color-secondary);
+  max-height: 350px;
   border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
-  color: white;
-  cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
-}
-
-.profile__button--edit:hover {
-  border: 3px solid #ffd859;
-}
-
-.profile__settings {
-  margin-left: auto;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .user {
   max-width: 1300px;
   margin: auto;
   min-height: 90vh;
-  padding: 20px;
+
 }
 
 .user__info {
   gap: 20px;
   border-radius: 10px;
-  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.6); */
   position: relative;
-
+  display: flex;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .profile {
@@ -173,41 +196,30 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   border-radius: 10px;
-  margin-bottom: 50px;
-  background-color: #111827
+  /* margin-bottom: 20px; */
+  /* background-color: #111827; */
+  background-color: var(--color-secondary);
+  width: 100%;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
 }
 
 .profile__name {
-  margin: 0 0 20px;
-  margin-top: 65px;
+  margin: 20px;
   color: #F7F6F5;
-}
-
-.profile__about {
-  margin: 0 0 20px;
-  color: #F7F6F5;
-
 }
 
 .badge {
   text-align: center;
-  padding: 8px;
-  border-radius: 50px;
+  padding: 5px;
+  border-radius: 10px;
   font-weight: 600;
-  color: black;
-  background-color: #ffd859;
+  color: var(--color-text);
+  /* background-color: #ffd859; */
+  background-color: var(--color-accent);
+
 }
 
 .user__info {
   transition: opacity 0.3s ease;
 }
-
-/* .skeleton-loader {
-  transition: opacity 0.3s ease;
-  opacity: 1;
-}
-
-.skeleton-loader[style*="display: none"] {
-  opacity: 0;
-} */
 </style>

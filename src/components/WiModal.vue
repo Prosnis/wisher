@@ -1,37 +1,17 @@
-<script setup>
-import { ref } from 'vue'
-
-const dialogRef = ref(null)
-
-function openModal() {
-  dialogRef.value.showModal()
+<script setup lang="ts">
+interface Props {
+  modelValue: boolean
 }
 
-function closeModal() {
-  dialogRef.value.close()
-}
-
-defineExpose({
-  openModal,
-  closeModal,
-})
+defineProps<Props>()
 </script>
 
 <template>
   <dialog
-    ref="dialogRef"
     class="modal__dialog"
+    :open="modelValue"
   >
     <div class="modal__dialog__inner">
-      <button
-        class="modal__button modal__button--close"
-        @click="closeModal"
-      >
-        <font-awesome-icon
-          class="modal__icon--close modal__icon"
-          :icon="['fas', 'close']"
-        />
-      </button>
       <div class="modal__content">
         <slot />
       </div>
@@ -46,7 +26,7 @@ defineExpose({
 }
 .modal__dialog {
     border: none;
-    padding: 20px;
+    padding: 10px;
     max-width: 600px;
     background: white;
     border-radius: 8px;
@@ -58,17 +38,5 @@ defineExpose({
     display: flex;
     flex-direction: column;
     gap: 20px;
-}
-
-.modal__button--close {
-    background-color: white;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    margin-left: auto;
-}
-
-.modal__icon--close {
-    font-size: 20px;
 }
 </style>

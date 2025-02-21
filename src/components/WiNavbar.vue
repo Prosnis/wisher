@@ -1,75 +1,154 @@
-<script setup>
-import path from '@/components/constants/pathes'
+<script setup lang="ts">
+import { PATHS } from '@/constants/paths'
+import { logout } from '@/services/logOut'
+import { useUserStore } from '@/stores/WiUserStore'
 import { getAuth } from 'firebase/auth'
-import { onMounted, ref } from 'vue'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-const userLink = ref(null)
+const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
 const auth = getAuth()
-onMounted(async () => {
-  userLink.value = await auth.currentUser.uid
-})
+const notAuthorized = computed(() => !auth.currentUser)
+
+async function toUserPage() {
+  const userPagePath = `${PATHS.USER.PROFILE}/${userStore.userUID}`
+  if (route.path !== userPagePath) {
+    await router.push(userPagePath)
+  }
+}
 </script>
 
 <template>
   <nav class="nav">
-    <ul class="nav__links">
+    <div>
       <router-link
-        v-if="userLink"
-        :to="`${path.user}/${userLink}`"
-        class="nav__logo logo"
+        :to="PATHS.MAIN"
+        class="nav__logo"
       >
-        <span>ВИШЕР</span>
+        <span>вишер</span>
       </router-link>
-      <!-- <router-link to="/wisher/user" class="navigate-link">user</router-link> -->
-      <router-link
-        :to="path.invitationCard"
-        class="navigate-link"
+    </div>
+
+    <router-link
+      v-if="notAuthorized"
+      :to="PATHS.AUTH.REGISTER"
+      class="user"
+    >
+      <span class="nav__login__text">вход/регистрация<font-awesome-icon :icon="['fas', 'right-to-bracket']" /></span>
+    </router-link>
+
+    <div
+      v-else
+      class="user"
+      @click="toUserPage"
+    >
+      <div
+        v-if="userStore.user"
+        class="user__wrapper"
       >
-        invitation
-      </router-link>
-    </ul>
+        <div class="user__info">
+          <img
+            class="user__img"
+            :src="userStore.user.photoUrl"
+            alt="Аватар профиля"
+          >
+          <span class="user__name"> {{ userStore.user.displayName }}</span>
+        </div>
+
+        <button
+          class="nav__button"
+          @click="logout()"
+        >
+          <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
+        </button>
+      </div>
+    </div>
   </nav>
 </template>
 
 <style scoped>
-.nav__links a {
-  color: #ffd859;
+.nav__button {
+  border: none;
+  background-color: var(--color-secondary);
+  font-size: 16px;
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  padding: 5px;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.nav__login {
   text-decoration: none;
+}
+
+.nav__login__text {
+  display: flex;
+  gap: 10px;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.user__name {
+  font-size: 20px;
+  color: var(--color-accent);
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.user__wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.user__info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.user__img {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent)
 }
 
 .nav {
   display: flex;
-  justify-content: center;
-  /* background: #3598db; */
-  background-color: #111827;
-  height: 60px;
-  /* box-shadow: 0px 10px 40px rgba(126, 155, 189, 0.35); */
+  justify-content: space-between;
+  background-color: var(--color-secondary);
+  height: 50px;
   margin-bottom: 20px;
+  max-width: 1300px;
+  margin: 0px auto 20px auto;
+  border-radius: 0px 0px 10px 10px;
 }
 
-.nav__links {
-  display: flex;
-  align-items: center;
-  list-style-type: none;
-  gap: 20px;
-  color: #fafbfa;
-  margin: 0;
-  padding: 0;
-  font-size: 20px;
-  width: 80%;
-
+.nav__logo,
+.user {
+  padding: 0px 20px 0px 20px;
 }
 
 .nav__logo {
-  font-size: 60px;
-  font-family: "Good dog", sans-serif;
-  /* margin-right: auto; */
+  font-size: 35px;
   margin: auto;
-}
-
-.login {
+  color: var(--color-accent);
   text-decoration: none;
-  color: inherit;
-  margin-left: auto;
 }
 </style>

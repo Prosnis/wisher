@@ -1,83 +1,72 @@
-<script setup>
+<script setup lang="ts">
+import WiBackButton from '@/components/WiBackButton.vue'
+import WiCardMenu from '@/components/WiCards/WiCardMenu.vue'
+import WiContentLoader from '@/components/WiContentLoader.vue'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
+import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
-import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
-import { onMounted, ref } from 'vue'
+import { doc, getFirestore, updateDoc } from 'firebase/firestore'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const db = getFirestore()
 const auth = getAuth()
-const isLoading = ref(false)
-
-const card = ref({})
 const route = useRoute()
-const user = ref({})
-const hasEditPermission = ref(false)
-const spinner = ref(false)
-const currentUser = ref(null)
-const blockSelfReserve = ref(true)
+const spinner = ref<boolean>(false)
 
-const isReserved = ref(false)
-const reservedBy = ref('')
-const reservedUser = ref({})
+const cardStore = useCardStore()
+const { getCardData } = cardStore
 
-onMounted(async () => {
+const hideButton = computed(() => !cardStore.isOwner)
+const enableForReserve = computed(() => !cardStore.isReserved && auth.currentUser && !cardStore.card?.fulfilled)
+const fulfilled = computed(() => cardStore.card?.fulfilled ?? false)
+const guestMessage = computed(() => !auth.currentUser)
+const cardName = computed(() => cardStore.card?.name ?? '')
+
+async function toggleFulfill(newStatus: boolean): Promise<void> {
+  if (!cardStore.card) {
+    console.error('Карточка не загружена')
+    return
+  }
   try {
-    isLoading.value = true
-    const cardId = route.params.uid
-    const userDoc = await getDoc(doc(db, 'wishes', cardId))
-    const cardData = userDoc.exists() ? userDoc.data() : null
-    currentUser.value = auth.currentUser
+    const cardRef = doc(db, 'wishes', cardStore.card.id)
+    await updateDoc(cardRef, { fulfilled: newStatus })
 
-    if (cardData) {
-      card.value = cardData
-      reservedBy.value = cardData.reserve || ''
-      isReserved.value = !!cardData.reserve
-
-      const userData = await getUserData(cardData.userId)
-      user.value = userData.user
-
-      if (currentUser.value.uid === cardData.userId) {
-        blockSelfReserve.value = false
-      }
-    }
-
-    if (cardData.reserve) {
-      const reservedUserData = await getUserData(cardData.reserve)
-      reservedUser.value = reservedUserData.user
-      if (currentUser.value && currentUser.value.uid === reservedUser.value.uid) {
-        hasEditPermission.value = true
-      }
-    }
+    cardStore.card.fulfilled = newStatus
   }
-  catch (err) {
-    console.log(err)
+  catch (error) {
+    console.error('Ошибка при изменении статуса fulfilled', error)
   }
-  finally {
-    isLoading.value = false
-  }
-})
+}
 
 async function toggleReserve() {
-  hasEditPermission.value = true
+  if (!cardStore.card) {
+    console.error('Карточка не загружена')
+    return
+  }
   try {
+    cardStore.isReservedUser = true
     spinner.value = true
-    const currentUser = auth.currentUser
-    const userData = await getUserData(currentUser.uid)
-
-    if (isReserved.value && reservedBy.value === currentUser.uid) {
-      await updateDoc(doc(db, 'wishes', card.value.id), { reserve: '' })
-      reservedBy.value = ''
-      isReserved.value = false
-      reservedUser.value = {}
+    const CURRENT_USER = auth.currentUser
+    if (!CURRENT_USER) {
+      cardStore.isReservedUser = false
+      return
     }
-    else if (!isReserved.value) {
-      await updateDoc(doc(db, 'wishes', card.value.id), { reserve: auth.currentUser.uid })
-      reservedBy.value = currentUser.uid
-      isReserved.value = true
-      reservedUser.value = userData.user
+    const USER_DATA = await getUserData(CURRENT_USER.uid)
+
+    if (cardStore.isReserved && cardStore.reservedBy === CURRENT_USER.uid) {
+      await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: '' })
+      cardStore.reservedBy = ''
+      cardStore.isReserved = false
+      cardStore.reservedUser = null
+    }
+    else if (!cardStore.isReserved) {
+      await updateDoc(doc(db, 'wishes', cardStore.card.id), { reserve: CURRENT_USER.uid })
+      cardStore.reservedBy = CURRENT_USER.uid
+      cardStore.isReserved = true
+      cardStore.reservedUser = USER_DATA.user
     }
   }
   catch (err) {
@@ -87,35 +76,53 @@ async function toggleReserve() {
     spinner.value = false
   }
 }
+onMounted(async () => {
+  try {
+    const UID = route.params.uid as string
+    await getCardData(UID)
+  }
+  catch (err) {
+    console.error('не удалось загрузить данные карточки:', err)
+  }
+})
 </script>
 
 <template>
   <NavBar />
-  <div class="card">
-    <div
-      v-show="isLoading"
-      class="card__user__info skeleton-loader"
+  <div
+    v-if="cardStore"
+    class="card"
+  >
+    <WiBackButton class="card__back__button" />
+    <WiContentLoader
+      v-if="cardStore.isLoading"
+      :width="1000"
+      :height="700"
     />
-    <div v-show="!isLoading">
+
+    <div v-else>
       <div class="card__user__info">
         <div class="card__user__wrapper">
           <div class="card__img-wrapper--avatar">
             <img
               class="card__image  card__image--user"
-              :src="user.photoUrl"
-              alt=""
+              :src="cardStore.user?.photoUrl ?? '@/components/icons/avatar.png'"
+              alt="Аватар профиля"
             >
           </div>
           <router-link
-            :to="{ name: 'UserProfile', params: { uid: user.uid } }"
+            :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }"
             class="card__user-name"
           >
-            {{ user.displayName }}
+            {{ cardStore.user?.displayName }}
           </router-link>
-          <span v-if="card.link">
+          <span
+            v-if="cardStore.card?.link"
+            class="card__user__link-title"
+          >
             поделился ссылкой
             <a
-              :href="card.link"
+              :href="cardStore.card?.link"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -124,51 +131,64 @@ async function toggleReserve() {
           </span>
           <span v-else>не указал ссылку</span>
         </div>
-        <div class="card__menu"><font-awesome-icon :icon="['fas', 'ellipsis-vertical']" /></div>
+
+        <div
+          v-if="cardStore.isOwner"
+          class="card__menu"
+        >
+          <WiCardMenu
+            v-if="cardStore.card"
+            :card="cardStore.card"
+            @toggle-fulfill="toggleFulfill"
+          />
+        </div>
       </div>
+
       <div class="card__wrapper">
         <div class="card__images">
           <div class="card__description">
             <div class="card__img__wrapper--description">
               <img
                 class="card__image  card__image--description"
-                :src="card.img"
-                alt=""
+                :src="cardStore.card?.img ?? '@/components/icons/box.png'"
+                alt="Изображение желания"
               >
             </div>
           </div>
 
           <div class="card__links">
-            <h3>Найти на маркетплейсах</h3>
+            <h3 class="card__links__title">
+              Найти на маркетплейсах
+            </h3>
             <div class="card__links-wrapper">
               <div class="card__links--item">
                 <a
-                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(card.name)}`"
+                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardName)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/ozon.png"
-                  alt=""
+                  alt="ozon"
                 ></a>
               </div>
               <div class="card__links--item">
                 <a
-                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(card.name)}`"
+                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardName)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/wb.png"
-                  alt=""
+                  alt="Wildverries"
                 ></a>
               </div>
               <div class="card__links--item">
                 <a
-                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(card.name)}`"
+                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardName)}`"
                   target="_blank"
                 ><img
                   class="card__image card__links--img"
                   src="@/components/icons/ym.png"
-                  alt=""
+                  alt="yandex market"
                 ></a>
               </div>
             </div>
@@ -177,24 +197,27 @@ async function toggleReserve() {
 
         <div class="card__description__info">
           <div class="card__description__user">
-            <h1>{{ card.name }}</h1>
-            <span>{{ card.description }}</span>
+            <h1 class="user__title">
+              {{ cardStore.card?.name }}
+            </h1>
+            <span class="user__description">{{ cardStore.card?.description }}</span>
           </div>
 
           <WISpinner
             v-if="spinner"
             class="card__spinner"
           />
+
           <div
             v-else
             class="card__description--actions"
           >
             <div
-              v-if="isReserved"
+              v-if="cardStore.isReserved"
               class="card__description--reserved"
             >
               <button
-                v-if="hasEditPermission"
+                v-if="cardStore.isReservedUser"
                 class="card__button card__button-free"
                 @click="toggleReserve"
               >
@@ -204,30 +227,52 @@ async function toggleReserve() {
                 <img
                   class="card__description--stamp"
                   src="@/components/icons/reserved.png"
-                  alt=""
+                  alt="Зарезервировано"
                 >
               </div>
-              <span>Зарезервировано пользователем
+              <span class="card__reserved__text">Зарезервировано пользователем
                 <router-link
-                  :to="{ name: 'UserProfile', params: { uid: reservedUser.uid } }"
+                  :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
                   class="card__user-name"
                 >
-                  {{ reservedUser.displayName }}
+                  {{ cardStore.reservedUser?.displayName }}
                 </router-link>
               </span>
             </div>
+
             <div
-              v-else
+              v-else-if="enableForReserve"
               class="card__description--reserved"
             >
               <button
-                v-if="blockSelfReserve"
+                v-if="hideButton"
                 class="card__button card__button-reserved"
                 @click="toggleReserve"
               >
                 зарезервировать
               </button>
-              <span v-if="blockSelfReserve">Pарезервируйте этот подарок, если хотите его подарить.</span>
+              <span
+                v-if="hideButton"
+                class="card__reserved__text"
+              >Pарезервируйте этот подарок, если
+                хотите его подарить.</span>
+            </div>
+
+            <div v-else-if="fulfilled">
+              <div class="card__status card__status--fulfilled">
+                Исполнено
+                <font-awesome-icon
+                  :icon="['fas', 'check']"
+                  class="card__status--icon"
+                />
+              </div>
+            </div>
+
+            <div
+              v-else-if="guestMessage"
+              class="card__reserved__text"
+            >
+              <span>Для бронирования желаний нужно зарегистрироваться</span>
             </div>
           </div>
         </div>
@@ -237,54 +282,56 @@ async function toggleReserve() {
 </template>
 
 <style scoped>
-.card__description__user span {
-  word-break: break-word; 
-  overflow-wrap: break-word; 
-  white-space: normal; 
+.card__status {
+  margin-bottom: 5px;
+  color: white;
+  padding: 3px;
+  border-radius: 5px;
 }
-.skeleton-loader {
-  height: 600px;
-  --color: #f0f2f5;
-  background-repeat: no-repeat;
-  animation: fade 1s linear infinite alternate;
-  margin-bottom: 50px;
 
-  background-image:
-    radial-gradient(circle 25px, var(--color) 100%, transparent 0%),
-    linear-gradient(var(--color) 30px, transparent 0%),
-    linear-gradient(var(--color) 300px, transparent 0%),
-    linear-gradient(var(--color) 110px, transparent 0%),
-    linear-gradient(var(--color) 200px, transparent 0%),
-    linear-gradient(var(--color) 200px, transparent 0%),
-    linear-gradient(var(--color) 200px, transparent 0%);
+.card__status--fulfilled {
+  width: 200px;
+  margin: auto;
+  font-size: 22px;
+  text-align: center;
+  background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(137, 23, 178, 1) 1%, rgba(251, 17, 37, 0.7455357142857143) 100%, rgba(0, 212, 255, 1) 100%);
+}
 
-  background-size:
-    100px 100px,
-    250px 60px,
-    300px 300px,
-    300px 110px,
-    350px 110px,
-    350px 110px,
-    350px 180px;
+.card__back__button {
+  background-color: var(--color-background-light);
+}
 
-  background-position:
-    0px 0px,
-    85px 35px,
-    105px 130px,
-    105px 450px,
-    520px 130px,
-    520px 270px,
-    520px 380px;
+.card__reserved__text {
+  color: var(--color-text-secondary);
+}
+
+.card__user__link-title {
+  color: var(--color-text-secondary);
+}
+
+.card__links__title {
+  color: var(--color-text-secondary);
+}
+
+.user__description,
+.user__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  color: var(--color-text-secondary);
 }
 
 .card__description--stamp {
   height: 150px;
 }
 
-.card__menu{
+.card__menu {
   color: white;
   font-size: 20px;
-  padding: 30px;
   cursor: pointer;
 }
 
@@ -311,9 +358,9 @@ async function toggleReserve() {
   color: grey;
 }
 
-.card__description__info h1 {
+.user__title {
   margin: 0 0 20px 0;
-  color: #F5F4F4;
+  color: var(--color-text-primary)
 }
 
 .card__description__info {
@@ -356,7 +403,7 @@ async function toggleReserve() {
   overflow: hidden;
 }
 
-.card__user__wrapper{
+.card__user__wrapper {
   padding: 20px;
   display: flex;
   align-items: center;
@@ -364,7 +411,7 @@ async function toggleReserve() {
   color: #F5F4F4;
 }
 
-.card__user__info{
+.card__user__info {
   display: flex;
   justify-content: space-between;
 }
@@ -379,7 +426,7 @@ async function toggleReserve() {
   font-size: 20px;
   font-weight: 600;
   font-style: italic;
-  color: #F5F4F4;
+  color: var(--color-text-primary)
 }
 
 .card__img-wrapper--avatar {
@@ -407,29 +454,27 @@ async function toggleReserve() {
   border-radius: 10px;
   max-width: 1000px;
   margin: 40px auto;
-  background-color: #111827
+  background-color: var(--color-secondary);
+  min-height: 580px;
+  display: flex;
 }
 
 .card__button {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
-  color: white;
+  border: none;
+  background-color: var(--color-background-light);
+  padding: 5px;
   cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
+  width: 180px;
+  border-radius: 10px;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-around;
+  height: 35px;
+  margin: 20px;
 }
 
-.card__button-free:hover {
-  border: 3px solid #ff6459;
-}
-
-.card__button-reserved:hover {
-  border: 3px solid #75ff59;
+.card__button:hover {
+  background-color: var(--color-background-light);
+  color: var(--color-accent);
 }
 </style>

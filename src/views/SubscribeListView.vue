@@ -1,0 +1,81 @@
+<script setup lang="ts">
+import type { User } from '@/types/interfaces/user'
+
+import WiContentLoader from '@/components/WiContentLoader.vue'
+import WiMiniProfileCard from '@/components/WiMiniProfileCard.vue'
+import { getSubscribeList } from '@/services/GetSubsList'
+import { useUserStore } from '@/stores/WiUserStore'
+import { onMounted, ref } from 'vue'
+
+const subscribeList = ref<User[] | []>([])
+const loading = ref<boolean>(false)
+const userStore = useUserStore()
+
+const fetchSubscribeList = async () => {
+  try {
+    loading.value = true
+    if (userStore.user && userStore.user.subscribe) {
+      subscribeList.value = await getSubscribeList(userStore.user.subscribe)
+    }
+    else {
+      subscribeList.value = []
+    }
+  }
+  catch (err) {
+    console.error('Ошибка при получении списка подписок:', err)
+    subscribeList.value = []
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+onMounted(async () => {
+  fetchSubscribeList()
+})
+</script>
+
+<template>
+  <WiContentLoader
+    v-if="loading"
+    :width="400"
+    :height="260"
+  />
+
+  <div
+    v-else-if="subscribeList.length > 0"
+    class="subs"
+  >
+    <WiMiniProfileCard :users="subscribeList" />
+  </div>
+
+  <div
+    v-else
+    class="empty"
+  >
+    <img
+      class="empty__image"
+      src="@/components/icons/empty.png"
+      alt="Иконка пустого списка: здесь пока нет элементов"
+    >
+    <span>Здесь пока пусто...</span>
+  </div>
+</template>
+
+<style scoped>
+.empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+
+.subs {
+  padding: 20px;
+}
+
+.empty__image {
+  width: 200px;
+}
+</style>
