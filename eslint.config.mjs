@@ -15,7 +15,7 @@ export default antfu({
   },
 
   // TypeScript and Vue are autodetected, you can also explicitly enable them:
-  typescript: false,
+  typescript: true,
   vue: true,
 
   // Disable jsonc and yaml support
@@ -28,6 +28,7 @@ export default antfu({
     // ...globs
   ],
   rules: {
+    'antfu/top-level-function': 'off',
     'vue/max-attributes-per-line': [
       'error',
       {

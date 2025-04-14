@@ -1,42 +1,55 @@
-<script setup>
-import { images } from '@/components/constants/inivationImages'
-import path from '@/components/constants/pathes'
+<script setup lang='ts'>
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
+import { INVITATION_IMAGES } from '@/constants/inivationImages'
+import { PATHS } from '@/constants/paths'
 import { generateQrCode } from '@/services/GetQRCode'
-import { getUserData } from '@/services/GetUserData'
 import { saveInvitationToDB } from '@/services/SaveInvitationToDB'
 import { getAuth } from 'firebase/auth'
 import html2canvas from 'html2canvas'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const qrCodeDataUrl = ref(null)
-const title = ref('')
-const date = ref('')
-const description = ref('')
-const signature = ref('')
-const selectedImage = ref(images[0])
-const auth = getAuth()
-const userProfileUrl = ref('')
-const currentUser = ref({})
-const file = ref(null)
-const router = useRouter()
-const isActive = ref(false)
+const qrCodeDataUrl = ref<string | null>(null)
+const selectedImage = ref<string>(INVITATION_IMAGES[0])
+const userProfileUrl = ref<string | null>(null)
+const currentUserUid = ref<string | null>(null)
+const guest = ref<boolean>(false)
+const isActive = ref<boolean>(false)
+const file = ref<string | null>(null)
 
-function selectImage(image) {
+const auth = getAuth()
+const router = useRouter()
+
+const URL: string = import.meta.env.VITE_API_URL
+
+interface Form {
+  title: string
+  date: string
+  description: string
+  signature: string
+}
+
+const form: Form = reactive({
+  title: '',
+  date: '',
+  description: '',
+  signature: '',
+})
+
+function selectImage(image: string): void {
   selectedImage.value = image
 }
 
-async function saveCardAsImage() {
-  const card = document.getElementById('card')
+async function saveCardAsImage(): Promise<void> {
+  const card = document.getElementById('card') as HTMLElement | null
   try {
     isActive.value = true
-    const canvas = await html2canvas(card)
+    const canvas = await html2canvas(card as HTMLCanvasElement)
     const imageDataUrl = canvas.toDataURL('image/png')
     file.value = imageDataUrl
     await saveInvitationToDB(imageDataUrl)
-    goToInvitationPage()
+    routeToShare()
   }
   catch (error) {
     console.error('Ошибка при сохранении изображения:', error)
@@ -46,24 +59,25 @@ async function saveCardAsImage() {
   }
 }
 
-function goToInvitationPage() {
-  const currentUser = auth.currentUser
-
-  if (currentUser) {
-    const uid = currentUser.uid
-    router.push({ path: `${path.invitationCard}/${uid}` })
+function routeToShare(): void {
+  if (auth.currentUser) {
+    router.push({ path: `${PATHS.CARDS.INVITATION_CREATE}/${currentUserUid.value}` })
   }
   else {
-    console.error('goToInvitationPage')
+    console.error('Пользователь не авторизован')
   }
 }
+const isLoading = computed(() => !qrCodeDataUrl.value && !guest.value)
 
 onMounted(async () => {
-  const uid = auth.currentUser.uid
-  const { user: userData } = await getUserData(uid)
-  currentUser.value = userData
-  userProfileUrl.value = `https://prosnis.github.io/wisher/user/${uid}`
-  qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
+  if (!auth.currentUser) {
+    guest.value = true
+  }
+  else {
+    currentUserUid.value = auth.currentUser.uid
+    userProfileUrl.value = `https://${URL}/user/${currentUserUid.value}`
+    qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
+  }
 })
 </script>
 
@@ -75,38 +89,50 @@ onMounted(async () => {
       class="profile__spinner"
     />
     <div class="form">
-      <label for="title"> Заголовок
+      <label
+        class="form__label"
+        for="title"
+      > Заголовок
         <input
           id="title"
-          v-model="title"
+          v-model="form.title"
           class="form__input"
           type="text"
           maxlength="50"
           placeholder="День рождения!"
         >
       </label>
-      <label for="date"> Дата
+      <label
+        class="form__label"
+        for="date"
+      > Дата
         <input
           id="date"
-          v-model="date"
+          v-model="form.date"
           class="form__input"
           type="date"
         >
       </label>
-      <label for="description"> Описание
+      <label
+        class="form__label"
+        for="description"
+      > Описание
         <textarea
           id="description"
-          v-model="description"
+          v-model="form.description"
           class="form__input form__input--description"
           type="text"
           maxlength="300"
           placeholder="Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый котел», который находится по адресу Косой переулок, 1."
         />
       </label>
-      <label for="signature"> Подпись
+      <label
+        class="form__label"
+        for="signature"
+      > Подпись
         <input
           id="signature"
-          v-model="signature"
+          v-model="form.signature"
           class="form__input"
           type="text"
           maxlength="20"
@@ -117,7 +143,7 @@ onMounted(async () => {
       <div class="form__picture">
         <ul class="form__picture__list">
           <li
-            v-for="(image, index) in images"
+            v-for="(image, index) in INVITATION_IMAGES"
             :key="index"
             class="picture__item"
             :class="[{ 'picture__item--selected': selectedImage.includes(image) }]"
@@ -126,12 +152,13 @@ onMounted(async () => {
             <img
               class="item__image"
               :src="image"
-              alt=""
+              alt="Изображение для пригласительного"
             >
           </li>
         </ul>
       </div>
       <button
+        v-if="qrCodeDataUrl"
         :disabled="isActive"
         class="form__button"
         @click="saveCardAsImage"
@@ -147,25 +174,28 @@ onMounted(async () => {
       <div class="invitation__info">
         <ul class="info__list">
           <li class="info__list__item info__list__item-title">
-            <h1 v-if="!title">
-              День рождения!
+            <h1
+              v-if="form.title"
+              class="info__list__item--title"
+            >
+              {{ form.title }}
             </h1>
             <h1 v-else>
-              {{ title }}
+              День рождения!
             </h1>
           </li>
           <li class="info__list__item info__list__item-date">
-            <span v-if="!date"> {{ new Date().toLocaleDateString() }}</span>
-            <span v-else>{{ date }}</span>
+            <span v-if="form.date"> {{ form.date }}</span>
+            <span v-else>{{ new Date().toLocaleDateString() }}</span>
           </li>
           <li class="info__list__item info__list__item-description">
-            <span v-if="!description">Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый
+            <span v-if="form.description">{{ form.description }}</span>
+            <span v-else>Приглашаю вас отпраздновать мой день рождения в замечательном баре «Дырявый
               котел», который находится по адресу Косой переулок, 1.</span>
-            <span v-else> {{ description }}</span>
           </li>
           <li class="info__list__item info__list__item-signature">
-            <span v-if="!signature"> Tom Riddle</span>
-            <span v-else>{{ signature }}</span>
+            <span v-if="form.signature"> {{ form.signature }}</span>
+            <span v-else>Tom Riddle</span>
           </li>
         </ul>
       </div>
@@ -173,25 +203,36 @@ onMounted(async () => {
         <img
           class="card__image"
           :src="selectedImage"
-          alt=""
+          alt="Изображение для пригласительного"
         >
       </div>
 
       <div class="invitation__qr">
-        <span class="qr__info">Сканируйте QR-код, чтобы ознакомиться со списком подарков.</span>
-        <WISpinner v-if="!qrCodeDataUrl" />
-        <img
+        <template v-if="qrCodeDataUrl">
+          <span class="qr__info">
+            Сканируйте QR-код, чтобы ознакомиться со списком подарков.
+          </span>
+          <img
+            :src="qrCodeDataUrl"
+            alt="QR Code"
+          >
+        </template>
+
+        <WISpinner v-else-if="isLoading" />
+
+        <span
           v-else
-          :src="qrCodeDataUrl"
-          alt="QR Code"
+          class="qr__info"
         >
+          После регистрации тут будет QR-код на ваш вишлсит и возможность отправить приглашение.
+        </span>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.form__button{
+.form__button {
   margin: 0;
   display: flex;
   align-items: center;
@@ -199,15 +240,18 @@ onMounted(async () => {
   margin: auto;
   font-weight: 600;
   border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
+  border: none;
+  border: 3px solid var(--color-primary);
+  background-color: var(--color-accent);
   color: white;
   cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  font-size: 16px;
 }
 
-.form__button:hover{
-  border: 3px solid rgb(28, 215, 221);
+.form__button:active{
+  transform: translateY(2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .profile__spinner {
@@ -256,7 +300,7 @@ onMounted(async () => {
 }
 
 .picture__item--selected {
-  border: 2px solid black;
+  border: 2px solid var(--color-accent);
   width: 200px;
 }
 
@@ -289,7 +333,7 @@ onMounted(async () => {
   /* border-radius: 20px; */
 }
 
-.form label {
+.form__label {
   flex: 0 0 150px;
   margin-right: 10px;
   display: flex;
@@ -297,8 +341,7 @@ onMounted(async () => {
   margin-bottom: 10px;
 }
 
-.form input,
-textarea {
+.form__input {
   flex: 1;
   padding: 5px;
   border: 1px solid #ccc;
@@ -312,12 +355,12 @@ textarea {
   justify-content: center;
 }
 
-.info__list__item-title h1 {
+.info__list__item--title {
   margin: 0
 }
 
 .info__list__item-date {
-  color: rgb(28, 215, 221);
+  color: var(--color-accent);
   font-weight: 600;
   font-size: 20px;
 }
@@ -341,7 +384,7 @@ textarea {
 
 .invitation {
   width: 100%;
-  border: rgb(28, 215, 221) 1px solid;
+  border: var(--color-accent) 1px solid;
   background: white;
   /* border-radius: 20px; */
   height: 700px;
@@ -358,14 +401,11 @@ textarea {
 .invitation__wrapper {
   display: flex;
   position: relative;
-  border: 1px solid black;
   max-width: 1300px;
   margin: auto;
   min-height: 50vh;
-  padding: 20px;
-  /* border-radius: 20px; */
   gap: 20px;
-  background-color: #111827
+  background-color: var(--color-background);
 }
 
 .invitation__img {
@@ -390,7 +430,8 @@ textarea {
   gap: 20px;
   flex-wrap: wrap;
   height: 200px;
-  background: rgb(28, 215, 221);
+  /* background: rgb(28, 215, 221); */
+  background: var(--color-accent);
 }
 
 .info__list__item {
