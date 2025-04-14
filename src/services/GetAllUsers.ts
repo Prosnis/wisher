@@ -15,3 +15,12 @@ export async function getAllUsers(): Promise<User[]> {
     return []
   }
 }
+
+
+// import type { User } from '@/types/interfaces/user'
+// import { useFireStore } from '@/composables/useFirestore'
+
+// export async function getAllUsers(): Promise<User[]> {
+//   const { getAll } = useFireStore()
+//   return await getAll<User>('users')
+// }

@@ -6,14 +6,14 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: PATHS.AUTH.REGISTER, component: () => import('@/views/RegisterPageView.vue') },
-    { path: PATHS.MAIN, component: () => import('@/views/FeedPageView.vue') },
+    { path: PATHS.MAIN, component: () => import('@/views/MainPageView.vue') },
     { path: PATHS.CARDS.INVITATION_CREATE, component: () => import('@/views/InvitationPageView.vue') },
     { path: PATHS.AUTH.LOGIN, component: () => import('@/views/AuthPageView.vue') },
     { path: PATHS.CARDS.MAIN, component: () => import('@/views/CardsPageView.vue') },
     { path: PATHS.CARDS.ADD, component: () => import('@/views/WiCardAddView.vue') },
     {
       path: `${PATHS.USER.PROFILE}/:uid`,
-      component: () => import('@/views/UserPageView.vue'),
+      component: () => import('@/views/UserPageView2.vue'),
       name: 'UserProfile',
       meta: {
         requiresAuth: false,
@@ -40,7 +40,7 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
-    { path: PATHS.MAIN, component: () => import('@/views/FeedPageView.vue') },
+    { path: PATHS.MAIN, component: () => import('@/views/MainPageView.vue') },
   ],
 })
 
@@ -59,3 +59,12 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
+
+
+
+
+
+
+
+
+

@@ -31,10 +31,11 @@ async function signIn(): Promise<void> {
       wallpaperUrl: existingData.wallpaperUrl || defaultWallpaper,
       displayName: existingData.displayName || user.displayName,
       about: existingData.about || '',
-      photoUrl: existingData.photoURL || user.photoURL,
+      photoUrl: existingData.photoUrl || user.photoURL,
       badges: existingData.badges || [
       ],
       subscribe: existingData.subscribe || [],
+      birthday: existingData.birthday || '** ****'
     }
 
     await setDoc(doc(db, 'users', user.uid), userData, { merge: true })

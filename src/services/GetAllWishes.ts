@@ -15,3 +15,12 @@ export async function getAllWishes(): Promise<Wish[]> {
     return []
   }
 }
+
+
+// import type { Wish } from '@/types/interfaces/wish'
+// import { useFireStore } from '@/composables/useFirestore'
+
+// export async function getAllWishes(): Promise<Wish[]> {
+//   const { getAll } = useFireStore()
+//   return await getAll<Wish>('wishes')
+// }

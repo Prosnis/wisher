@@ -45,30 +45,15 @@ onMounted(() => {
   <WiContextMenu>
     <template #menu="{ hideMenu }">
       <ul class="card__menu__list">
-        <li
-          class="card__menu__item card__menu__item--fulfilled"
-          @click=" [hideMenu(), toggleFulfillStatus()]"
-        >
-          <font-awesome-icon
-            class="menu__icon"
-            :icon="['fas', 'check']"
-          /> Исполнено
+        <li class="card__menu__item card__menu__item--fulfilled" @click=" [hideMenu(), toggleFulfillStatus()]">
+          <font-awesome-icon class="menu__icon" :icon="['fas', 'check']" /> Исполнено
         </li>
-        <li
-          class="card__menu__item card__menu__item--delete"
-          @click="[hideMenu(), modalToggle = true]"
-        >
-          <font-awesome-icon
-            class="menu__icon"
-            :icon="['fas', 'trash-can']"
-          /> Удалить
+        <li class="card__menu__item card__menu__item--delete" @click="[hideMenu(), modalToggle = true]">
+          <font-awesome-icon class="menu__icon" :icon="['fas', 'trash-can']" /> Удалить
         </li>
       </ul>
     </template>
-    <font-awesome-icon
-      class="card__menu--icon"
-      :icon="['fas', 'ellipsis-vertical']"
-    />
+    <font-awesome-icon class="card__menu--icon" :icon="['fas', 'ellipsis-vertical']" />
   </WiContextMenu>
 
   <WiModal v-model="modalToggle">
@@ -78,17 +63,11 @@ onMounted(() => {
       </h3>
       <span class="menu__modal--remind">Восстановить её будет невозможно.</span>
       <div class="menu__modal__buttons">
-        <button
-          class="menu__modal__button menu__modal__button--decline"
-          @click="modalToggle = false"
-        >
+        <button class="menu__modal__button menu__modal__button--decline" @click="modalToggle = false">
           нет, я
           передумал
         </button>
-        <button
-          class="menu__modal__button menu__modal__button--accept"
-          @click="deleteCard"
-        >
+        <button class="menu__modal__button menu__modal__button--accept" @click="deleteCard">
           да, удалить
         </button>
       </div>

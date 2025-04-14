@@ -26,16 +26,11 @@ const hoverWallaper = ref(false)
 const hoverAvatar = ref(false)
 const wallpaperFile = ref(null)
 const avatarFile = ref(null)
-const loading = ref(false)
 const imageLoaded = ref(false)
 const route = useRoute()
-const router = useRouter()
 const auth = getAuth()
 
-function goToSettingsPage() {
-  const uid = route.params.uid
-  router.push({ path: `${PATHS.USER.SETTINGS}/${uid}` })
-}
+
 const isWallaperOwner = computed(() => hoverWallaper.value && hasEditPermission)
 const isAvatarOwner = computed(() => hoverAvatar.value && hasEditPermission)
 const isAvailableToSubscribe = computed(() => !hasEditPermission && auth.currentUser && auth.currentUser.uid !== route.params.uid)
@@ -48,111 +43,59 @@ function picturesEdit(target, event) {
   else if (target === 'wallpaper') {
     wallpaperFile.value = file
   }
-  saveProfile(user, wallpaperFile, avatarFile, loading)
+  uploadUserPictures(user, wallpaperFile, avatarFile)
 }
 </script>
 
 <template>
-  <div
-    class="profile__wallapper"
-    @mouseenter="hoverWallaper = true"
-    @mouseleave="hoverWallaper = false"
-  >
-    <img
-      :src="user.wallpaperUrl"
-      alt="Обложка профиля"
-      loading="lazy"
-      class="profile__wallapper-img"
-      :style="{ opacity: imageLoaded ? 1 : 0 }"
-      @load="imageLoaded = true"
-    >
-    <label
-      v-if="isWallaperOwner"
-      for="input-wallaper"
-      class="profile__wallaper-edit"
-    >
-      <input
-        id="input-wallaper"
-        class="profile__input profile__input--wallpaper"
-        type="file"
-        @change="picturesEdit('wallpaper', $event)"
-      >
+  <div class="profile__wallapper" @mouseenter="hoverWallaper = true" @mouseleave="hoverWallaper = false">
+    <img :src="user.wallpaperUrl" alt="Обложка профиля" loading="lazy" class="profile__wallapper-img"
+      :style="{ opacity: imageLoaded ? 1 : 0 }" @load="imageLoaded = true">
+
+    <label v-if="isWallaperOwner" for="input-wallaper" class="profile__wallaper-edit">
+      <input id="input-wallaper" class="profile__input profile__input--wallpaper" type="file"
+        @change="picturesEdit('wallpaper', $event)">
       изменить обложку
     </label>
   </div>
-  <div class="profile__user__Info">
-    <div
-      v-if="loading"
-      class="profile__spinner"
-    />
-    <div
-      class="profile__photo-wrapper"
-      @mouseenter="hoverAvatar = true"
-      @mouseleave="hoverAvatar = false"
-    >
-      <img
-        class="profile__photo"
-        :src="user.photoUrl"
-        alt="Аватар профиля"
-        loading="lazy"
-      >
 
-      <label
-        v-if="isAvatarOwner"
-        for="input-avatar"
-        class="profile__photo profile__photo--edit"
-      >
-        <input
-          id="input-avatar"
-          class="profile__input profile__input--avatar"
-          type="file"
-          @change="picturesEdit('avatar')"
-        >
-        <font-awesome-icon
-          class="profile__icon profile__icon-edit"
-          :icon="['fas', 'edit']"
-        />
+
+
+  <div class="profile__user__Info">
+
+    <div class="profile__photo-wrapper" @mouseenter="hoverAvatar = true" @mouseleave="hoverAvatar = false">
+      <img class="profile__photo" 
+      :src="user.photoUrl" 
+      alt="Аватар профиля" 
+      loading="lazy">
+
+      <label v-if="isAvatarOwner" for="input-avatar" class="profile__photo profile__photo--edit">
+        <input id="input-avatar" class="profile__input profile__input--avatar" type="file"
+          @change="picturesEdit('avatar')">
+        <font-awesome-icon class="profile__icon profile__icon-edit" :icon="['fas', 'edit']" />
       </label>
+
+
       <div>
         <h2 class="profile__name">
           {{ user.displayName }}
         </h2>
-        <p class="profile__about">
-          {{ user.about || 'Информация о пользователе отсутствует' }}
+        <p>
+          14 желаний 10 исполненно
         </p>
+        <!-- <p class="profile__about">
+          {{ user.about || 'Информация о пользователе отсутствует' }}
+        </p> -->
       </div>
+
     </div>
-    <button
-      v-if="hasEditPermission"
-      class="profile_setting_button"
-      @click="goToSettingsPage"
-    >
-      <font-awesome-icon :icon="['fas', 'gear']" />редактировать профиль
-    </button>
-    <WiSubscribeButton
-      v-if="isAvailableToSubscribe"
-    />
+
   </div>
+
+
 </template>
 
 <style scoped>
-.profile_setting_button {
-  border: none;
-  background-color: var(--color-background-light);
-  padding: 5px;
-  cursor: pointer;
-  border-radius: 10px;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 20px 20px auto 0px;
-}
-
-.profile_setting_button:hover {
-  color: var(--color-accent);
-}
-
 .profile__wallapper {
   width: 100%;
   position: relative;
@@ -163,7 +106,7 @@ function picturesEdit(target, event) {
   opacity: 0;
   object-fit: cover;
   width: 100%;
-  height: 250px;
+  height: 180px;
   border-radius: 10px 10px 0 0;
 }
 
@@ -260,12 +203,6 @@ function picturesEdit(target, event) {
   white-space: pre-wrap
 }
 
-.profile__user__Info {
-  width: 100%;
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-}
 
 .profile__photo-wrapper {
   position: relative;

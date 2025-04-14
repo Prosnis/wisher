@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Wish } from '@/types/interfaces/wish'
 import { PATHS } from '@/constants/paths'
+import Card from 'primevue/card';
+
 import { useRouter } from 'vue-router'
 
 interface Props {
@@ -23,102 +25,40 @@ async function goToCardPreview(wishID: string) {
 </script>
 
 <template>
-  <div
-    class="card"
-    @click="goToCardPreview(wish.id)"
-  >
-    <img
-      v-if="wish.img"
-      :src="wish.img"
-      alt="Изображение желания"
-      class="card__image"
-    >
-    <h3 class="card__title">
-      {{ wish.name }}
-    </h3>
-    <div class="card__status-container">
-      <div v-if="wish.fulfilled">
-        <div class="card__status card__status--fulfilled">
-          Исполнено
-          <font-awesome-icon
-            :icon="['fas', 'check']"
-            class="card__status--icon"
-          />
+  <Card v-if="wish" class="md:max-w-13rem md:h-16rem max-w-7rem h-11rem p-2 shadow-none" @click="goToCardPreview(wish.id)">
+    <template #header>
+      <div class="relative">
+        <div
+          class="flex align-items-center justify-content-center  border-round-3xl md:h-12rem md:w-12rem w-6rem h-6rem p-0 rel surface-100 ">
+          <img alt="user header" :src="wish.img" class="border-round-3xl max-h-full max-w-full" />
+        </div>
+
+        <div v-if="wish.fulfilled" class="z-1 absolute bottom-0 right-0 mr-2rem">
+          <i class="pi pi-check text-1xl p-2 bg-primary border-circle" />
+        </div>
+        <div v-else-if="wish.reserve" class="z-1 absolute bottom-0 right-0 mr-2rem">
+          <i class="pi pi-lock text-1xl p-2 bg-primary border-circle" />
         </div>
       </div>
-      <div v-if="wish.reserve">
-        <div class="card__status card__status--reserved">
-          Забронировано
-          <font-awesome-icon
-            :icon="['fas', 'check']"
-            class="card__status--icon"
-          />
-        </div>
+    </template>
+    <template #footer>
+      <div class="two-lines md:text-base text-xs text-center">
+        {{ wish.name }}
       </div>
-    </div>
-  </div>
+    </template>
+  </Card>
 </template>
 
 <style scoped lang="scss">
-@use '@/styles/_colors' as color;
-@use '@/styles/_mixins' as mixin;
+:deep(.p-card-body) {
+  padding: 0;
+}
 
-.card {
-  @include mixin.flex-center(column);
 
-  @include mixin.responsive(768px) {
-    width: 150px;
-    height: 200px;
-  };
-
-  position: relative;
-  width: 210px;
-  height: 320px;
-  gap: 20px;
-  text-align: center;
-  border-radius: 10px;
-  background-color: color.$color-background;
-  font-size: 14px;
-  font-weight: 600;
-
-  &__image {
-    @include mixin.responsive(768px) {
-      width: 100%;
-      height: 100px;
-    };
-
-    width: 210px;
-    height: 210px;
-    object-fit: cover;
-    border-radius: 5% 5% 0 0;
-  }
-
-  &__title {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    margin: 0;
-    font-size: 1.2rem;
-  }
-
-  &__status-container {
-    margin-top: auto;
-
-    .card__status {
-      margin-bottom: 5px;
-      color: white;
-      padding: 3px;
-      border-radius: 5px;
-    }
-
-    .card__status--fulfilled {
-      background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(137, 23, 178, 1) 1%, rgba(251, 17, 37, 0.7455357142857143) 100%, rgba(0, 212, 255, 1) 100%);
-    }
-
-    .card__status--reserved {
-      background: radial-gradient(circle, rgba(63, 94, 251, 1) 0%, rgba(252, 70, 107, 1) 100%);
-    }
-  }
+.two-lines {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 </style>
