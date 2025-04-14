@@ -1,6 +1,6 @@
 <script setup>
 import defaultImage from '@/components/icons/box.jpg'
-import WiContentLoader from '@/components/WiContentLoader.vue'
+
 import WiNavbar from '@/components/WiNavbar.vue'
 import { PATHS } from '@/constants/paths'
 import { classifiedHobbies } from '@/services/GetCardHobby'
@@ -10,6 +10,8 @@ import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import InputText from 'primevue/inputtext';
+import Button from 'primevue/button';
 
 const router = useRouter()
 const db = getFirestore()
@@ -20,7 +22,6 @@ const urlToparse = ref('')
 const formToggle = ref(true)
 const error = ref(false)
 const toggleText = ref('Заполнить вручную')
-const spinnerText = ref('Ожидаем название..')
 const disabledForm = ref(false)
 
 const categories = ref([])
@@ -50,7 +51,6 @@ async function parseFromYndex() {
     const result = await YandexParser(url)
     form.img = result.image
     form.name = result.title
-    form.description = result.description
     form.link = urlToparse.value
     formToggler()
     error.value = false
@@ -87,7 +87,6 @@ function createCardData(form) {
     date: form.date || new Date().toLocaleDateString(),
     link: form.link,
     reserve: '',
-    badge: form.badge,
     fulfilled: false,
   }
 }
@@ -121,194 +120,104 @@ function previewCard(event) {
   }
 }
 
-function isBadgePicked(badge) {
-  return form.badge.some(pickedBadge => pickedBadge.name === badge.name)
-}
-
-function badgePicker(badge) {
-  const index = form.badge.findIndex(item => item.name === badge.name)
-  if (form.badge.length && index)
-    return
-  if (index !== -1) {
-    form.badge.splice(index, 1)
-  }
-  else {
-    form.badge.push(badge)
-  }
-}
 </script>
 
 <template>
-  <WiNavbar />
+  <main class="w-full h-screen p-3">
+    <div class="min-h-full min-w-full border-round-3xl p-3 bg ">
+      <div class="wrapper">
+        <WiNavbar />
 
-  <div class="container">
-    <div class="parser">
-      <span class="parser__title">Найти товар на <a
-        href="https://market.yandex.ru/"
-        target="_blank"
-        class="parser__title--link"
-      >Яндекс Маркет</a></span>
-      <input
-        id="link"
-        v-model="urlToparse"
-        class="parser__input"
-        type="text"
-        maxlength="200"
-        required
-      >
-      <button
-        class="parser__button"
-        @click.prevent.stop="parseFromYndex"
-      >
-        Создать желание по ссылке
-      </button>
-      <span :class="[error ? 'parser__error' : 'parser__error--visible']">Произошла ошибка. Пожалуйста, проверьте ссылку
-        или заполните форму вручную.</span>
-    </div>
+        <div class="container">
 
-    <form @submit.prevent="CreateCard">
-      <fieldset
-        :disabled="disabledForm"
-        class="form fieldset"
-      >
-        <WiContentLoader
-          v-if="loading"
-          class="form__preview"
-          :width="430"
-          :height="540"
-        />
 
-        <div
-          v-else
-          class="form__input__group"
-          :disabled="disabledForm"
-        >
-          <ul class="form__list">
-            <li class="form__list__item">
-              <label
-                class="form__label"
-                for="name"
-              >Название:</label>
-              <input
-                id="name"
-                v-model="form.name"
-                class="form__input"
-                type="text"
-                required
-                maxlength="80"
-                @change="classifiedHobbies(form.name)"
-              >
-            </li>
-            <li class="form__list__item">
-              <label
-                class="form__label"
-                for="description"
-              >Описание</label>
-              <textarea
-                id="description"
-                v-model="form.description"
-                class="form__textarea"
-                type="text"
-                maxlength="100"
-              />
-            </li>
-            <li class="form__list__item">
-              <label
-                class="form__label"
-                for="link"
-              >Ссылка на товар</label>
-              <input
-                id="link"
-                v-model="form.link"
-                class="form__input"
-                type="text"
-                maxlength="200"
-              >
-            </li>
+          <div class="grid">
 
-            <li class="form__badge__item">
-              <div>
-                <div
-                  v-if="categories.length > 0"
-                  class="form__badge__wrapper"
-                >
-                  <div
-                    v-for="(badge, index) in categories"
-                    :key="index"
-                    :class="[isBadgePicked(badge) ? 'form__badge__picked' : 'form__badge']"
-                    :style="{
-                      backgroundColor: isBadgePicked(badge) ? '#0817ecb9' : '#f5f7fa',
-                      color: isBadgePicked(badge) ? '#f0f0f0' : '#0817ecb9',
-                    }"
-                    @click="badgePicker(badge)"
-                  >
-                    {{ badge.name }}
-                  </div>
-                </div>
-                <div
-                  v-else
-                  class="form__badge__spinner"
-                >
-                  <span>{{ spinnerText }}</span>
-                  <font-awesome-icon
-                    class="badge__icon--loading"
-                    :icon="['fas', 'circle-notch']"
-                    spin
-                  />
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <WiContentLoader
-          v-if="loading"
-          class="form__preview"
-          :width="430"
-          :height="540"
-        />
-
-        <div
-          v-else
-          class="form__preview"
-        >
-          <div class="form__preview__card">
-            <label
-              class="card__label card__label--file"
-              for="file-input"
-            >
-              <img
-                v-if="form.img"
-                :src="form.img"
-                alt="Изображение карточки желания"
-                class="card__image"
-              >
-              <font-awesome-icon
-                v-else
-                class="card__icon--file"
-                :icon="['fas', 'file-image']"
-              />
-              <input
-                id="file-input"
-                class="card__input card__input--file"
-                type="file"
-                @change="previewCard($event)"
-              >
-            </label>
-            <h3 class="card__title">
-              {{ form.name }}
-            </h3>
+            <div class="col-12 bg-white shadow-1 border-round-sm flex flex-column align-items-center justify-content-center p-3">
+              <span class="font-bold mb-4">Найти товар на <a href="https://market.yandex.ru/" target="_blank" class="text-primary"
+                >Яндекс Маркет</a></span>
+                <InputText id="parseLink" type="text" placeholder="Ссылка на товар" class="w-full mb-4"  v-model="urlToparse"/>
+                <Button @click.prevent.stop="parseFromYndex">Создать желание по ссылке</Button>
+                <p class="text-400"> * На данный момент создать желание по ссылке доступно только с Яндекс Маркет.</p>
+            </div>
+            <div class="col-12">
+              <form>
+                <fieldset>
+                  
+                </fieldset>
+              </form>
+            </div>
           </div>
-          <button class="form__button--add">
-            добавить
-          </button>
+
+
+
+          <form @submit.prevent="CreateCard">
+            <fieldset :disabled="disabledForm" class="form fieldset">
+
+
+              <div class="form__input__group" :disabled="disabledForm">
+                <ul class="form__list">
+                  <li class="form__list__item">
+                    <label class="form__label" for="name">Название:</label>
+                    <input id="name" v-model="form.name" class="form__input" type="text" required maxlength="80"
+                      @change="classifiedHobbies(form.name)">
+                  </li>
+                  <li class="form__list__item">
+                    <label class="form__label" for="description">Описание</label>
+                    <textarea id="description" v-model="form.description" class="form__textarea" type="text"
+                      maxlength="100" />
+                  </li>
+                  <li class="form__list__item">
+                    <label class="form__label" for="link">Ссылка на товар</label>
+                    <input id="link" v-model="form.link" class="form__input" type="text" maxlength="200">
+                  </li>
+                </ul>
+              </div>
+
+
+              <div class="form__preview">
+                <div class="form__preview__card">
+                  <label class="card__label card__label--file" for="file-input">
+                    <img v-if="form.img" :src="form.img" alt="Изображение карточки желания" class="card__image">
+                    <font-awesome-icon v-else class="card__icon--file" :icon="['fas', 'file-image']" />
+                    <input id="file-input" class="card__input card__input--file" type="file"
+                      @change="previewCard($event)">
+                  </label>
+                  <h3 class="card__title">
+                    {{ form.name }}
+                  </h3>
+                </div>
+                <button class="form__button--add">
+                  добавить
+                </button>
+              </div>
+
+
+            </fieldset>
+          </form>
+
+
+
         </div>
-      </fieldset>
-    </form>
-  </div>
+
+      </div>
+    </div>
+  </main>
 </template>
 
 <style scoped>
+.wrapper {
+  max-width: 1600px;
+  margin: auto;
+}
+
+.bg {
+  background-image: url('@/components/icons/bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .fieldset {
   border: none;
   padding: 0;

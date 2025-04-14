@@ -1,21 +1,33 @@
 import type { Badge, User } from '@/types/interfaces/user'
 import type { Wish } from '@/types/interfaces/wish'
 
+import { getAllWishes } from '@/services/GetAllWishes'
 import { getUserData } from '@/services/GetUserData'
 import { useUserStore } from '@/stores/WiUserStore'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 export const useProfileStore = defineStore('profile', () => {
   const userStore = useUserStore()
 
   const user = ref<User | null>(null)
   const profileUID = ref<string>('')
-
   const badges = ref<Badge[]>([])
   const wishes = ref<Wish[]>([])
+  const allWishes = ref<Wish[]>([])
 
-  const hasEditPermission = ref<boolean>(false)
+  const fulfilledWishes = computed(() => {
+    wishes.value.filter(item => item.fulfilled)
+  })
+
+  const reservedWishes = computed(() =>
+    allWishes.value.filter(elem => elem.reserve === profileUID.value)
+  )
+
+  const hasEditPermission = computed(() => 
+    userStore.userUID === profileUID.value
+  )
+
   const skeletonLoad = ref<boolean>(true)
 
   const addWish = (cardData: Wish): void => {
@@ -28,11 +40,11 @@ export const useProfileStore = defineStore('profile', () => {
       profileUID.value = uid
 
       const { user: userData, wishes: userWishes } = await getUserData(profileUID.value)
+      allWishes.value = await getAllWishes()
 
       if (userData) {
         user.value = userData
         badges.value = userData.badges || []
-        hasEditPermission.value = userStore.userUID === profileUID.value
       }
       if (userWishes) {
         wishes.value = userWishes
@@ -45,5 +57,5 @@ export const useProfileStore = defineStore('profile', () => {
       skeletonLoad.value = false
     }
   }
-  return { profileUID, user, wishes, badges, hasEditPermission, skeletonLoad, getProfileData, addWish }
+  return { profileUID, user, wishes, badges, hasEditPermission, skeletonLoad, getProfileData, addWish, fulfilledWishes, reservedWishes }
 })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import WiContentLoader from '@/components/WiContentLoader.vue'
+
 import WiNavbar from '@/components/WiNavbar.vue'
 import WiProfileNavbar from '@/components/WiProfileNavbar.vue'
 import WiUserPagePicturesEdit from '@/components/WiUser/WiUserPagePicturesEdit.vue'
@@ -55,6 +55,7 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
 </script>
 
 <template>
@@ -63,70 +64,29 @@ onMounted(async () => {
       <WiNavbar />
     </div>
     <main class="user">
-      <WiContentLoader
-        v-if="loading"
-        class="skeleton"
-        :width="1300"
-        :height="345"
-      />
 
-      <section
-        v-else
-        class="user__info"
-      >
-        <div
-          v-if="profileStore.user"
-          class="profile"
-        >
-          <WiUserPagePicturesEdit
-            :user="profileStore.user"
-            :has-edit-permission="profileStore.hasEditPermission"
-            :user-name="profileStore.user.displayName"
-            :user-about="profileStore.user.about"
-          />
+
+      <section  class="user__info">
+        <div v-if="profileStore.user" class="profile">
+          <WiUserPagePicturesEdit :user="profileStore.user" :has-edit-permission="profileStore.hasEditPermission"
+            :user-name="profileStore.user.displayName" :user-about="profileStore.user.about" />
         </div>
       </section>
 
       <div v-if="profileStore.badges.length > 0">
-        <WiContentLoader
-          v-if="profileStore.skeletonLoad"
-          class="skeleton"
-          :width="1300"
-          :height="67"
-        />
-        <div
-          v-else
-          class="profile__badges"
-        >
-          <div
-            v-for="(badge, index) in profileStore.badges"
-            :key="index"
-            class="badge"
-          >
+        <div class="profile__badges">
+          <div v-for="(badge, index) in profileStore.badges" :key="index" class="badge">
             {{ badge.name }}
           </div>
         </div>
       </div>
 
       <div class="profile__nav">
-        <WiProfileNavbar
-          v-if="profileStore.hasEditPermission"
-          :active="currentComponent"
-          @change-view="changeView"
-        />
+        <WiProfileNavbar v-if="profileStore.hasEditPermission" :active="currentComponent" @change-view="changeView" />
       </div>
 
       <div class="profile__wishes__wrapper">
-        <WiContentLoader
-          v-if="loading"
-          class="skeleton wishes"
-          :width="1300"
-          :height="300"
-        />
-        <div
-          v-else
-          class="wishes"
-        >
+        <div  class="wishes">
           <component :is="components[currentComponent as keyof ComponentsMap]" />
         </div>
       </div>
@@ -176,7 +136,6 @@ onMounted(async () => {
 }
 
 .user {
-  max-width: 1300px;
   margin: auto;
   min-height: 90vh;
 

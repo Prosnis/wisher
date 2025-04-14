@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import WiBackButton from '@/components/WiBackButton.vue'
 import WiCardMenu from '@/components/WiCards/WiCardMenu.vue'
-import WiContentLoader from '@/components/WiContentLoader.vue'
 import NavBar from '@/components/WiNavbar.vue'
 import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
@@ -11,6 +10,11 @@ import { doc, getFirestore, updateDoc } from 'firebase/firestore'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+import Card from 'primevue/card';
+import Button from 'primevue/button'
+import Avatar from 'primevue/avatar';
+import Menu from 'primevue/menu';
+
 const db = getFirestore()
 const auth = getAuth()
 const route = useRoute()
@@ -18,6 +22,27 @@ const spinner = ref<boolean>(false)
 
 const cardStore = useCardStore()
 const { getCardData } = cardStore
+
+
+const menu = ref();
+const items = ref([
+
+      {
+        label: 'Выполнено',
+        icon: 'pi pi-check-circle',
+        comand: ()=> toggleFulfill
+      },
+      {
+        label: 'Удалить',
+        icon: 'pi pi-trash'
+      }
+]);
+
+const toggle = (event) => {
+  menu.value.toggle(event);
+};
+
+
 
 const hideButton = computed(() => !cardStore.isOwner)
 const enableForReserve = computed(() => !cardStore.isReserved && auth.currentUser && !cardStore.card?.fulfilled)
@@ -87,60 +112,32 @@ onMounted(async () => {
 })
 </script>
 
-<template>
+<!-- <template>
   <NavBar />
-  <div
-    v-if="cardStore"
-    class="card"
-  >
+  <div v-if="cardStore" class="card">
     <WiBackButton class="card__back__button" />
-    <WiContentLoader
-      v-if="cardStore.isLoading"
-      :width="1000"
-      :height="700"
-    />
 
-    <div v-else>
+    <div >
       <div class="card__user__info">
         <div class="card__user__wrapper">
           <div class="card__img-wrapper--avatar">
-            <img
-              class="card__image  card__image--user"
-              :src="cardStore.user?.photoUrl ?? '@/components/icons/avatar.png'"
-              alt="Аватар профиля"
-            >
+            <img class="card__image  card__image--user"
+              :src="cardStore.user?.photoUrl ?? '@/components/icons/avatar.png'" alt="Аватар профиля">
           </div>
-          <router-link
-            :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }"
-            class="card__user-name"
-          >
+          <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }" class="card__user-name">
             {{ cardStore.user?.displayName }}
           </router-link>
-          <span
-            v-if="cardStore.card?.link"
-            class="card__user__link-title"
-          >
+          <span v-if="cardStore.card?.link" class="card__user__link-title">
             поделился ссылкой
-            <a
-              :href="cardStore.card?.link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a :href="cardStore.card?.link" target="_blank" rel="noopener noreferrer">
               <font-awesome-icon :icon="['fas', 'up-right-from-square']" />
             </a>
           </span>
           <span v-else>не указал ссылку</span>
         </div>
 
-        <div
-          v-if="cardStore.isOwner"
-          class="card__menu"
-        >
-          <WiCardMenu
-            v-if="cardStore.card"
-            :card="cardStore.card"
-            @toggle-fulfill="toggleFulfill"
-          />
+        <div v-if="cardStore.isOwner" class="card__menu">
+          <WiCardMenu v-if="cardStore.card" :card="cardStore.card" @toggle-fulfill="toggleFulfill" />
         </div>
       </div>
 
@@ -148,11 +145,8 @@ onMounted(async () => {
         <div class="card__images">
           <div class="card__description">
             <div class="card__img__wrapper--description">
-              <img
-                class="card__image  card__image--description"
-                :src="cardStore.card?.img ?? '@/components/icons/box.png'"
-                alt="Изображение желания"
-              >
+              <img class="card__image  card__image--description"
+                :src="cardStore.card?.img ?? '@/components/icons/box.png'" alt="Изображение желания">
             </div>
           </div>
 
@@ -162,34 +156,18 @@ onMounted(async () => {
             </h3>
             <div class="card__links-wrapper">
               <div class="card__links--item">
-                <a
-                  :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardName)}`"
-                  target="_blank"
-                ><img
-                  class="card__image card__links--img"
-                  src="@/components/icons/ozon.png"
-                  alt="ozon"
-                ></a>
+                <a :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardName)}`"
+                  target="_blank"><img class="card__image card__links--img" src="@/components/icons/ozon.png"
+                    alt="ozon"></a>
               </div>
               <div class="card__links--item">
-                <a
-                  :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardName)}`"
-                  target="_blank"
-                ><img
-                  class="card__image card__links--img"
-                  src="@/components/icons/wb.png"
-                  alt="Wildverries"
-                ></a>
+                <a :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardName)}`"
+                  target="_blank"><img class="card__image card__links--img" src="@/components/icons/wb.png"
+                    alt="Wildverries"></a>
               </div>
               <div class="card__links--item">
-                <a
-                  :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardName)}`"
-                  target="_blank"
-                ><img
-                  class="card__image card__links--img"
-                  src="@/components/icons/ym.png"
-                  alt="yandex market"
-                ></a>
+                <a :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardName)}`" target="_blank"><img
+                    class="card__image card__links--img" src="@/components/icons/ym.png" alt="yandex market"></a>
               </div>
             </div>
           </div>
@@ -203,75 +181,40 @@ onMounted(async () => {
             <span class="user__description">{{ cardStore.card?.description }}</span>
           </div>
 
-          <WISpinner
-            v-if="spinner"
-            class="card__spinner"
-          />
+          <WISpinner v-if="spinner" class="card__spinner" />
 
-          <div
-            v-else
-            class="card__description--actions"
-          >
-            <div
-              v-if="cardStore.isReserved"
-              class="card__description--reserved"
-            >
-              <button
-                v-if="cardStore.isReservedUser"
-                class="card__button card__button-free"
-                @click="toggleReserve"
-              >
+          <div v-else class="card__description--actions">
+            <div v-if="cardStore.isReserved" class="card__description--reserved">
+              <button v-if="cardStore.isReservedUser" class="card__button card__button-free" @click="toggleReserve">
                 отказаться
               </button>
               <div>
-                <img
-                  class="card__description--stamp"
-                  src="@/components/icons/reserved.png"
-                  alt="Зарезервировано"
-                >
+                <img class="card__description--stamp" src="@/components/icons/reserved.png" alt="Зарезервировано">
               </div>
               <span class="card__reserved__text">Зарезервировано пользователем
-                <router-link
-                  :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
-                  class="card__user-name"
-                >
+                <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
+                  class="card__user-name">
                   {{ cardStore.reservedUser?.displayName }}
                 </router-link>
               </span>
             </div>
 
-            <div
-              v-else-if="enableForReserve"
-              class="card__description--reserved"
-            >
-              <button
-                v-if="hideButton"
-                class="card__button card__button-reserved"
-                @click="toggleReserve"
-              >
+            <div v-else-if="enableForReserve" class="card__description--reserved">
+              <button v-if="hideButton" class="card__button card__button-reserved" @click="toggleReserve">
                 зарезервировать
               </button>
-              <span
-                v-if="hideButton"
-                class="card__reserved__text"
-              >Pарезервируйте этот подарок, если
+              <span v-if="hideButton" class="card__reserved__text">Pарезервируйте этот подарок, если
                 хотите его подарить.</span>
             </div>
 
             <div v-else-if="fulfilled">
               <div class="card__status card__status--fulfilled">
                 Исполнено
-                <font-awesome-icon
-                  :icon="['fas', 'check']"
-                  class="card__status--icon"
-                />
+                <font-awesome-icon :icon="['fas', 'check']" class="card__status--icon" />
               </div>
             </div>
 
-            <div
-              v-else-if="guestMessage"
-              class="card__reserved__text"
-            >
+            <div v-else-if="guestMessage" class="card__reserved__text">
               <span>Для бронирования желаний нужно зарегистрироваться</span>
             </div>
           </div>
@@ -477,4 +420,118 @@ onMounted(async () => {
   background-color: var(--color-background-light);
   color: var(--color-accent);
 }
-</style>
+</style> -->
+
+
+<template>
+  <NavBar />
+  <div v-if="cardStore" class="p-4 bg-white border-round w-12 md:w-10 mx-auto">
+
+    <div  class="grid">
+      <!-- Блок с информацией о пользователе -->
+      <div class="col-12 flex align-items-center justify-content-between mb-4">
+        <div class="flex align-items-center gap-3">
+          <Avatar :image="cardStore.user?.photoUrl || '@/components/icons/avatar.png'" shape="circle" size="large" />
+          <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }" class="text-xl font-bold">
+            {{ cardStore.user?.displayName }}
+          </router-link>
+
+        </div>
+
+        <!-- <WiCardMenu v-if="cardStore.isOwner && cardStore.card" :card="cardStore.card" @toggle-fulfill="toggleFulfill" />
+          -->
+
+        <div class="card flex justify-center">
+          <Button type="button" icon="pi pi-ellipsis-v" @click="toggle" aria-haspopup="true"
+            aria-controls="overlay_menu" class="bg-white border-none text-primary" />
+          <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
+        </div>
+
+      </div>
+
+
+
+
+
+
+      <!-- Основной контент -->
+      <div class="col-12 md:col-6 ">
+        <div class="flex flex-column">
+          <div class="border-round overflow-hidden flex">
+            <img :src="cardStore.card?.img || '@/components/icons/box.png'" alt="Изображение желания"
+              class="w-10 mx-auto mb-4 border-round" />
+          </div>
+
+
+          <div class="mx-auto surface-100 p-3 border-round w-10 text-center">
+            <span class="font-semibold">Найти на маркетплейсах</span>
+            <div class="flex justify-content-center gap-3 p-2">
+              <a class=" flex align-items-center gap-2"
+                :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardName)}`"
+                target="_blank"><img src="@/components/icons/ozon.png" alt="Ozon" class="w-3rem" /></a>
+              <a class="flex align-items-center gap-2"
+                :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardName)}`"
+                target="_blank">
+                <img src="@/components/icons/wb.png" alt="Wildberries" class="w-3rem" /></a>
+              <a class="flex align-items-center gap-2"
+                :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardName)}`" target="_blank">
+                <img src="@/components/icons/ym.png" alt="Yandex Market" class="w-3rem" />
+              </a>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+
+      <!-- Описание и действия -->
+      <div class="col-12 md:col-6">
+        <div class="flex flex-column gap-4">
+          <div>
+            <h1 class="text-lg md:text-2xl font-bold mb-2">{{ cardStore.card?.name }}</h1>
+            <p class="text-gray-700 ">{{ cardStore.card?.description }}</p>
+          </div>
+
+          <WISpinner v-if="spinner" />
+
+          <div v-else class="flex flex-column gap-3">
+            <!-- Зарезервировано -->
+            <div v-if="cardStore.isReserved" class="bg-green-100 p-4 border-round">
+              <div class="flex align-items-center gap-3">
+                <Button v-if="cardStore.isReservedUser" label="Отказаться" @click="toggleReserve" />
+                <span class="text-gray-700">
+                  Зарезервировано пользователем
+                  <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
+                    class="font-bold">
+                    {{ cardStore.reservedUser?.displayName }}
+                  </router-link>
+                </span>
+              </div>
+            </div>
+
+            <!-- Доступно для резерва -->
+            <div v-else-if="enableForReserve" class="border-1 p-4 border-round border-primary-500">
+              <div class="flex flex-column gap-2">
+                <Button v-if="hideButton" label="Зарезервировать" @click="toggleReserve" />
+                <span class="text-gray-700">Зарезервируйте этот подарок, если хотите его подарить.</span>
+              </div>
+            </div>
+
+            <!-- Исполнено -->
+            <div v-else-if="fulfilled" class="surface-100 p-4 border-round">
+              <div class="flex align-items-center gap-2">
+                <span class="text-green-700 font-bold">Исполнено</span>
+                <font-awesome-icon :icon="['fas', 'check']" class="text-green-700" />
+              </div>
+            </div>
+
+            <!-- Сообщение для гостей -->
+            <div v-else-if="guestMessage" class="bg-gray-100 p-4 border-round">
+              <span class="text-gray-700">Для бронирования желаний нужно зарегистрироваться</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

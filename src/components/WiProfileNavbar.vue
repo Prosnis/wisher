@@ -1,82 +1,62 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-interface Props {
-  active: string
-}
-defineProps<Props>()
+const buttons = [
+  { id: 'WiUserWishes', label: 'Вишлист', icon: 'pi pi-clipboard' },
+  { id: 'SubscribeListView', label: 'Подписки', icon: 'pi pi-heart' },
+  { id: 'WiReservedListView', label: 'Подарки', icon: 'pi pi-gift' },
+];
 
-const emit = defineEmits(['changeView'])
-const activeView = ref<string>('WiUserWishes')
+const emit = defineEmits(['changeView']);
+const activeView = ref<string>('WiUserWishes');
 
 function changeView(view: string): void {
-  activeView.value = view
-  emit('changeView', view)
+  activeView.value = view;
+  emit('changeView', view);
 }
 </script>
 
 <template>
-  <div class="profile__nav">
+  <div class="custom__menu">
     <button
-      class="nav__button"
-      :class="{ active: active === 'WiUserWishes' }"
-      @click="changeView('WiUserWishes')"
+      v-for="button in buttons"
+      :key="button.id"
+      class="menu__button"
+      :class="{ active: activeView === button.id }"
+      @click="changeView(button.id)"
     >
-      Мой вишлист
-    </button>
-    <button
-      class="nav__button"
-      :class="{ active: active === 'SubscribeListView' }"
-      @click="changeView('SubscribeListView')"
-    >
-      Мои подписки
-    </button>
-    <button
-      class="nav__button"
-      :class="{ active: active === 'WiReservedListView' }"
-      @click="changeView('WiReservedListView')"
-    >
-      Зарезервированные подарки
+      <i :class="button.icon"></i>
+      {{ button.label }}
     </button>
   </div>
 </template>
 
 <style scoped>
-.profile__nav {
-    background-color: var(--color-secondary);
-    min-width: 300px;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-}
-.nav__button {
-  margin: 0;
+.custom__menu{
   display: flex;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: 3px solid var(--color-primary);
-  background-color: var(--color-primary);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
-  width: 300px;
-  justify-content: center;
-  font-size: 16px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-.nav__button.active {
-  background-color: var(--color-accent);
-  color: var(--color-background-light);
-  border-color: var(--color-accent);
+  gap: 5px;
+  flex-wrap: nowrap;
 }
 
-.nav__button:hover {
-  background-color: var(--color-background-light);
-  color: var(--color-accent);
+.menu__button{
+  font-size: 1rem;
+  color: #3b82f6;
+  background-color: transparent;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
 }
+
+.menu__button.active{
+  background-color: #3b82f6;
+  color: white;
+}
+
+.menu__button:hover{
+  background-color: #3b82f6;
+  color: white;
+}
+
 </style>

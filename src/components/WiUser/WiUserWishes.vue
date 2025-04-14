@@ -1,19 +1,40 @@
 <script setup lang="ts">
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
-import WiContentLoader from '@/components/WiContentLoader.vue'
 import { PATHS } from '@/constants/paths'
 import { useProfileStore } from '@/stores/WiProfileStore'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+import { getAllWishes } from '@/services/GetAllWishes'
+
+import Button from 'primevue/button';
 
 const route = useRoute()
 const router = useRouter()
 
 const profileStore = useProfileStore()
-
 const skeleton = ref<boolean>(false)
-
 const { getProfileData } = profileStore
+
+const props = defineProps({
+  wishType: {
+    type: String,
+    default: 'wishes',
+  }
+});
+
+const currentWishes = computed(() => {
+  switch (props.wishType) {
+    case 'wishes':
+      return profileStore.wishes;
+    case 'reservedWishes':
+      return profileStore.reservedWishes;
+    default:
+      return profileStore.wishes;
+  }
+});
+
+
 
 onMounted(async () => {
   try {
@@ -31,59 +52,22 @@ onMounted(async () => {
 </script>
 
 <template>
-  <WiContentLoader
-    v-if="skeleton"
-    :width="1300"
-    :height="400"
-    class="skeleton__wishes"
-  />
-
-  <div v-else>
+  <div>
     <section class="wishes__list">
-      <div
-        v-if="profileStore.hasEditPermission"
-        class="wishes__buttons"
-      >
-        <button
-          class="wishes__button"
-          @click="router.push(PATHS.CARDS.ADD)"
-        >
-          Добавить желание
-        </button>
-        <button
-          class="wishes__button"
-          @click="router.push(PATHS.CARDS.INVITATION_CREATE)"
-        >
-          Создать приглашение
-        </button>
-        <button
-          class="wishes__button"
-          @click="router.push(PATHS.CARDS.MAIN)"
-        >
-          Желания пользователей
-        </button>
+      <div v-if="profileStore.hasEditPermission"
+        class="flex gap-2 justify-content-center flex-column align-items-center">
+        <Button label="Добавить желание" icon="pi pi-arrow-up-right" variant="text" class="text-blue-500"
+          iconPos="right" @click="router.push(PATHS.CARDS.ADD)" />
       </div>
-      <div
-        v-if="profileStore.user"
-        class="whishes__cards"
-      >
-        <WiCardCreate
-          v-for="wish in profileStore.wishes"
-          :key="wish.id"
-          :wish="wish"
-          :user-img="profileStore.user.photoUrl"
-          :user-name="profileStore.user.displayName"
-        />
+
+      <div v-if="profileStore.user" class="whishes__cards">
+        <WiCardCreate v-for="wish in currentWishes" :key="wish.id" :wish="wish"
+          :user-img="profileStore.user.photoUrl" :user-name="profileStore.user.displayName" />
       </div>
-      <div
-        v-if="profileStore.wishes.length === 0"
-        class="empty"
-      >
-        <img
-          class="empty__image"
-          src="@/components/icons/empty.png"
-          alt="Иконка пустого списка: здесь пока нет элементов"
-        >
+
+      <div v-if="currentWishes.length === 0" class="empty">
+        <img class="empty__image" src="@/components/icons/empty.png"
+          alt="Иконка пустого списка: здесь пока нет элементов">
         <span>Здесь пока пусто...</span>
       </div>
     </section>
@@ -91,39 +75,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.wishes__buttons {
-  display: flex;
-  justify-content: center;
-}
-
-.wishes__button {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: 3px solid var(--color-primary);
-  background-color: var(--color-primary);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
-  width: 300px;
-  justify-content: center;
-  font-size: 16px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.wishes__button:hover {
-  background-color: var(--color-background-light);
-  color: var(--color-accent);
-}
-
-.skeleton__wishes {
-  width: 1300px;
-  height: 400px;
-}
 
 .empty__image {
   width: 200px;
@@ -136,27 +87,6 @@ onMounted(async () => {
   align-items: center;
   padding: 50px;
   color: var(--color-text-secondary);
-}
-
-.whishes__buttons__wrapper {
-  display: flex;
-  gap: 20px;
-}
-
-.whishes__button {
-  height: 60px;
-  width: 260px;
-  color: white;
-  background-color: #0d121b;
-  border: white 1px solid;
-  border-radius: 10px;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.whishes__button:hover {
-  border: 3px solid #ffd859;
-  color: #ffd859;
 }
 
 .whishes__title {
@@ -182,31 +112,9 @@ onMounted(async () => {
 
 .whishes__cards {
   display: flex;
-  gap: 20px;
-  padding: 20px;
+  gap: 5px;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.profile__button--addWish {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  margin: 10px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: 3px solid #0d121b;
-  background-color: #0d121b;
-  color: white;
-  cursor: pointer;
-  transition: border 0.3s ease, background-color 0.3s ease;
-  width: 900px;
-  font-size: 22px;
-}
-
-.profile__button--addWish:hover {
-  border: 3px solid #ffd859;
+  min-height: 100%;
 }
 </style>

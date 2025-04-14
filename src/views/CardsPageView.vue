@@ -2,7 +2,6 @@
 import type { Badge, Wish } from '@/types/interfaces/wish'
 
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
-import WiContentLoader from '@/components/WiContentLoader.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
 import { BADGE_ALL, BADGES } from '@/constants/badges'
 import { getAllWishes } from '@/services/GetAllWishes'
@@ -95,15 +94,10 @@ onUnmounted(() => {
         </li>
       </ul>
     </div>
-    <WiContentLoader
-      v-if="loading"
-      class="cards__wrapper"
-      :width="1300"
-      :height="600"
-    />
+
 
     <div
-      v-else-if="filteredWishes.length"
+      v-if="filteredWishes.length"
       class="cards__wrapper"
     >
       <WiCardCreate

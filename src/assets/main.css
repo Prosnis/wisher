@@ -1,15 +1,11 @@
 @import '../assets/variables.css';
-@import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Hachi+Maru+Pop&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poiret+One&display=swap');
 
 body {
-  margin: 0;
-  margin: auto;
-  font-family: 'Rubik', sans-serif;
-  background-color: var(--color-background);
-}
-
-input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 100px white inset;
-  box-shadow: 0 0 0 100px white inset;
-  -webkit-text-fill-color: #000; 
+  margin: 0 auto;
+  font-family: system-ui, sans-serif;
+   /* background-image: url('@/components/icons/123.svg');  */
+  max-width: 100%;
+  min-height: 100vh;
+  background-size: cover;
 }
