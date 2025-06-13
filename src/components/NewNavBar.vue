@@ -1,79 +1,80 @@
 <script setup>
-import Button from 'primevue/button';
-import Menubar from 'primevue/menubar';
+import Button from 'primevue/button'
+import Menubar from 'primevue/menubar'
 
-import { ref } from "vue";
+import { ref } from 'vue'
 
 const items = ref([
-    {
-        label: 'Home',
-        icon: 'pi pi-home'
-    },
-    {
-        label: 'Features',
-        icon: 'pi pi-star'
-    },
-    {
-        label: 'Projects',
-        icon: 'pi pi-search',
+  {
+    label: 'Home',
+    icon: 'pi pi-home',
+  },
+  {
+    label: 'Features',
+    icon: 'pi pi-star',
+  },
+  {
+    label: 'Projects',
+    icon: 'pi pi-search',
+    items: [
+      {
+        label: 'Components',
+        icon: 'pi pi-bolt',
+      },
+      {
+        label: 'Blocks',
+        icon: 'pi pi-server',
+      },
+      {
+        label: 'UI Kit',
+        icon: 'pi pi-pencil',
+      },
+      {
+        label: 'Templates',
+        icon: 'pi pi-palette',
         items: [
-            {
-                label: 'Components',
-                icon: 'pi pi-bolt'
-            },
-            {
-                label: 'Blocks',
-                icon: 'pi pi-server'
-            },
-            {
-                label: 'UI Kit',
-                icon: 'pi pi-pencil'
-            },
-            {
-                label: 'Templates',
-                icon: 'pi pi-palette',
-                items: [
-                    {
-                        label: 'Apollo',
-                        icon: 'pi pi-palette'
-                    },
-                    {
-                        label: 'Ultima',
-                        icon: 'pi pi-palette'
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        label: 'Contact',
-        icon: 'pi pi-envelope'
-    }
-]);
+          {
+            label: 'Apollo',
+            icon: 'pi pi-palette',
+          },
+          {
+            label: 'Ultima',
+            icon: 'pi pi-palette',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Contact',
+    icon: 'pi pi-envelope',
+  },
+])
 </script>
 
 <template>
-    <div class="card">
-        <Menubar :model="items" />
-    </div>
+  <div class="card">
+    <Menubar :model="items" />
+  </div>
 
-    
-    <nav class="flex justify-content-between align-items-center ">
-        <span class="logo">wisher</span>
-        <ul class="flex list-none gap-3 font-semibold p-0">
-            <li>
-                ПРОФИЛЬ
-            </li>
-            <li>
-                ПОДАРКИ
-            </li>
-        </ul>
-        <Button variant="outlined"
-            class="bg-white border-round-3xl text-color p-2 w-15rem flex justify-content-around font-semibold">
-            создать вишлист
-            <i class="pi pi-arrow-up-right"></i>
-        </Button>
-    </nav>
+  <nav class="flex justify-content-between align-items-center ">
+    <span class="logo">wisher</span>
+    <ul class="flex list-none gap-3 font-semibold p-0">
+      <li>
+        ПРОФИЛЬ
+      </li>
+      <li>
+        ПОДАРКИ
+      </li>
+    </ul>
+    <Button
+      variant="outlined"
+      class="bg-white border-round-3xl text-color p-2 w-15rem flex justify-content-around font-semibold"
+    >
+      создать вишлист
+      <i class="pi pi-arrow-up-right" />
+    </Button>
+  </nav>
 </template>
 
 <style scoped>

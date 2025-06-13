@@ -84,35 +84,69 @@ onMounted(async () => {
 <template>
   <WiNavbar />
   <div class="form__wrapper">
-    <div v-if="loading" class="profile__spinner" />
-    <form class="form" @submit.prevent="saveProfile">
+    <div
+      v-if="loading"
+      class="profile__spinner"
+    />
+    <form
+      class="form"
+      @submit.prevent="saveProfile"
+    >
       <h1 class="form__title">
         Редактировать профиль
       </h1>
       <ul class="form__list">
         <li class="form__list__item">
-          <label class="form__list__label" for="name">Имя:</label>
-          <input id="name" v-model="formData.name" class="form__list__input" type="text">
+          <label
+            class="form__list__label"
+            for="name"
+          >Имя:</label>
+          <input
+            id="name"
+            v-model="formData.name"
+            class="form__list__input"
+            type="text"
+          >
         </li>
         <li class="form__list__item">
-          <label class="form__list__label" for="about">Краткая информация:</label>
-          <textarea id="about" v-model="formData.about" class="form__list__textarea" />
+          <label
+            class="form__list__label"
+            for="about"
+          >Краткая информация:</label>
+          <textarea
+            id="about"
+            v-model="formData.about"
+            class="form__list__textarea"
+          />
         </li>
         <li class="form__list__item">
-          <label class="form__list__label" for="">Выберите интересы:</label>
+          <label
+            class="form__list__label"
+            for=""
+          >Выберите интересы:</label>
           <div class="form__badge__wrapper">
-            <div v-for="(badge, index) in BADGES" :key="index"
-              :class="[isBadgePicked(badge) ? 'form__badge__picked' : 'form__badge']" :style="{
+            <div
+              v-for="(badge, index) in BADGES"
+              :key="index"
+              :class="[isBadgePicked(badge) ? 'form__badge__picked' : 'form__badge']"
+              :style="{
                 backgroundColor: isBadgePicked(badge) ? '#0817ecb9' : badge.BgColor,
                 color: isBadgePicked(badge) ? '#f0f0f0' : '#818c99',
-              }" @click="badgePicker(badge)">
+              }"
+              @click="badgePicker(badge)"
+            >
               {{ badge.name }}
             </div>
           </div>
         </li>
       </ul>
       <div class="form__buttons">
-        <Button type="submit" label="Сохранить" icon="pi pi-check" icon-pos="right" />
+        <Button
+          type="submit"
+          label="Сохранить"
+          icon="pi pi-check"
+          icon-pos="right"
+        />
       </div>
     </form>
   </div>

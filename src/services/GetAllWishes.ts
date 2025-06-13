@@ -16,7 +16,6 @@ export async function getAllWishes(): Promise<Wish[]> {
   }
 }
 
-
 // import type { Wish } from '@/types/interfaces/wish'
 // import { useFireStore } from '@/composables/useFirestore'
 

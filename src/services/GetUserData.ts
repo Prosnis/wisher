@@ -4,7 +4,7 @@ import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'fi
 
 const db = getFirestore()
 
-export async function getUserData(uid: string): Promise<{ user: User | null, wishes: Wish[] }> { // в тип 
+export async function getUserData(uid: string): Promise<{ user: User | null, wishes: Wish[] }> { // в тип
   try {
     const userDoc = await getDoc(doc(db, 'users', uid))
     const userData = userDoc.exists() ? (userDoc.data() as User) : null

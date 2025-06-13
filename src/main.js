@@ -9,7 +9,7 @@ import PrimeVue from 'primevue/config'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import './assets/main.css'
+import '@/styles/main.scss'
 import 'font-awesome-animation/css/font-awesome-animation.min.css'
 import 'primeicons/primeicons.css'
 

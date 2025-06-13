@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import WiNavbar from '@/components/WiNavbar.vue'
 import WiProfileNavbar from '@/components/WiProfileNavbar.vue'
 import WiUserPagePicturesEdit from '@/components/WiUser/WiUserPagePicturesEdit.vue'
@@ -55,7 +54,6 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
 </script>
 
 <template>
@@ -64,29 +62,42 @@ onMounted(async () => {
       <WiNavbar />
     </div>
     <main class="user">
-
-
-      <section  class="user__info">
-        <div v-if="profileStore.user" class="profile">
-          <WiUserPagePicturesEdit :user="profileStore.user" :has-edit-permission="profileStore.hasEditPermission"
-            :user-name="profileStore.user.displayName" :user-about="profileStore.user.about" />
+      <section class="user__info">
+        <div
+          v-if="profileStore.user"
+          class="profile"
+        >
+          <WiUserPagePicturesEdit
+            :user="profileStore.user"
+            :has-edit-permission="profileStore.hasEditPermission"
+            :user-name="profileStore.user.displayName"
+            :user-about="profileStore.user.about"
+          />
         </div>
       </section>
 
       <div v-if="profileStore.badges.length > 0">
         <div class="profile__badges">
-          <div v-for="(badge, index) in profileStore.badges" :key="index" class="badge">
+          <div
+            v-for="(badge, index) in profileStore.badges"
+            :key="index"
+            class="badge"
+          >
             {{ badge.name }}
           </div>
         </div>
       </div>
 
       <div class="profile__nav">
-        <WiProfileNavbar v-if="profileStore.hasEditPermission" :active="currentComponent" @change-view="changeView" />
+        <WiProfileNavbar
+          v-if="profileStore.hasEditPermission"
+          :active="currentComponent"
+          @change-view="changeView"
+        />
       </div>
 
       <div class="profile__wishes__wrapper">
-        <div  class="wishes">
+        <div class="wishes">
           <component :is="components[currentComponent as keyof ComponentsMap]" />
         </div>
       </div>

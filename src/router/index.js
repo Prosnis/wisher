@@ -20,6 +20,14 @@ const router = createRouter({
       },
     },
     {
+      path: `/wishes/:uid`,
+      component: () => import('@/views/UserWishesView.vue'),
+      name: 'UserWishes',
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
       path: `${PATHS.CARDS.SINGLE}/:uid`,
       component: () => import('@/views/CardDetailsPageView.vue'),
       meta: {
@@ -59,12 +67,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-
-
-
-
-
-
-
-
-

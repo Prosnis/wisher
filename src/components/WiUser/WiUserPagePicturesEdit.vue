@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import WiSubscribeButton from '@/components/WiSubscribeButton.vue'
-import { PATHS } from '@/constants/paths'
-import { saveProfile } from '@/services/UserPictureUpdate'
 import { getAuth } from 'firebase/auth'
 import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const { user, hasEditPermission } = defineProps({
   user: {
@@ -30,7 +27,6 @@ const imageLoaded = ref(false)
 const route = useRoute()
 const auth = getAuth()
 
-
 const isWallaperOwner = computed(() => hoverWallaper.value && hasEditPermission)
 const isAvatarOwner = computed(() => hoverAvatar.value && hasEditPermission)
 const isAvailableToSubscribe = computed(() => !hasEditPermission && auth.currentUser && auth.currentUser.uid !== route.params.uid)
@@ -48,33 +44,64 @@ function picturesEdit(target, event) {
 </script>
 
 <template>
-  <div class="profile__wallapper" @mouseenter="hoverWallaper = true" @mouseleave="hoverWallaper = false">
-    <img :src="user.wallpaperUrl" alt="Обложка профиля" loading="lazy" class="profile__wallapper-img"
-      :style="{ opacity: imageLoaded ? 1 : 0 }" @load="imageLoaded = true">
+  <div
+    class="profile__wallapper"
+    @mouseenter="hoverWallaper = true"
+    @mouseleave="hoverWallaper = false"
+  >
+    <img
+      :src="user.wallpaperUrl"
+      alt="Обложка профиля"
+      loading="lazy"
+      class="profile__wallapper-img"
+      :style="{ opacity: imageLoaded ? 1 : 0 }"
+      @load="imageLoaded = true"
+    >
 
-    <label v-if="isWallaperOwner" for="input-wallaper" class="profile__wallaper-edit">
-      <input id="input-wallaper" class="profile__input profile__input--wallpaper" type="file"
-        @change="picturesEdit('wallpaper', $event)">
+    <label
+      v-if="isWallaperOwner"
+      for="input-wallaper"
+      class="profile__wallaper-edit"
+    >
+      <input
+        id="input-wallaper"
+        class="profile__input profile__input--wallpaper"
+        type="file"
+        @change="picturesEdit('wallpaper', $event)"
+      >
       изменить обложку
     </label>
   </div>
 
-
-
   <div class="profile__user__Info">
+    <div
+      class="profile__photo-wrapper"
+      @mouseenter="hoverAvatar = true"
+      @mouseleave="hoverAvatar = false"
+    >
+      <img
+        class="profile__photo"
+        :src="user.photoUrl"
+        alt="Аватар профиля"
+        loading="lazy"
+      >
 
-    <div class="profile__photo-wrapper" @mouseenter="hoverAvatar = true" @mouseleave="hoverAvatar = false">
-      <img class="profile__photo" 
-      :src="user.photoUrl" 
-      alt="Аватар профиля" 
-      loading="lazy">
-
-      <label v-if="isAvatarOwner" for="input-avatar" class="profile__photo profile__photo--edit">
-        <input id="input-avatar" class="profile__input profile__input--avatar" type="file"
-          @change="picturesEdit('avatar')">
-        <font-awesome-icon class="profile__icon profile__icon-edit" :icon="['fas', 'edit']" />
+      <label
+        v-if="isAvatarOwner"
+        for="input-avatar"
+        class="profile__photo profile__photo--edit"
+      >
+        <input
+          id="input-avatar"
+          class="profile__input profile__input--avatar"
+          type="file"
+          @change="picturesEdit('avatar')"
+        >
+        <font-awesome-icon
+          class="profile__icon profile__icon-edit"
+          :icon="['fas', 'edit']"
+        />
       </label>
-
 
       <div>
         <h2 class="profile__name">
@@ -87,12 +114,8 @@ function picturesEdit(target, event) {
           {{ user.about || 'Информация о пользователе отсутствует' }}
         </p> -->
       </div>
-
     </div>
-
   </div>
-
-
 </template>
 
 <style scoped>
@@ -202,7 +225,6 @@ function picturesEdit(target, event) {
   overflow-wrap: break-word;
   white-space: pre-wrap
 }
-
 
 .profile__photo-wrapper {
   position: relative;

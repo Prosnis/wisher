@@ -8,11 +8,13 @@ import { YandexParser } from '@/services/GetFromYandex'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
-import { reactive, ref } from 'vue'
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import InputText from 'primevue/inputtext';
-import Button from 'primevue/button';
+import { useRoute } from 'vue-router'
 
+const route = useRoute();
 const router = useRouter()
 const db = getFirestore()
 const auth = getAuth()
@@ -120,6 +122,11 @@ function previewCard(event) {
   }
 }
 
+onMounted(() => {
+       form.name = route.query.title;
+       form.img = route.query.image;
+       form.link = route.query.link;
+    });
 </script>
 
 <template>
@@ -129,59 +136,111 @@ function previewCard(event) {
         <WiNavbar />
 
         <div class="container">
-
-
           <div class="grid">
-
             <div class="col-12 bg-white shadow-1 border-round-sm flex flex-column align-items-center justify-content-center p-3">
-              <span class="font-bold mb-4">Найти товар на <a href="https://market.yandex.ru/" target="_blank" class="text-primary"
-                >Яндекс Маркет</a></span>
-                <InputText id="parseLink" type="text" placeholder="Ссылка на товар" class="w-full mb-4"  v-model="urlToparse"/>
-                <Button @click.prevent.stop="parseFromYndex">Создать желание по ссылке</Button>
-                <p class="text-400"> * На данный момент создать желание по ссылке доступно только с Яндекс Маркет.</p>
+              <span class="font-bold mb-4">Найти товар на <a
+                href="https://market.yandex.ru/"
+                target="_blank"
+                class="text-primary"
+              >Яндекс Маркет</a></span>
+              <InputText
+                id="parseLink"
+                v-model="urlToparse"
+                type="text"
+                placeholder="Ссылка на товар"
+                class="w-full mb-4"
+              />
+              <Button @click.prevent.stop="parseFromYndex">
+                Создать желание по ссылке
+              </Button>
+              <p class="text-400">
+                * На данный момент создать желание по ссылке доступно только с Яндекс Маркет.
+              </p>
             </div>
             <div class="col-12">
               <form>
-                <fieldset>
-                  
-                </fieldset>
+                <fieldset />
               </form>
             </div>
           </div>
 
-
-
           <form @submit.prevent="CreateCard">
-            <fieldset :disabled="disabledForm" class="form fieldset">
-
-
-              <div class="form__input__group" :disabled="disabledForm">
+            <fieldset
+              :disabled="disabledForm"
+              class="form fieldset"
+            >
+              <div
+                class="form__input__group"
+                :disabled="disabledForm"
+              >
                 <ul class="form__list">
                   <li class="form__list__item">
-                    <label class="form__label" for="name">Название:</label>
-                    <input id="name" v-model="form.name" class="form__input" type="text" required maxlength="80"
-                      @change="classifiedHobbies(form.name)">
+                    <label
+                      class="form__label"
+                      for="name"
+                    >Название:</label>
+                    <input
+                      id="name"
+                      v-model="form.name"
+                      class="form__input"
+                      type="text"
+                      required
+                      maxlength="80"
+                      @change="classifiedHobbies(form.name)"
+                    >
                   </li>
                   <li class="form__list__item">
-                    <label class="form__label" for="description">Описание</label>
-                    <textarea id="description" v-model="form.description" class="form__textarea" type="text"
-                      maxlength="100" />
+                    <label
+                      class="form__label"
+                      for="description"
+                    >Описание</label>
+                    <textarea
+                      id="description"
+                      v-model="form.description"
+                      class="form__textarea"
+                      type="text"
+                      maxlength="100"
+                    />
                   </li>
                   <li class="form__list__item">
-                    <label class="form__label" for="link">Ссылка на товар</label>
-                    <input id="link" v-model="form.link" class="form__input" type="text" maxlength="200">
+                    <label
+                      class="form__label"
+                      for="link"
+                    >Ссылка на товар</label>
+                    <input
+                      id="link"
+                      v-model="form.link"
+                      class="form__input"
+                      type="text"
+                      maxlength="200"
+                    >
                   </li>
                 </ul>
               </div>
 
-
               <div class="form__preview">
                 <div class="form__preview__card">
-                  <label class="card__label card__label--file" for="file-input">
-                    <img v-if="form.img" :src="form.img" alt="Изображение карточки желания" class="card__image">
-                    <font-awesome-icon v-else class="card__icon--file" :icon="['fas', 'file-image']" />
-                    <input id="file-input" class="card__input card__input--file" type="file"
-                      @change="previewCard($event)">
+                  <label
+                    class="card__label card__label--file"
+                    for="file-input"
+                  >
+                    <img
+                      v-if="form.img"
+                      :src="form.img"
+                      alt="Изображение карточки желания"
+                      class="card__image"
+                    >
+                    <font-awesome-icon
+                      v-else
+                      class="card__icon--file"
+                      :icon="['fas', 'file-image']"
+                    />
+                    <input
+                      id="file-input"
+                      class="card__input card__input--file"
+                      type="file"
+                      @change="previewCard($event)"
+                    >
                   </label>
                   <h3 class="card__title">
                     {{ form.name }}
@@ -191,15 +250,9 @@ function previewCard(event) {
                   добавить
                 </button>
               </div>
-
-
             </fieldset>
           </form>
-
-
-
         </div>
-
       </div>
     </div>
   </main>

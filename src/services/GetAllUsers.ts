@@ -16,7 +16,6 @@ export async function getAllUsers(): Promise<User[]> {
   }
 }
 
-
 // import type { User } from '@/types/interfaces/user'
 // import { useFireStore } from '@/composables/useFirestore'
 

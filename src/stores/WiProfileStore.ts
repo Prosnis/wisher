@@ -16,16 +16,16 @@ export const useProfileStore = defineStore('profile', () => {
   const wishes = ref<Wish[]>([])
   const allWishes = ref<Wish[]>([])
 
-  const fulfilledWishes = computed(() => {
+  const fulfilledWishes = computed(() =>
     wishes.value.filter(item => item.fulfilled)
-  })
-
-  const reservedWishes = computed(() =>
-    allWishes.value.filter(elem => elem.reserve === profileUID.value)
   )
 
-  const hasEditPermission = computed(() => 
-    userStore.userUID === profileUID.value
+  const reservedWishes = computed(() =>
+    allWishes.value.filter(elem => elem.reserve === profileUID.value),
+  )
+
+  const hasEditPermission = computed(() =>
+    userStore.userUID === profileUID.value,
   )
 
   const skeletonLoad = ref<boolean>(true)

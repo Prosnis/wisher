@@ -31,11 +31,12 @@ async function signIn(): Promise<void> {
       wallpaperUrl: existingData.wallpaperUrl || defaultWallpaper,
       displayName: existingData.displayName || user.displayName,
       about: existingData.about || '',
+      interests: existingData.about || '',
       photoUrl: existingData.photoUrl || user.photoURL,
       badges: existingData.badges || [
       ],
       subscribe: existingData.subscribe || [],
-      birthday: existingData.birthday || '** ****'
+      birthday: existingData.birthday || '** ****',
     }
 
     await setDoc(doc(db, 'users', user.uid), userData, { merge: true })
@@ -53,7 +54,6 @@ async function signIn(): Promise<void> {
 <template>
   <div class="register">
     <form class="register__form">
-      <h1>Войти</h1>
       <button
         class="register__button register__button--withGoogle"
         @click.prevent="signIn"
@@ -65,10 +65,6 @@ async function signIn(): Promise<void> {
 </template>
 
 <style scoped>
-.register__question {
-  cursor: pointer;
-}
-
 .register {
   display: flex;
   justify-content: center;
@@ -86,37 +82,6 @@ async function signIn(): Promise<void> {
   align-items: center;
   padding: 20px;
 
-  border-radius: 20px;
-  background-color: var(--color-background-light);
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-}
-
-.register h1 {
-  margin-right: auto;
-  font-size: 20px;
-}
-
-.register p {
-  margin: 0;
-  margin-left: auto;
-}
-
-.register p:hover {
-  text-decoration: underline;
-}
-
-.register__input {
-  width: 300px;
-  height: 20px;
-  margin-bottom: 10px;
-  border: 2px solid var(--color-accent);
-  padding: 8px;
-  border-radius: 4px;
-  outline: none;
-}
-
-.register__input::placeholder {
-  font-style: italic;
 }
 
 .register__button {
@@ -134,9 +99,5 @@ async function signIn(): Promise<void> {
 
 .register__button:hover {
   box-shadow: 0px 0px 15px var(--color-accent);
-}
-
-.register__button--withGoogle {
-  background-color: rgb(189, 7, 7);
 }
 </style>

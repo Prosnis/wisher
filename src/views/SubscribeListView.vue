@@ -35,14 +35,22 @@ onMounted(async () => {
 </script>
 
 <template>
-
-
-  <div v-if="subscribeList.length > 0" class="subs">
+  <div
+    v-if="subscribeList.length > 0"
+    class="subs"
+  >
     <WiMiniProfileCard :users="subscribeList" />
   </div>
 
-  <div v-else class="empty">
-    <img class="empty__image" src="@/components/icons/empty.png" alt="Иконка пустого списка: здесь пока нет элементов">
+  <div
+    v-else
+    class="empty"
+  >
+    <img
+      class="empty__image"
+      src="@/components/icons/empty.png"
+      alt="Иконка пустого списка: здесь пока нет элементов"
+    >
     <span>Здесь пока пусто...</span>
   </div>
 </template>
@@ -55,8 +63,6 @@ onMounted(async () => {
   align-items: center;
   padding: 50px;
 }
-
-
 
 .empty__image {
   width: 200px;

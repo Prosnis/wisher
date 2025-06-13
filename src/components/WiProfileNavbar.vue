@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
+
+const emit = defineEmits(['changeView'])
 
 const buttons = [
   { id: 'WiUserWishes', label: 'Вишлист', icon: 'pi pi-clipboard' },
   { id: 'SubscribeListView', label: 'Подписки', icon: 'pi pi-heart' },
   { id: 'WiReservedListView', label: 'Подарки', icon: 'pi pi-gift' },
-];
+]
 
-const emit = defineEmits(['changeView']);
-const activeView = ref<string>('WiUserWishes');
+const activeView = ref<string>('WiUserWishes')
 
 function changeView(view: string): void {
-  activeView.value = view;
-  emit('changeView', view);
+  activeView.value = view
+  emit('changeView', view)
 }
 </script>
 
@@ -25,7 +26,7 @@ function changeView(view: string): void {
       :class="{ active: activeView === button.id }"
       @click="changeView(button.id)"
     >
-      <i :class="button.icon"></i>
+      <i :class="button.icon" />
       {{ button.label }}
     </button>
   </div>
@@ -58,5 +59,4 @@ function changeView(view: string): void {
   background-color: #3b82f6;
   color: white;
 }
-
 </style>

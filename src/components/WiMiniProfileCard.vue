@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { User } from '@/types/interfaces/user'
 
-import Avatar from 'primevue/avatar';
-import AvatarGroup from 'primevue/avatargroup';
-
 import { PATHS } from '@/constants/paths'
-import { useRouter } from 'vue-router'
+import Avatar from 'primevue/avatar'
 
+import AvatarGroup from 'primevue/avatargroup'
+import { useRouter } from 'vue-router'
 
 interface Props {
   users: User[]
@@ -58,19 +57,16 @@ async function toUserPage(userId: string) {
     </div>
   </div> -->
 
-  
-<AvatarGroup>
-    <Avatar 
-        v-for="user in users"
-        :key="user.uid"
-        :image="user.photoUrl"
-        @click="toUserPage(user.uid)"
-        shape="circle"
-        size="large"
-         />
-</AvatarGroup>
-
-
+  <AvatarGroup>
+    <Avatar
+      v-for="user in users"
+      :key="user.uid"
+      :image="user.photoUrl"
+      shape="circle"
+      size="large"
+      @click="toUserPage(user.uid)"
+    />
+  </AvatarGroup>
 </template>
 
 <style scoped>

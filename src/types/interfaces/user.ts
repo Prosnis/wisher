@@ -7,6 +7,7 @@ export interface User {
   invitationImage?: string | null
   photoUrl?: string | null
   subscribe?: string[] | null
+  interests?: string | null
   uid: string
   wallpaperUrl?: string | null
 }

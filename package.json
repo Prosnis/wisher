@@ -21,6 +21,7 @@
     "@primevue/core": "^4.3.2",
     "@primevue/forms": "^4.3.2",
     "@primevue/themes": "^4.3.1",
+    "@vueuse/core": "^13.1.0",
     "cohere-ai": "^7.14.0",
     "firebase": "^11.5.0",
     "font-awesome-animation": "^1.1.1",
