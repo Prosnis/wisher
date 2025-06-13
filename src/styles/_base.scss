@@ -1,0 +1,20 @@
+@use '@/styles/colors' as c;
+@use '@/styles/fonts' as *;
+@use '@/styles/variables' as *;
+
+body {
+  margin: 0 auto;
+  width: $container-width;
+  font-family: $font-primary;
+  min-height: 100vh;
+  background-color: c.$color-background-main;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: c.$color-text;
+
+  @media (max-width: $mobile-breakpoint) {
+    width: 100%; 
+  }
+
+}

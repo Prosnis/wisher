@@ -3,20 +3,20 @@
 
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
+import Button from 'primevue/button'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const auth = getAuth()
 const db = getFirestore()
-import Button from 'primevue/button';
 
 const userSubscribe = ref<string[]>([])
 const currentUserUid = ref<string>('')
 const isSubscribed = ref<boolean>(false)
 
 const isSelfSubscribe = computed(() => {
-  return currentUserUid.value === route.params.uid 
+  return currentUserUid.value === route.params.uid
 })
 
 async function saveSubscribe() {
@@ -52,7 +52,7 @@ onMounted(async () => {
     try {
       const docSnapshot = await getDoc(userDocRef)
       if (docSnapshot.exists()) {
-        const userData =  docSnapshot.data()
+        const userData = docSnapshot.data()
         userSubscribe.value = userData.subscribe || []
         const uid = route.params.uid as string
         isSubscribed.value = userSubscribe.value.includes(uid)
@@ -66,8 +66,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Button v-if="!isSelfSubscribe" @click="subscribe" :label="isSubscribed ? 'Отписаться' : 'Подписаться'"
-    :icon="isSubscribed ? 'pi pi-heart-fill' : 'pi pi-heart'" />
+  <Button
+    v-if="!isSelfSubscribe"
+    :label="isSubscribed ? 'Отписаться' : 'Подписаться'"
+    :icon="isSubscribed ? 'pi pi-heart-fill' : 'pi pi-heart'"
+    @click="subscribe"
+  />
 </template>
 
 <style></style>

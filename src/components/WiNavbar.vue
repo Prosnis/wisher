@@ -3,10 +3,10 @@ import { PATHS } from '@/constants/paths'
 import { logout } from '@/services/logOut'
 import { useUserStore } from '@/stores/WiUserStore'
 import { getAuth } from 'firebase/auth'
-import Avatar from 'primevue/avatar';
-import Button from 'primevue/button';
-import Menubar from 'primevue/menubar';
-import TieredMenu from 'primevue/tieredmenu';
+import Avatar from 'primevue/avatar'
+import Button from 'primevue/button'
+import Menubar from 'primevue/menubar'
+import TieredMenu from 'primevue/tieredmenu'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -15,30 +15,30 @@ const route = useRoute()
 const userStore = useUserStore()
 const auth = getAuth()
 const notAuthorized = computed(() => !auth.currentUser)
-const menu = ref();
+const menu = ref()
 
 const items = ref([
   {
     label: `Профиль`,
     icon: 'pi pi-user',
-    command: () => { toUserPage() }
+    command: () => { toUserPage() },
   },
   {
     label: 'Настройки',
     icon: 'pi pi-cog',
-    command: () => { goToSettingsPage() }
+    command: () => { goToSettingsPage() },
   },
   {
     label: 'Выйти',
     icon: 'pi pi-sign-out',
-    command: () => { logout() }
+    command: () => { logout() },
   },
-]
-);
+],
+)
 
 const toggle = (event) => {
-  menu.value.toggle(event);
-};
+  menu.value.toggle(event)
+}
 function goToSettingsPage() {
   const uid = auth.currentUser?.uid
   router.push({ path: `${PATHS.USER.SETTINGS}/${uid}` })
@@ -52,7 +52,7 @@ async function toUserPage() {
 </script>
 
 <template>
-  <Menubar class="mb-2 h-4rem ">
+  <Menubar class="mb-3 h-5rem navbar">
     <template #start>
       <router-link :to="PATHS.MAIN" class="custom-link">
         <span class="logo">wisher</span>
@@ -62,51 +62,50 @@ async function toUserPage() {
       <div class="flex items-center align-items-center gap-2 custom-link">
         <div class="card flex justify-center">
           <router-link v-if="notAuthorized" :to="PATHS.AUTH.REGISTER" class="custom-link">
-
             <Button type="button"
-              class="bg-white border-round-3xl text-color flex justify-content-around font-semibold border-none p-2">
+              class="bg-white border-round-2xl text-color flex justify-content-around font-semibold border-none p-2">
               войти
-              <i class="pi pi-arrow-up-right"></i>
+              <i class="pi pi-arrow-up-right" />
             </Button>
-
           </router-link>
-          <Button v-else type="button" @click="toggle" aria-haspopup="true" aria-controls="overlay_tmenu"
-            severity="secondary">
+          <Button v-else type="button" aria-haspopup="true" aria-controls="overlay_tmenu" variant="link"
+            @click="toggle">
             <template #default>
-              <div class="flex align-items-center gap-2" v-if="userStore.user">
-                <Avatar :image="userStore.user.photoUrl" shape="circle" size="small" />
-                <i class="pi pi-chevron-down" />
+              <div v-if="userStore.user" class="flex align-items-center gap-2">
+                <Avatar :image="userStore.user.photoUrl" shape="circle" size="small"/>
+                <i class="pi pi-chevron-down text-white" />
               </div>
             </template>
           </Button>
-          <TieredMenu ref="menu" id="overlay_tmenu" :model="items" popup />
+          <TieredMenu id="overlay_tmenu" ref="menu" :model="items" popup />
         </div>
       </div>
     </template>
   </Menubar>
 </template>
 
-
 <style scoped>
-
 .pi-arrow-up-right {
-  border: #3D5AFE 2px solid;
+  border: #3399FF 2px solid;
   border-radius: 50%;
   padding: 8px;
   color: white;
-  background-color: #3D5AFE
+  background-color: #3399FF;
 }
 
 .p-menubar {
-  background-color: rgba(255, 255, 255, 0);
+  max-width: 1400px;
+  background-color: inherit;
   border: none;
-  padding: 0;
+  padding: 20px;
 }
 
 .logo {
-  color: #3D5AFE;
-  font-size: 1.5rem;
+  color: #ffffff;
+  font-size: 3rem;
   font-weight: 600;
+  display: inline-block;
+  transition: all 0.3s ease; 
 }
 
 .custom-link {

@@ -95,7 +95,6 @@ onUnmounted(() => {
       </ul>
     </div>
 
-
     <div
       v-if="filteredWishes.length"
       class="cards__wrapper"

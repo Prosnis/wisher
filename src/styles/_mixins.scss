@@ -1,11 +1,45 @@
+@use '@/styles/variables' as *;
+
 @mixin flex-center($direction: column) {
   display: flex;
   flex-direction: $direction;
   align-items: center;
+  justify-content: center;
 }
 
-@mixin responsive($width) {
-  @media only screen and (max-width: $width) {
+@mixin mobile {
+  @media (max-width: $mobile-breakpoint) {
     @content;
   }
+}
+
+@mixin card-base {
+  border-radius: 20px;
+  color: rgb(255, 255, 255);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  font-size: 2rem;
+}
+
+@mixin hover-effect {
+  transition: 0.3s ease-out;
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+@mixin title-styles {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+@mixin subtitle-styles {
+  font-size: 1rem;
+  opacity: 0.9;
+  width: 300px;
+  text-align: center;
 }

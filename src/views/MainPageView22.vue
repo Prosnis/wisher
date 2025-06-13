@@ -12,5 +12,4 @@ import NavBar from '@/components/WiNavbar.vue'
   <WiMainCTA />
 </template>
 
-
 <style scoped></style>
