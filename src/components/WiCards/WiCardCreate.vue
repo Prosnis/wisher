@@ -27,7 +27,7 @@ async function goToCardPreview(wishID: string) {
 <template>
   <Card
     v-if="wish"
-    class="md:w-13rem md:h-16rem w-10rem h-13rem p-2 shadow-none test"
+    class="md:w-13rem md:h-16rem w-10rem h-13rem p-2 shadow-none card"
     @click="goToCardPreview(wish.id)"
   >
     <template #header>
@@ -46,13 +46,13 @@ async function goToCardPreview(wishID: string) {
           v-if="wish.fulfilled"
           class=" z-1 absolute bottom-0 right-0 mr-2rem"
         >
-          <i class="pi pi-check text-1xl p-2 bg-primary border-circle" />
+          <i class="pi pi-check icon icon-ful" />
         </div>
         <div
           v-else-if="wish.reserve"
           class="z-1 absolute bottom-0 right-0 mr-2rem"
         >
-          <i class="pi pi-lock text-1xl p-2 bg-primary border-circle" />
+          <i class="pi pi-lock icon  icon-res" />
         </div>
       </div>
     </template>
@@ -67,11 +67,29 @@ async function goToCardPreview(wishID: string) {
 <style lang="scss" scoped>
 @use '@/styles/colors';
 @use '@/styles/mixins';
+
+.card{
+  cursor: pointer;
+}
+
 :deep(.p-card-body) {
   padding: 0;
 }
 
+.icon{
+  font-size: 20px;
+  border-radius: 50%;
+  padding: 8px;
+  color: white;
+}
 
+.icon-ful {
+background-color: $color-background-blue;
+}
+
+.icon-res {
+ background-color: $color-background-pink
+}
 
 .two-lines {
   display: -webkit-box;
