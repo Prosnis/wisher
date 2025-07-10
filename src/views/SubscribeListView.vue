@@ -3,18 +3,24 @@ import type { User } from '@/types/interfaces/user'
 
 import WiMiniProfileCard from '@/components/WiMiniProfileCard.vue'
 import { getSubscribeList } from '@/services/GetSubsList'
-import { useUserStore } from '@/stores/WiUserStore'
+// import { useUserStore } from '@/stores/WiUserStore'
+import { useProfileStore } from '@/stores/WiProfileStore'
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router';
 
 const subscribeList = ref<User[] | []>([])
 const loading = ref<boolean>(false)
-const userStore = useUserStore()
+// const userStore = useUserStore()
+
+const route = useRoute()
+const profileStore = useProfileStore()
+const { getProfileData } = profileStore
 
 const fetchSubscribeList = async () => {
   try {
     loading.value = true
-    if (userStore.user && userStore.user.subscribe) {
-      subscribeList.value = await getSubscribeList(userStore.user.subscribe)
+    if (profileStore.user && profileStore.user.subscribe) {
+      subscribeList.value = await getSubscribeList(profileStore.user.subscribe)
     }
     else {
       subscribeList.value = []
@@ -30,6 +36,8 @@ const fetchSubscribeList = async () => {
 }
 
 onMounted(async () => {
+    const uid = route.params.uid as string
+    await getProfileData(uid)
   fetchSubscribeList()
 })
 </script>

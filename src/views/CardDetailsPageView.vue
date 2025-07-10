@@ -4,33 +4,46 @@ import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
 import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
-import { doc, getFirestore, updateDoc } from 'firebase/firestore'
+import { doc, getFirestore, updateDoc, deleteDoc } from 'firebase/firestore'
 import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
+import { useRoute, useRouter } from 'vue-router'
 
 import Menu from 'primevue/menu'
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 const db = getFirestore()
 const auth = getAuth()
+const router = useRouter()
 const route = useRoute()
 const spinner = ref<boolean>(false)
 
 const cardStore = useCardStore()
 const { getCardData } = cardStore
 
+async function deleteCard() {
+  try {
+    const cardRef = doc(db, 'wishes', cardStore.card.id as string)
+    await deleteDoc(cardRef)
+    console.log(`карточка id: ${cardStore.card.id} удалена.`)
+  }
+  catch (error) {
+    console.error('Ошибка при удалении карточки', error)
+  }
+  router.go(-1)
+}
+
 const menu = ref()
 const items = ref([
-
   {
     label: 'Выполнено',
     icon: 'pi pi-check-circle',
-    comand: () => toggleFulfill,
+    command: () => toggleFulfill,
   },
   {
     label: 'Удалить',
     icon: 'pi pi-trash',
+    command: () => deleteCard(),
   },
 ])
 
@@ -95,6 +108,8 @@ async function toggleReserve() {
     spinner.value = false
   }
 }
+
+
 onMounted(async () => {
   try {
     const UID = route.params.uid as string
@@ -108,177 +123,281 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-  <div
-    v-if="cardStore"
-    class="p-4 bg-white border-round w-12 md:w-10 mx-auto"
-  >
-    <div class="grid">
-      <!-- Блок с информацией о пользователе -->
-      <div class="col-12 flex align-items-center justify-content-between mb-4">
-        <div class="flex align-items-center gap-3">
-          <Avatar
-            :image="cardStore.user?.photoUrl || '@/components/icons/avatar.png'"
-            shape="circle"
-            size="large"
-          />
-          <router-link
-            :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }"
-            class="text-xl font-bold"
-          >
-            {{ cardStore.user?.displayName }}
-          </router-link>
-        </div>
+  <div class="card">
 
-        <!-- <WiCardMenu v-if="cardStore.isOwner && cardStore.card" :card="cardStore.card" @toggle-fulfill="toggleFulfill" />
-          -->
+    <section class="card__header">
 
-        <div class="card flex justify-center">
-          <Button
-            type="button"
-            icon="pi pi-ellipsis-v"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            class="bg-white border-none text-primary"
-            @click="toggle"
-          />
-          <Menu
-            id="overlay_menu"
-            ref="menu"
-            :model="items"
-            :popup="true"
-          />
-        </div>
+      <div class="card__user">
+        <Avatar :image="cardStore.user?.photoUrl || '@/components/icons/avatar.png'" shape="circle" size="large" />
+        <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }" class="card__user-name">
+          {{ cardStore.user?.displayName }}
+        </router-link>
       </div>
 
-      <!-- Основной контент -->
-      <div class="col-12 md:col-6 ">
-        <div class="flex flex-column">
-          <div class="border-round overflow-hidden flex">
-            <img
-              :src="cardStore.card?.img || '@/components/icons/box.png'"
-              alt="Изображение желания"
-              class="w-10 mx-auto mb-4 border-round"
-            >
-          </div>
-
-          <div class="mx-auto surface-100 p-3 border-round w-10 text-center">
-            <span class="font-semibold">Найти на маркетплейсах</span>
-            <div class="flex justify-content-center gap-3 p-2">
-              <a
-                class=" flex align-items-center gap-2"
-                :href="`https://www.ozon.ru/search/?from_global=true&text=${encodeURIComponent(cardName)}`"
-                target="_blank"
-              ><img
-                src="@/components/icons/ozon.png"
-                alt="Ozon"
-                class="w-3rem"
-              ></a>
-              <a
-                class="flex align-items-center gap-2"
-                :href="`https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(cardName)}`"
-                target="_blank"
-              >
-                <img
-                  src="@/components/icons/wb.png"
-                  alt="Wildberries"
-                  class="w-3rem"
-                ></a>
-              <a
-                class="flex align-items-center gap-2"
-                :href="`https://market.yandex.ru/search?text=${encodeURIComponent(cardName)}`"
-                target="_blank"
-              >
-                <img
-                  src="@/components/icons/ym.png"
-                  alt="Yandex Market"
-                  class="w-3rem"
-                >
-              </a>
-            </div>
-          </div>
-        </div>
+      <div class="card__menu">
+        <Button type="button" icon="pi pi-ellipsis-v" aria-haspopup="true" aria-controls="overlay_menu"
+          class="card__menu-button" @click="toggle" />
+        <Menu id="overlay_menu" ref="menu" :model="items" :popup="true" />
       </div>
 
-      <!-- Описание и действия -->
-      <div class="col-12 md:col-6">
-        <div class="flex flex-column gap-4">
-          <div>
-            <h1 class="text-lg md:text-2xl font-bold mb-2">
-              {{ cardStore.card?.name }}
-            </h1>
-            <p class="text-gray-700 ">
-              {{ cardStore.card?.description }}
-            </p>
-          </div>
+    </section>
 
-          <WISpinner v-if="spinner" />
-
-          <div
-            v-else
-            class="flex flex-column gap-3"
-          >
-            <!-- Зарезервировано -->
-            <div
-              v-if="cardStore.isReserved"
-              class="bg-green-100 p-4 border-round"
-            >
-              <div class="flex align-items-center gap-3">
-                <Button
-                  v-if="cardStore.isReservedUser"
-                  label="Отказаться"
-                  @click="toggleReserve"
-                />
-                <span class="text-gray-700">
-                  Зарезервировано пользователем
-                  <router-link
-                    :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
-                    class="font-bold"
-                  >
-                    {{ cardStore.reservedUser?.displayName }}
-                  </router-link>
-                </span>
-              </div>
-            </div>
-
-            <!-- Доступно для резерва -->
-            <div
-              v-else-if="enableForReserve"
-              class="border-1 p-4 border-round border-primary-500"
-            >
-              <div class="flex flex-column gap-2">
-                <Button
-                  v-if="hideButton"
-                  label="Зарезервировать"
-                  @click="toggleReserve"
-                />
-                <span class="text-gray-700">Зарезервируйте этот подарок, если хотите его подарить.</span>
-              </div>
-            </div>
-
-            <!-- Исполнено -->
-            <div
-              v-else-if="fulfilled"
-              class="surface-100 p-4 border-round"
-            >
-              <div class="flex align-items-center gap-2">
-                <span class="text-green-700 font-bold">Исполнено</span>
-                <font-awesome-icon
-                  :icon="['fas', 'check']"
-                  class="text-green-700"
-                />
-              </div>
-            </div>
-
-            <!-- Сообщение для гостей -->
-            <div
-              v-else-if="guestMessage"
-              class="bg-gray-100 p-4 border-round"
-            >
-              <span class="text-gray-700">Для бронирования желаний нужно зарегистрироваться</span>
-            </div>
-          </div>
-        </div>
+    <section class="card__image">
+      <div class="card__image-wrapper">
+        <img :src="cardStore.card?.img || '@/components/icons/box.png'" alt="Изображение желания"
+          class="card__image-pic">
       </div>
-    </div>
+
+      <div class="card__shop-link">
+        <a :href="cardStore.card?.link" class="card__shop-link-text">
+          перейти в магазин
+        </a>
+        <i class="pi pi-arrow-up-right" />
+      </div>
+    </section>
+
+    <section class="card__info">
+
+      <div class="card__name">
+        <span>
+          {{ cardStore.card?.name }}
+        </span>
+      </div>
+
+      <div class="card__description">
+        {{ cardStore.card?.description }}
+      </div>
+    </section>
+
+    <section class="card__actions">
+
+      <div v-if="guestMessage">
+        <span class="text-gray-400">Для бронирования желаний нужно зарегистрироваться.</span>
+      </div>
+
+
+      <div v-else class="card__actions-wrapper">
+
+        <div v-if="!cardStore.isOwner" class="card__reserve">
+
+          <div v-if="fulfilled" class="card__fullfield">
+            <span class="card__fullfield-text">Желание исполнено</span>
+            <font-awesome-icon :icon="['fas', 'check']" class="card__fullfield-icon" />
+          </div>
+
+          <div v-else>
+
+            <div v-if="cardStore.isReserved" class="card__reserved">
+              <Button v-if="cardStore.isReservedUser" label="Отказаться" @click="toggleReserve" />
+              <span class="card__reserved-user">
+                Зарезервировано пользователем
+                <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
+                  class="card__reserved-user-link">@{{ cardStore.reservedUser?.displayName }}
+                </router-link>
+              </span>
+            </div>
+
+            <div v-else class="card__unreserved">
+              <Button v-if="hideButton" label="Зарезервировать" @click="toggleReserve" />
+              <span class="card__unreserved-text">Зарезервируйте этот подарок, если хотите его подарить.</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div v-if="cardStore.isReserved && cardStore.isOwner" class="card__reserved">
+          <Button v-if="cardStore.isReservedUser" label="Отказаться" @click="toggleReserve" />
+          <span class="card__reserved-user">
+            Зарезервировано пользователем
+            <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.reservedUser?.uid } }"
+              class="card__reserved-user-link">@{{ cardStore.reservedUser?.displayName }}
+            </router-link>
+          </span>
+        </div>
+
+
+      </div>
+    </section>
+
+
+
   </div>
+
 </template>
+
+
+
+<style scoped lang="scss">
+@use '@/styles/colors';
+@use '@/styles/mixins';
+
+
+
+.card {
+  color: white;
+  background-color: $color-background-grey;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 100px 1fr 1fr;
+  gap: 0px 0px;
+  gap: 20px;
+  grid-template-areas:
+    "header header"
+    "image description"
+    "image actions";
+
+  @include mobile {
+    padding: 10px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas:
+      "header"
+      "description"
+      "image"
+      "actions";
+  }
+
+
+  &__header {
+    grid-area: header;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 20px;
+    background-color: black;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+
+    &-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: white;
+      text-decoration: none
+    }
+  }
+
+  &__menu-button {
+    background-color: inherit;
+    border: none;
+  }
+
+  &__image {
+    grid-area: image;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+
+    &-wrapper {
+      width: 500px;
+      height: 500px;
+      border-radius: 20px;
+      overflow: hidden;
+
+      @include mobile {
+        width: 350px;
+        height: 350px;
+      }
+    }
+
+    &-pic {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+
+  }
+
+  &__shop-link {
+    background-color: black;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 500px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+
+    @include mobile {
+      width: 350px;
+    }
+
+    &-text {
+      color: white;
+      text-decoration: none;
+      font-size: 20px;
+    }
+  }
+
+  &__info {
+    grid-area: description;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__name {
+    font-size: 32px;
+    font-weight: 600;
+
+    @include mobile {
+      font-size: 18px;
+    }
+  }
+
+  &__actions {
+    grid-area: actions;
+  }
+
+  &__fullfield {
+    font-size: 1.2rem;
+    opacity: 0.6;
+
+    &-text {
+      margin-right: 10px;
+    }
+  }
+
+  &__reserved {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+
+    &-user {
+      align-self: center;
+
+
+      &-link {
+        text-decoration: none;
+        font-weight: 600;
+        color: white;
+      }
+    }
+
+
+
+  }
+
+  &__unreserved {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &-text {
+      align-self: center;
+    }
+  }
+}
+</style>

@@ -61,6 +61,7 @@ onMounted(() => {
           <font-awesome-icon
             class="menu__icon"
             :icon="['fas', 'trash-can']"
+            @click="[deleteCard(), modalToggle = true]"
           /> Удалить
         </li>
       </ul>

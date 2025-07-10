@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
+import WiCardCreateButton from './WiCardCreateButton.vue'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { computed, onMounted, ref } from 'vue'
 
 import { useRoute, useRouter } from 'vue-router'
+import { profile } from 'console'
 
 const props = defineProps({
   wishType: {
@@ -47,36 +49,23 @@ onMounted(async () => {
 <template>
   <div>
     <section class="wishes__list">
-      <div
-        v-if="profileStore.hasEditPermission"
-        class="flex gap-2 justify-content-center flex-column align-items-center"
-      >
+      <div v-if="profileStore.hasEditPermission" class="flex gap-2 justify-content-center flex-column">
         <!-- <Button label="Добавить желание" icon="pi pi-arrow-up-right" variant="text" class="text-blue-500"
           iconPos="right" @click="router.push(PATHS.CARDS.ADD)" /> -->
       </div>
 
-      <div
-        v-if="profileStore.user"
-        class="whishes__cards"
-      >
-        <WiCardCreate
-          v-for="wish in currentWishes"
-          :key="wish.id"
-          :wish="wish"
-          :user-img="profileStore.user.photoUrl"
-          :user-name="profileStore.user.displayName"
-        />
+      <div v-if="profileStore.user" class="whishes__cards">
+
+
+        <WiCardCreateButton />
+
+        <WiCardCreate v-for="wish in currentWishes" :key="wish.id" :wish="wish" :user-img="profileStore.user.photoUrl"
+          :user-name="profileStore.user.displayName" />
       </div>
 
-      <div
-        v-if="currentWishes.length === 0"
-        class="empty"
-      >
-        <img
-          class="empty__image"
-          src="@/components/icons/empty.png"
-          alt="Иконка пустого списка: здесь пока нет элементов"
-        >
+      <div v-if="currentWishes.length === 0 && !profileStore.hasEditPermission" class="empty">
+        <img class="empty__image" src="@/components/icons/empty.png"
+          alt="Иконка пустого списка: здесь пока нет элементов">
         <span>Здесь пока пусто...</span>
       </div>
     </section>
@@ -120,9 +109,8 @@ onMounted(async () => {
 
 .whishes__cards {
   display: flex;
-  gap: 5px;
+  gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
-  min-height: 100%;
 }
 </style>

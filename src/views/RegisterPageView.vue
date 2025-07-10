@@ -6,6 +6,7 @@ import defaultWallpaper from '@/components/icons/wall.png'
 import { PATHS } from '@/constants/paths'
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore'
+import { Button } from 'primevue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -17,13 +18,11 @@ async function signIn(): Promise<void> {
     const provider = new GoogleAuthProvider()
     const result = await signInWithPopup(auth, provider)
     const user = result.user as FirebaseUser
-    console.log(user, 'successfully logged')
 
     const userRef = doc(db, 'users', user.uid)
     const userSnap = await getDoc(userRef)
     const existingData = userSnap.exists() ? userSnap.data() : {}
 
-    console.log(userSnap.data(), 'snap')
     const userData: User = {
       uid: user.uid,
       email: user.email,
@@ -54,17 +53,15 @@ async function signIn(): Promise<void> {
 <template>
   <div class="register">
     <form class="register__form">
-      <button
-        class="register__button register__button--withGoogle"
-        @click.prevent="signIn"
-      >
+      <h1>Войти с помощью</h1>
+      <Button @click.prevent="signIn" class="register__button">
         Google
-      </button>
+    </Button>
     </form>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .register {
   display: flex;
   justify-content: center;
@@ -72,32 +69,9 @@ async function signIn(): Promise<void> {
   align-items: center;
   height: 100vh;
   font-size: 18px;
-  color: var(--color-accent);
-  background-color: var(--color-background);
-}
 
-.register__form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-
-}
-
-.register__button {
-  font-size: 20px;
-  color: #0d121b;
-  background-color: var(--color-accent);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 320px;
-  height: 40px;
-  margin-bottom: 10px;
-  color: white;
-}
-
-.register__button:hover {
-  box-shadow: 0px 0px 15px var(--color-accent);
+  &__button{
+    width: 100%;
+  }
 }
 </style>

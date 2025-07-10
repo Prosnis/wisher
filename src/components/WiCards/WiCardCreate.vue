@@ -27,24 +27,24 @@ async function goToCardPreview(wishID: string) {
 <template>
   <Card
     v-if="wish"
-    class="md:max-w-13rem md:h-16rem max-w-7rem h-11rem p-2 shadow-none"
+    class="md:w-13rem md:h-16rem w-10rem h-13rem p-2 shadow-none test"
     @click="goToCardPreview(wish.id)"
   >
     <template #header>
-      <div class="relative">
+      <div class="relative ">
         <div
-          class="flex align-items-center justify-content-center  border-round-3xl md:h-12rem md:w-12rem w-6rem h-6rem p-0 rel surface-100 "
+          class="flex align-items-center justify-content-center  border-round-3xl md:h-12rem md:w-12rem w-9rem h-9rem p-0 rel"
         >
           <img
             alt="user header"
             :src="wish.img"
-            class="border-round-3xl max-h-full max-w-full"
+            class="border-round-2xl max-h-full max-w-full img"
           >
         </div>
 
         <div
           v-if="wish.fulfilled"
-          class="z-1 absolute bottom-0 right-0 mr-2rem"
+          class=" z-1 absolute bottom-0 right-0 mr-2rem"
         >
           <i class="pi pi-check text-1xl p-2 bg-primary border-circle" />
         </div>
@@ -64,10 +64,14 @@ async function goToCardPreview(wishID: string) {
   </Card>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
+@use '@/styles/colors';
+@use '@/styles/mixins';
 :deep(.p-card-body) {
   padding: 0;
 }
+
+
 
 .two-lines {
   display: -webkit-box;
@@ -75,4 +79,6 @@ async function goToCardPreview(wishID: string) {
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
+
+
 </style>

@@ -20,9 +20,17 @@ const router = createRouter({
       },
     },
     {
-      path: `/wishes/:uid`,
+      path: `${PATHS.USER.WISHES}/:uid`,
       component: () => import('@/views/UserWishesView.vue'),
       name: 'UserWishes',
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
+      path: `${PATHS.USER.FRIENDS}/:uid`,
+      component: () => import('@/views/UserFriendsView.vue'),
+      name: 'UserFriends',
       meta: {
         requiresAuth: false,
       },

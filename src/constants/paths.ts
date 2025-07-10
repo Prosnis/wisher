@@ -6,6 +6,8 @@ export const PATHS = {
   USER: {
     PROFILE: '/user',
     SETTINGS: '/settings',
+    WISHES: '/wishes',
+    FRIENDS: '/friends'
   },
   CARDS: {
     MAIN: '/cards',
