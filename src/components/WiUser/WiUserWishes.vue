@@ -12,6 +12,10 @@ const props = defineProps({
     type: String,
     default: 'wishes',
   },
+  cardCreateButton:{
+    type: Boolean,
+    default: true
+  }
 })
 const route = useRoute()
 const router = useRouter()
@@ -50,14 +54,12 @@ onMounted(async () => {
   <div>
     <section class="wishes__list">
       <div v-if="profileStore.hasEditPermission" class="flex gap-2 justify-content-center flex-column">
-        <!-- <Button label="Добавить желание" icon="pi pi-arrow-up-right" variant="text" class="text-blue-500"
-          iconPos="right" @click="router.push(PATHS.CARDS.ADD)" /> -->
       </div>
 
       <div v-if="profileStore.user" class="whishes__cards">
 
 
-        <WiCardCreateButton />
+        <WiCardCreateButton v-if="cardCreateButton"/>
 
         <WiCardCreate v-for="wish in currentWishes" :key="wish.id" :wish="wish" :user-img="profileStore.user.photoUrl"
           :user-name="profileStore.user.displayName" />

@@ -56,6 +56,13 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: `${PATHS.USER.GIFTS}/:uid`,
+      component: () => import('@/views/UserGiftsView.vue'),
+      meta: {
+        requiresAuth: false,
+      },
+    },
     { path: PATHS.MAIN, component: () => import('@/views/MainPageView.vue') },
   ],
 })

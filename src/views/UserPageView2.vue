@@ -37,6 +37,9 @@ const toInvitation = () => {
 const toUserFriends = () => {
   router.push({ path: `${PATHS.USER.FRIENDS}/${route.params.uid}` })
 }
+const toUserGifts = () => {
+  router.push({ path: `${PATHS.USER.GIFTS}/${route.params.uid}` })
+}
 
 
 watch(
@@ -70,8 +73,8 @@ onMounted(async () => {
   <WiNavbar />
 
 
-  <main class="main">
-    <section class="person" @click="toUserWishes">
+  <main class="main" >
+    <section class="person" @click="toUserWishes" >
       <UiSkeleton :isLoading="isLoading" class="person__info">
         <div ref="target" class="person__info"
           :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }">
@@ -127,7 +130,7 @@ onMounted(async () => {
       </section>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="gifts">
+    <UiSkeleton :isLoading="isLoading" class="gifts" @click="toUserGifts">
       <section class="gifts">
         <div class="gifts__item">
           <div class="gifts__number">{{ Math.floor(gifts) }}</div>
@@ -183,7 +186,7 @@ onMounted(async () => {
     position: relative;
     cursor: pointer;
     background-color: #3399FF;
-    border-radius: 20px;
+    border-radius: $border-radius;
 
     &:hover .person__nickname,
     &:hover .person__icon {
@@ -200,8 +203,10 @@ onMounted(async () => {
     transition: all 0.3s ease;
     text-shadow: none;
 
-    @include mixins.mobile {
-      font-size: 16px;
+        @include mixins.mobile {
+      font-size: $font-size-mobile;
+      top: 10px;
+      right: 10px;
     }
   }
 
@@ -210,7 +215,7 @@ onMounted(async () => {
     font-weight: 200;
 
     @include mixins.mobile {
-      font-size: 18px;
+      font-size: $font-size-mobile;
     }
   }
 
@@ -230,7 +235,7 @@ onMounted(async () => {
 .user-photo {
   grid-area: b;
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: $border-radius;
   height: 100%;
 
   &__img {
@@ -248,7 +253,7 @@ onMounted(async () => {
   grid-area: c;
   background-color: colors.$color-background-purple;
   color: white;
-  border-radius: 20px;
+  border-radius: $border-radius;
   display: flex;
   justify-content: center;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -266,6 +271,10 @@ onMounted(async () => {
 
   &__label {
     font-weight: 500;
+
+    @include mobile {
+      font-size: $font-size-mobile;
+    }
   }
 
   &__value {
@@ -273,7 +282,7 @@ onMounted(async () => {
     line-height: 1.4;
 
     @include mobile {
-      font-size: .9rem;
+      font-size: $font-size-mobile;
     }
   }
 }
@@ -282,9 +291,9 @@ onMounted(async () => {
   grid-area: h;
   background-color: #030305;
   color: white;
-  border-radius: 20px;
+  border-radius: $border-radius;
   padding: 30px;
-  font-size: 22px;
+  font-size: $font-size-desktop;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -293,13 +302,18 @@ onMounted(async () => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 
   @include mixins.mobile {
-    font-size: 1rem;
+    font-size: $font-size-mobile;
     gap: 5px;
   }
 
   &__label,
   &__value {
     text-align: center;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+      gap: 5px;
+    }
   }
 }
 
@@ -307,7 +321,7 @@ onMounted(async () => {
   grid-area: e;
   background-color: colors.$color-background-pink;
   color: white;
-  border-radius: 20px;
+  border-radius: $border-radius;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -326,9 +340,13 @@ onMounted(async () => {
   }
 
   &__postcard {
-    font-size: 1.4rem;
+    font-size: $font-size-desktop;
     transition: all 0.3s ease;
     text-align: center;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+    }
   }
 
   &__icon {
@@ -340,7 +358,9 @@ onMounted(async () => {
     text-shadow: none;
 
     @include mixins.mobile {
-      font-size: 16px;
+      font-size: $font-size-mobile;
+      top: 10px;
+      right: 10px;
     }
   }
 
@@ -366,7 +386,7 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
   background-color: colors.$color-background-grey;
-  border-radius: 20px;
+  border-radius: $border-radius;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -383,7 +403,9 @@ onMounted(async () => {
 
 
     @include mixins.mobile {
-      font-size: 16px;
+      font-size: $font-size-mobile;
+      top: 10px;
+      right: 10px;
     }
   }
 
@@ -407,7 +429,7 @@ onMounted(async () => {
     transition: all 0.3s ease;
 
     @include mixins.mobile {
-      font-size: 2rem;
+      font-size: 1.7rem;
     }
   }
 
@@ -418,7 +440,7 @@ onMounted(async () => {
     transition: all 0.3s ease;
 
     @include mixins.mobile {
-      font-size: 1rem;
+      font-size: $font-size-mobile;;
     }
   }
 }

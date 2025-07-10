@@ -7,7 +7,8 @@ export const PATHS = {
     PROFILE: '/user',
     SETTINGS: '/settings',
     WISHES: '/wishes',
-    FRIENDS: '/friends'
+    FRIENDS: '/friends',
+    GIFTS: '/gifts'
   },
   CARDS: {
     MAIN: '/cards',

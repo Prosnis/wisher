@@ -33,8 +33,7 @@ onMounted(async () => {
     <WiNavbar />
 
     <UiSkeleton :isLoading="isLoading" class="">
-        <div class="user-wishes"
-            :style="{ backgroundImage: profileStore.user?.wallpaperUrl ? `url('${profileStore.user.wallpaperUrl}')` : 'none' }">
+        <div class="user-wishes">
 
 
             <div class="user-wishes__header">
@@ -58,7 +57,8 @@ onMounted(async () => {
             </div>
 
 
-            <div class="user-wishes__wishes-list">
+            <div class="user-wishes__wishes-list"
+                :style="{ backgroundImage: profileStore.user?.wallpaperUrl ? `url('${profileStore.user.wallpaperUrl}')` : 'none' }">
                 <WiUserWishes :wish-type="wishType" />
             </div>
 
@@ -82,8 +82,6 @@ onMounted(async () => {
     gap: 20px;
     min-height: calc(100vh - 100px);
     place-items: center;
-    background-size: cover;
-    background-attachment: fixed;
     grid-template-areas:
         "control user"
         "wishes wishes";
@@ -171,6 +169,10 @@ onMounted(async () => {
 
     &__wishes-list {
         grid-area: wishes;
+        background-size: cover;
+        background-attachment: fixed;
+        border-radius: 20px;
+        padding: 50px;
     }
 
     &__add-card {
