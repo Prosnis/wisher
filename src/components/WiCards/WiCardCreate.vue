@@ -5,11 +5,9 @@ import Card from 'primevue/card'
 
 import { useRouter } from 'vue-router'
 
-interface Props {
+defineProps<{
   wish: Wish
-}
-
-defineProps<Props>()
+}>()
 
 const router = useRouter()
 
@@ -31,7 +29,7 @@ async function goToCardPreview(wishID: string) {
     @click="goToCardPreview(wish.id)"
   >
     <template #header>
-      <div class="relative ">
+      <div class="relative">
         <div
           class="flex align-items-center justify-content-center  border-round-3xl md:h-12rem md:w-12rem w-9rem h-9rem p-0 rel"
         >
@@ -97,6 +95,5 @@ background-color: $color-background-blue;
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
-
 
 </style>

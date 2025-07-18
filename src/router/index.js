@@ -11,6 +11,7 @@ const router = createRouter({
     { path: PATHS.AUTH.LOGIN, component: () => import('@/views/AuthPageView.vue') },
     { path: PATHS.CARDS.MAIN, component: () => import('@/views/CardsPageView.vue') },
     { path: PATHS.CARDS.ADD, component: () => import('@/views/WiCardAddView.vue') },
+    { path: PATHS.EXTENSION_PROMO, component: () => import('@/views/ExtensionPromoView.vue') },
     {
       path: `${PATHS.USER.PROFILE}/:uid`,
       component: () => import('@/views/UserPageView2.vue'),

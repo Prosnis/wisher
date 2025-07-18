@@ -104,7 +104,7 @@ async function toUserPage() {
   max-width: 1400px;
   background-color: inherit;
   border: none;
-  padding: 20px;
+
 }
 
 .logo {

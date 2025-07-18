@@ -30,7 +30,6 @@ async function toUserPage(userId: string) {
     }
 }
 
-
 const fetchSubscribeList = async () => {
     try {
         isLoading.value = true
@@ -61,7 +60,10 @@ onMounted(async () => {
 <template>
     <WiNavbar />
     <div class="friends">
-        <h1 class="friends__title">Друзья</h1>
+        <div class="friends__nav">
+            <h1 class="friends__title">Друзья</h1>
+            <router-link class="friends__back-link" :to="{ name: 'UserProfile', params: { uid: route.params.uid } }">@{{ profileStore.user?.displayName }}</router-link>
+        </div>
 
         <div class="friends__list">
             <template v-if="!isLoading">
@@ -96,6 +98,8 @@ onMounted(async () => {
 @use '@/styles/colors';
 @use '@/styles/mixins';
 
+
+
 .friends {
     border-radius: 20px;
     padding: 20px;
@@ -111,6 +115,7 @@ onMounted(async () => {
         display: flex;
         gap: 20px;
         flex-direction: column;
+        margin-bottom: 20px;
     }
 
     &__avatar {
@@ -137,6 +142,18 @@ onMounted(async () => {
         display: flex;
         gap: 20px;
         align-items: center;
+    }
+
+    &__nav{
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    &__back-link{
+        color: white;
+        font-size: 26px;
+        font-style: italic;
     }
 }
 </style>

@@ -42,13 +42,13 @@ const checkAuth = async () => {
     </div>
 
 
-    <div class="container__wishes">
+    <router-link class="container__wishes" :to="PATHS.EXTENSION_PROMO">
       <span class="container__wishes-title">Добавляй желания 🎁</span>
       <p class="container__wishes-sub-title">Добавляй товары из любых магазинов в один клик с помощью нашего удобного
         расширения
         для браузера
       </p>
-    </div>
+    </router-link>
 
     <div class="container__name">
       <span class="container__name-title">WISHER 2025</span>
@@ -70,6 +70,7 @@ const checkAuth = async () => {
 
 
     <div class=" container__footer">
+      <a class="container__footer__link" target="_blank" href="https://github.com/Prosnis">github</a>
     </div>
 
   </div>
@@ -139,6 +140,7 @@ const checkAuth = async () => {
     @include card-base;
     @include hover-effect;
     background-color: $color-background-pink;
+    text-decoration: none;
 
     &-title {
       @include title-styles;
@@ -219,6 +221,10 @@ const checkAuth = async () => {
     @include card-base;
     background-color: $color-background-blue;
     padding: 20px;
+
+    &__link{
+      color: white;
+    }
   }
 
   &-invitation-link {

@@ -17,5 +17,6 @@ export const PATHS = {
     INVITATION_CREATE: '/iCard',
   },
   INVITATIONS_TO_SHARE: '/invitations',
+  EXTENSION_PROMO: '/extension',
   MAIN: '/',
 } as const

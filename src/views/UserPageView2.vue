@@ -3,15 +3,13 @@ import UiSkeleton from '@/components/Ui/UiSkeleton.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
 import WiSubscribeButton from '@/components/WiSubscribeButton.vue'
 
-import { useAnimateCounter } from '@/composables/useAnimateCounter'
 import { useAnimation } from '@/composables/useAnimation'
 import { PATHS } from '@/constants/paths';
 import { formattedBirthday } from '@/services/FormatBirthDate'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
-const router = useRouter()
 const route = useRoute()
 const target = useTemplateRef<HTMLDivElement>('target')
 const isLoading = ref(false)
@@ -23,29 +21,11 @@ const { transformValue } = useAnimation(target)
 const friendsTarget = computed(() => profileStore.user?.subscribe?.length ?? 0)
 const giftsTarget = computed(() => profileStore.reservedWishes.length ?? 0)
 
-const { current: friends, animate: animateFriends } = useAnimateCounter(friendsTarget.value)
-const { current: gifts, animate: animateGifts } = useAnimateCounter(giftsTarget.value)
-
-const toUserWishes = () => {
-  router.push({ path: `${PATHS.USER.WISHES}/${route.params.uid}` })
-}
-
-const toInvitation = () => {
-  router.push({ path: PATHS.CARDS.INVITATION_CREATE })
-}
-
-const toUserFriends = () => {
-  router.push({ path: `${PATHS.USER.FRIENDS}/${route.params.uid}` })
-}
-const toUserGifts = () => {
-  router.push({ path: `${PATHS.USER.GIFTS}/${route.params.uid}` })
-}
-
-
 watch(
   () => route.params.uid,
   async (newUid) => {
     await getProfileData(newUid as string)
+    hasAnimated.value = true
   },
 )
 
@@ -54,11 +34,6 @@ onMounted(async () => {
     isLoading.value = true
     const uid = route.params.uid as string
     await getProfileData(uid)
-    if (hasAnimated.value) {
-      animateFriends()
-      animateGifts()
-      hasAnimated.value = false
-    }
   }
   catch (err) {
     console.log('Пользователь не автроризован', err)
@@ -73,8 +48,9 @@ onMounted(async () => {
   <WiNavbar />
 
 
-  <main class="main" >
-    <section class="person" @click="toUserWishes" >
+  <main class="main">
+
+    <router-link :to="`${PATHS.USER.WISHES}/${route.params.uid}`" class="person">
       <UiSkeleton :isLoading="isLoading" class="person__info">
         <div ref="target" class="person__info"
           :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }">
@@ -83,7 +59,8 @@ onMounted(async () => {
           <h1 class="person__nickname">@{{ profileStore.user?.displayName }}</h1>
         </div>
       </UiSkeleton>
-    </section>
+    </router-link>
+
 
     <UiSkeleton :isLoading="isLoading" class="user-photo">
       <div class="user-photo">
@@ -95,6 +72,7 @@ onMounted(async () => {
       <section class="about">
         <div class="about__wrapper">
           <span class="about__label">О себе:</span>
+          <span class="about__label about__label-empty" v-if="!profileStore.user?.about">информация не указана</span>
           <span class="about__value">{{ profileStore.user?.about }}</span>
         </div>
       </section>
@@ -109,35 +87,35 @@ onMounted(async () => {
 
     <UiSkeleton :isLoading="isLoading" class="follow">
       <section class="follow">
-        <div class="follow__wrapper">
+        <router-link class="follow__link" :to="PATHS.CARDS.INVITATION_CREATE" v-if="profileStore.hasEditPermission">
+          <p class="follow__postcard">Создать открытку</p>
+          <i class="follow__icon pi pi-arrow-up-right" />
+        </router-link>
+        <div v-else class="follow__wrapper">
           <WiSubscribeButton />
         </div>
 
-        <div v-if="profileStore.hasEditPermission" @click="toInvitation">
-          <p class="follow__postcard">Создать открытку</p>
-          <i class="follow__icon pi pi-arrow-up-right" />
-        </div>
       </section>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="friends" @click="toUserFriends">
-      <section class="friends">
+    <UiSkeleton :isLoading="isLoading" class="friends">
+      <router-link :to="`${PATHS.USER.FRIENDS}/${route.params.uid}`" class="friends">
         <div class="friends__item">
-          <div class="friends__number">{{ Math.floor(friends) }}</div>
+          <div class="friends__number">{{ Math.floor(friendsTarget) }}</div>
           <div class="friends__label">Друзья</div>
           <i class="friends__icon pi pi-arrow-up-right" />
         </div>
-      </section>
+      </router-link>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="gifts" @click="toUserGifts">
-      <section class="gifts">
+    <UiSkeleton :isLoading="isLoading" class="gifts">
+      <router-link :to="`${PATHS.USER.GIFTS}/${route.params.uid}`" class="gifts">
         <div class="gifts__item">
-          <div class="gifts__number">{{ Math.floor(gifts) }}</div>
+          <div class="gifts__number">{{ Math.floor(giftsTarget) }}</div>
           <div class="gifts__label">Подарки</div>
           <i class="gifts__icon pi pi-arrow-up-right" />
         </div>
-      </section>
+      </router-link>
     </UiSkeleton>
 
   </main>
@@ -174,6 +152,7 @@ onMounted(async () => {
 
 .person {
   grid-area: a;
+  text-decoration: none;
 
   &__info {
     width: 100%;
@@ -203,7 +182,7 @@ onMounted(async () => {
     transition: all 0.3s ease;
     text-shadow: none;
 
-        @include mixins.mobile {
+    @include mixins.mobile {
       font-size: $font-size-mobile;
       top: 10px;
       right: 10px;
@@ -236,7 +215,9 @@ onMounted(async () => {
   grid-area: b;
   overflow: hidden;
   border-radius: $border-radius;
-  height: 100%;
+  background-color: $color-background-grey;
+  display: flex;
+  justify-content: center;
 
   &__img {
     width: 100%;
@@ -245,7 +226,7 @@ onMounted(async () => {
   }
 
   @include mixins.mobile {
-    height: 300px;
+    height: 400px;
   }
 }
 
@@ -266,7 +247,8 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    justify-content: center;
+    width: 100%;
+    height: 100%;
   }
 
   &__label {
@@ -274,6 +256,12 @@ onMounted(async () => {
 
     @include mobile {
       font-size: $font-size-mobile;
+    }
+
+    &-empty {
+      opacity: 0.8;
+      font-style: italic;
+      font-size: 16px;
     }
   }
 
@@ -337,6 +325,8 @@ onMounted(async () => {
     gap: 20px;
     font-size: 26px;
     font-weight: 300;
+    width: 100%;
+    height: 100%;
   }
 
   &__postcard {
@@ -347,6 +337,11 @@ onMounted(async () => {
     @include mixins.mobile {
       font-size: $font-size-mobile;
     }
+  }
+
+  &__link {
+    text-decoration: none;
+    color: white;
   }
 
   &__icon {
@@ -370,15 +365,18 @@ onMounted(async () => {
     text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
   }
 
-
 }
 
 .friends {
   grid-area: d;
+  text-decoration: none;
+  color: white;
 }
 
 .gifts {
   grid-area: f;
+  text-decoration: none;
+  color: white;
 }
 
 .friends,
@@ -392,6 +390,7 @@ onMounted(async () => {
   align-items: center;
   cursor: pointer;
   position: relative;
+  padding: 5px;
 
   &__icon {
     position: absolute;
@@ -440,7 +439,8 @@ onMounted(async () => {
     transition: all 0.3s ease;
 
     @include mixins.mobile {
-      font-size: $font-size-mobile;;
+      font-size: $font-size-mobile;
+      ;
     }
   }
 }

@@ -1,9 +1,6 @@
 <script setup lang="ts">
-// import type { User as FirebaseUser } from 'firebase/auth'
-
 import { getAuth } from 'firebase/auth'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
-import Button from 'primevue/button'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -17,6 +14,13 @@ const isSubscribed = ref<boolean>(false)
 
 const isSelfSubscribe = computed(() => {
   return currentUserUid.value === route.params.uid
+})
+
+const buttonLabel = computed(() => {
+  return isSubscribed.value ? 'Отписаться' : 'Подписаться'
+})
+const buttonIcon = computed(() => {
+  return isSubscribed.value ? 'pi pi-heart-fill' : 'pi pi-heart'
 })
 
 async function saveSubscribe() {
@@ -66,12 +70,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Button
-    v-if="!isSelfSubscribe"
-    :label="isSubscribed ? 'Отписаться' : 'Подписаться'"
-    :icon="isSubscribed ? 'pi pi-heart-fill' : 'pi pi-heart'"
-    @click="subscribe"
-  />
+  <button class="button" v-if="!isSelfSubscribe" @click="subscribe"> <i :class="buttonIcon"></i> {{ buttonLabel
+    }}</button>
 </template>
 
-<style></style>
+<style scoped lang="scss">
+.button {
+  background-color: inherit;
+  border: none;
+  color: white;
+  font-size: 20px;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+</style>

@@ -44,17 +44,20 @@ onMounted(async () => {
                     </div>
                     <div class="user-wishes__list">
                         <UiButton class="user-wishes__btn" @click="wishType = 'wishes'">все желания</UiButton>
-                        <UiButton class="user-wishes__btn" @click="wishType = 'reservedWishes'">забронированы</UiButton>
+                        <UiButton class="user-wishes__btn" @click="wishType = 'userReservedWishes'">забронированы
+                        </UiButton>
                         <UiButton class="user-wishes__btn" @click="wishType = 'fulfilledWishes'">исполнены</UiButton>
                     </div>
 
                 </div>
             </div>
 
-
-            <div class="user-wishes__image-wrapper">
+            <router-link :to="{ name: 'UserProfile', params: { uid: profileStore.user?.uid } }"
+                class="user-wishes__image-wrapper">
                 <img :src="profileStore.user?.photoUrl" alt="user image" class="user-wishes__avatar">
-            </div>
+            </router-link>
+
+
 
 
             <div class="user-wishes__wishes-list"
@@ -95,6 +98,7 @@ onMounted(async () => {
 
         grid-template-columns: 1fr;
         grid-template-rows: 200px;
+        padding: 0;
     }
 
     &__header {
@@ -173,6 +177,8 @@ onMounted(async () => {
         background-attachment: fixed;
         border-radius: 20px;
         padding: 50px;
+        width: 100%;
+        height: 100%;
     }
 
     &__add-card {

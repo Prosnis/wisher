@@ -101,53 +101,16 @@ function previewCard(event) {
 }
 
 onMounted(() => {
-  // form.name = route.query.title;
-  // form.img = route.query.image;
-  // form.link = route.query.link;
+  if (route.query.title) {
+    form.name = route.query.title;
+    form.img = route.query.image;
+    form.link = route.query.link;
+  }
 });
 </script>
 
 <template>
   <WiNavbar />
-  <!-- <div class="container">
-    <form @submit.prevent="CreateCard">
-      <fieldset :disabled="disabledForm" class="form fieldset">
-        <div class="form__input__group" :disabled="disabledForm">
-          <ul class="form__list">
-            <li class="form__list__item">
-              <label class="form__label" for="name">Название:</label>
-              <input id="link" v-model="form.name" class="form__input" type="text" maxlength="200">
-            </li>
-            <li class="form__list__item">
-              <label class="form__label" for="description">Описание</label>
-              <textarea id="description" v-model="form.description" class="form__textarea" type="text"
-                maxlength="100" />
-            </li>
-            <li class="form__list__item">
-              <label class="form__label" for="link">Ссылка на товар</label>
-              <input id="link" v-model="form.link" class="form__input" type="text" maxlength="200">
-            </li>
-          </ul>
-        </div>
-
-        <div class="form__preview">
-          <div class="form__preview__card">
-            <label class="card__label card__label--file" for="file-input">
-              <img v-if="form.img" :src="form.img" alt="Изображение карточки желания" class="card__image">
-              <font-awesome-icon v-else class="card__icon--file" :icon="['fas', 'file-image']" />
-              <input id="file-input" class="card__input card__input--file" type="file" @change="previewCard($event)">
-            </label>
-            <h3 class="card__title">
-              {{ form.name }}
-            </h3>
-          </div>
-          <button class="form__button--add">
-            добавить
-          </button>
-        </div>
-      </fieldset>
-    </form>
-  </div> -->
   <div class="card-form">
 
     <form @submit.prevent="CreateCard" class="card-form__form">
@@ -166,7 +129,14 @@ onMounted(() => {
           <input id="link" v-model="form.link" class="card-form__input" type="text" maxlength="200">
         </li>
       </ul>
-      <Button type="submit">Добавить</Button>
+      <div class="card-form__button">
+        <Button v-if="!profileStore?.user" type="submit">
+          Добавить
+        </Button>
+        <div v-else class="card-form__clue">
+          <p>Добавление желания доступно после авторизации</p>
+        </div>
+      </div>
     </form>
 
 
@@ -218,6 +188,7 @@ onMounted(() => {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
   gap: 20px;
+  width: 1100px;
   grid-template-areas:
     "form preview"
     "form preview"
@@ -226,6 +197,7 @@ onMounted(() => {
   @include mobile {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    width:auto;
     grid-template-areas:
       "form"
       "preview"
@@ -240,6 +212,17 @@ onMounted(() => {
     background-color: $color-background-grey;
     border-radius: 20px;
     padding: 30px;
+
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__clue{
+    opacity: 0.7;
   }
 
   &__list {

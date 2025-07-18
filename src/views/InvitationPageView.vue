@@ -320,6 +320,7 @@ onMounted(async () => {
     grid-area: preview;
     background: $color-background-blue;
     height: 700px;
+    width: 690px;
     display: grid;
     align-items: center;
     grid-template-columns: 2fr 2fr;
@@ -328,6 +329,11 @@ onMounted(async () => {
     grid-template-areas:
       "info img"
       "qr qr";
+
+        @include mobile {
+    width: 400px;
+    height: 400px;
+  }
   }
 
   &__info {

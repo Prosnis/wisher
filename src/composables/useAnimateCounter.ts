@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export function useAnimateCounter(target: number, duration = 2000) {
+export function useAnimateCounter(target: number, duration = 1000) {
   const current = ref(0)
 
   const animate = () => {
@@ -10,8 +10,8 @@ export function useAnimateCounter(target: number, duration = 2000) {
 
     const update = (timestamp: number) => {
       const elapsed = timestamp - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      current.value = startValue + (target - startValue) * (progress * (2- progress))
+      const progress = Math.min(elapsed / duration, 11)
+      current.value = startValue + (target - startValue) * progress
       if (progress < 1) requestAnimationFrame(update)
     }
 

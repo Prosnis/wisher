@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { PATHS } from '@/constants/paths'
-import Card from 'primevue/card'
 import { useProfileStore } from '@/stores/WiProfileStore'
-
-
+import Card from 'primevue/card'
 
 const profileStore = useProfileStore()
-const { getProfileData } = profileStore
-
-
 
 </script>
 
@@ -16,7 +11,6 @@ const { getProfileData } = profileStore
     <router-link :to="PATHS.CARDS.ADD" class="link" v-if="profileStore.hasEditPermission">
       <Card
         class="md:w-13rem md:h-16rem w-10rem h-13rem p-2 shadow-none cursor-pointer"
-        @click="$emit('click')"
       >
         <template #header>
           <div class="relative">
@@ -37,6 +31,10 @@ const { getProfileData } = profileStore
 </template>
 
 <style scoped>
+
+:deep(.p-card-body) {
+  padding: 0;
+}
 
 .link{
   text-decoration: none;

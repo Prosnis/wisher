@@ -23,6 +23,10 @@ const isLoading = ref(false)
 const cardStore = useCardStore()
 const { getCardData } = cardStore
 
+const toBackButton = () =>{
+  router.go(-1)
+}
+
 async function deleteCard() {
   try {
     const cardRef = doc(db, 'wishes', cardStore.card.id as string)
@@ -231,10 +235,9 @@ onMounted(async () => {
 
         </div>
       </section>
-
-
-
     </div>
+    <div class="back-button" @click="toBackButton">
+      <-- к списку подарков </div>
   </UiSkeleton>
 
 </template>
@@ -245,6 +248,18 @@ onMounted(async () => {
 @use '@/styles/colors';
 @use '@/styles/mixins';
 
+.back-button {
+  background-color: $color-background-grey;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  width: 1100px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .card {
   color: white;
   background-color: $color-background-grey;
@@ -253,6 +268,7 @@ onMounted(async () => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   width: 1100px;
   margin: auto;
+  margin-bottom: 20px;
 
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -333,6 +349,7 @@ onMounted(async () => {
       height: 500px;
       border-radius: 20px;
       overflow: hidden;
+      background-color: rgb(255, 255, 255);
 
       @include mobile {
         width: 350px;
@@ -341,7 +358,7 @@ onMounted(async () => {
     }
 
     &-pic {
-      object-fit: cover;
+      object-fit: contain;
       width: 100%;
       height: 100%;
     }

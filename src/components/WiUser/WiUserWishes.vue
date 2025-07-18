@@ -1,33 +1,28 @@
 <script setup lang="ts">
 import WiCardCreate from '@/components/WiCards/WiCardCreate.vue'
-import WiCardCreateButton from './WiCardCreateButton.vue'
+import WiCardCreateButton from '@/components/WiUser/WiCardCreateButton.vue'
 import { useProfileStore } from '@/stores/WiProfileStore'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
-import { useRoute, useRouter } from 'vue-router'
-import { profile } from 'console'
-
-const props = defineProps({
-  wishType: {
-    type: String,
-    default: 'wishes',
-  },
-  cardCreateButton:{
-    type: Boolean,
-    default: true
-  }
+const props = withDefaults(defineProps<{
+  wishType: string,
+  cardCreateButton: boolean,
+}>(), {
+  wishType: 'wishes',
+  cardCreateButton: true
 })
-const route = useRoute()
-const router = useRouter()
 
+const route = useRoute()
 const profileStore = useProfileStore()
-const skeleton = ref<boolean>(false)
 const { getProfileData } = profileStore
 
 const currentWishes = computed(() => {
   switch (props.wishType) {
     case 'reservedWishes':
       return profileStore.reservedWishes
+    case 'userReservedWishes':
+      return profileStore.userReservedWishes
     case 'fulfilledWishes':
       return profileStore.fulfilledWishes
     default:
@@ -37,15 +32,12 @@ const currentWishes = computed(() => {
 
 onMounted(async () => {
   try {
-    skeleton.value = true
-    const uid = route.params.uid as string
-    await getProfileData(uid)
+    if (typeof route.params.uid === 'string') {
+      await getProfileData(route.params.uid)
+    }
   }
   catch (err) {
-    console.log(err)
-  }
-  finally {
-    skeleton.value = false
+    console.error('Ошибка при разгрузки профиля', err)
   }
 })
 </script>
@@ -55,12 +47,8 @@ onMounted(async () => {
     <section class="wishes__list">
       <div v-if="profileStore.hasEditPermission" class="flex gap-2 justify-content-center flex-column">
       </div>
-
       <div v-if="profileStore.user" class="whishes__cards">
-
-
-        <WiCardCreateButton v-if="cardCreateButton"/>
-
+        <WiCardCreateButton v-if="cardCreateButton" />
         <WiCardCreate v-for="wish in currentWishes" :key="wish.id" :wish="wish" :user-img="profileStore.user.photoUrl"
           :user-name="profileStore.user.displayName" />
       </div>
