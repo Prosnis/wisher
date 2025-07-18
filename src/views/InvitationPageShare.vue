@@ -115,7 +115,6 @@ onMounted(async () => {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  width: 900px;
   min-height: 750px;
   align-items: center;
   margin: auto;
@@ -127,7 +126,6 @@ onMounted(async () => {
 .invitation__image {
   opacity: 0;
   margin-bottom: 20px;
-  width: 820px;
   min-height: 700px;
   transition: opacity 0.5s ease;
 }

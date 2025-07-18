@@ -9,11 +9,14 @@ import Menubar from 'primevue/menubar'
 import TieredMenu from 'primevue/tieredmenu'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import UiSkeleton from '@/components/Ui/UiSkeleton.vue';
+
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const auth = getAuth()
+const isLoading = computed(() => !userStore.user)
 const notAuthorized = computed(() => !auth.currentUser)
 const menu = ref()
 
@@ -52,6 +55,7 @@ async function toUserPage() {
 </script>
 
 <template>
+
   <Menubar class="mb-3 h-5rem navbar">
     <template #start>
       <router-link :to="PATHS.MAIN" class="custom-link">
@@ -70,12 +74,15 @@ async function toUserPage() {
           </router-link>
           <Button v-else type="button" aria-haspopup="true" aria-controls="overlay_tmenu" variant="link"
             @click="toggle">
-            <template #default>
-              <div v-if="userStore.user" class="flex align-items-center gap-2">
-                <Avatar :image="userStore.user.photoUrl" shape="circle" size="small"/>
-                <i class="pi pi-chevron-down text-white" />
-              </div>
-            </template>
+            <UiSkeleton :isLoading="isLoading">
+              <template #default>
+                <div class="flex align-items-center gap-2">
+                  <Avatar :image="userStore.user?.photoUrl" shape="circle" size="small" />
+                  <i class="pi pi-chevron-down text-white" />
+                </div>
+              </template>
+            </UiSkeleton>
+
           </Button>
           <TieredMenu id="overlay_tmenu" ref="menu" :model="items" popup />
         </div>
@@ -97,7 +104,7 @@ async function toUserPage() {
   max-width: 1400px;
   background-color: inherit;
   border: none;
-  padding: 20px;
+
 }
 
 .logo {
@@ -105,7 +112,7 @@ async function toUserPage() {
   font-size: 3rem;
   font-weight: 600;
   display: inline-block;
-  transition: all 0.3s ease; 
+  transition: all 0.3s ease;
 }
 
 .custom-link {

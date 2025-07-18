@@ -102,3 +102,88 @@
 // };
 
 // console.log(merge([0], 0, [1], 1))
+
+
+// const obj = {
+//     a: {
+//         b: {
+//             c: 'd'
+//         },
+//         e: 'f'
+//     }
+// }
+
+
+// function get(obj, path) {
+//     return path.split('.').reduce((acc, item) => {
+//         acc = acc[item]
+//         return acc
+//     }, obj)
+// }
+
+
+// console.log(get(obj, 'a.b'))
+// console.log(get(obj, 'a.b.c'))
+// console.log(get(obj, 'a.e'))
+
+
+
+// const numbers = [3, 8, 2, 1, 5, 6, 4, 9, 7]
+
+// function sortEvenNumbers(arr) {
+//     const evenSorted = arr.filter((item) => item % 2 === 0).sort((a, b) => a - b)
+//     const res = []
+//     for (let i = 0; i < arr.length; i++) {
+//         if (arr[i] % 2 !== 0) {
+//             res.push(arr[i])
+//         } else {
+//             res.push(evenSorted[0])
+//             evenSorted.shift()
+//         }
+//     }
+
+//     return res
+// }
+
+
+
+// console.log(sortEvenNumbers(numbers))
+
+
+
+// const foo = (arr) => {
+//     const sorted = arr.sort((a, b) => a - b)
+
+//     for (let i = 0; i < sorted.length; i++) {
+//         const map = {}
+
+//     }
+// }
+
+// console.log(foo([1, 3, 5, 2, 3, 9, 8, 11, 0])) // 0-5, 8-9,11
+// console.log(foo([1, 4, 3, 2])) // 1-4
+// console.log(foo([1, 4])) // 1,4
+
+
+// var i = 10
+// var array = []
+
+// while (i--) {
+//     array.push(function () {
+//         return i + i
+//     })
+// }
+
+// console.log(
+//     [
+//         array[0](),
+//         array[1](),
+//     ])
+
+
+
+//     [promise, promise,promise]
+
+//     function promiseAny(promises){
+
+//     }

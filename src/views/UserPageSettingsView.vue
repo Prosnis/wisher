@@ -56,31 +56,32 @@ onMounted(async () => {
     <div class="min-h-full min-w-full border-round-3xl p-3 bg ">
       <div class="wrapper ">
 
-        <section class="bg-white border-round  h-full overflow-hidden mb-2 shadow-1 max-w-25rem m-auto">
-          <div class=" bg-white relative">
-            <div class="w-full h-8rem md:h-12rem border-round ">
-              <img :src="formData.wallpaper" alt="Обложка профиля" class="w-full h-full img ">
+          <section class="bg-white border-round  h-full overflow-hidden mb-2 shadow-1 max-w-25rem m-auto">
+            <div class=" bg-white relative">
+              <div class="w-full h-8rem md:h-12rem border-round ">
+                <img :src="formData.wallpaper" alt="Обложка профиля" class="w-full h-full img ">
+              </div>
+              <div class="overflow-hidden border-circle w-6rem h-6rem md:w-8rem md:h-8rem avatar">
+                <img :src="formData.profilePhoto" alt="Обложка профиля" class="img">
+              </div>
             </div>
-            <div class="overflow-hidden border-circle w-6rem h-6rem md:w-8rem md:h-8rem avatar">
-              <img :src="formData.profilePhoto" alt="Обложка профиля" class="img">
-            </div>
-          </div>
 
-          <div class="p-2">
-            <div class="flex justify-content-center flex-column align-items-center">
-              <p class="text-xl md:text-3xl font-semibold m-0  text-blue-500">
-                {{
-                  formData.name }}
-              </p>
+            <div class="p-2">
+              <div class="flex justify-content-center flex-column align-items-center">
+                <p class="text-xl md:text-3xl font-semibold m-0  text-blue-500">
+                  {{
+                    formData.name }}
+                </p>
+              </div>
             </div>
-          </div>
-        </section>
-        <section class="max-w-25rem m-auto bg-white p-3 shadow-1 border-round-sm">
-          <WiUserSettingForm v-model="formData" />
-        </section>
+
+          </section>
+          <section class="max-w-25rem m-auto bg-white p-3 shadow-1 border-round-sm">
+            <WiUserSettingForm v-model="formData" />
+          </section>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
 </template>
 
 <style scoped lang="scss">

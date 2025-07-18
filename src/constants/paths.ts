@@ -6,6 +6,9 @@ export const PATHS = {
   USER: {
     PROFILE: '/user',
     SETTINGS: '/settings',
+    WISHES: '/wishes',
+    FRIENDS: '/friends',
+    GIFTS: '/gifts'
   },
   CARDS: {
     MAIN: '/cards',
@@ -14,5 +17,6 @@ export const PATHS = {
     INVITATION_CREATE: '/iCard',
   },
   INVITATIONS_TO_SHARE: '/invitations',
+  EXTENSION_PROMO: '/extension',
   MAIN: '/',
 } as const

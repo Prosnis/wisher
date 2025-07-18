@@ -1,96 +1,45 @@
 <script setup lang="ts">
+import UiSkeleton from '@/components/Ui/UiSkeleton.vue'
 import WiNavbar from '@/components/WiNavbar.vue'
-import { useProfileStore } from '@/stores/WiProfileStore'
-import { useMouseInElement } from '@vueuse/core'
+import WiSubscribeButton from '@/components/WiSubscribeButton.vue'
+
 import { useAnimation } from '@/composables/useAnimation'
-import { getAuth } from 'firebase/auth'
-import { useRouter,useRoute } from 'vue-router'
-import { onMounted, ref, useTemplateRef, watch } from 'vue'
-import {computed} from 'vue'
-
-const auth = getAuth()
-const router = useRouter()
-const target = useTemplateRef<HTMLDivElement>('target')
-const { transformValue } = useAnimation(target)
-
-function toUserWishes() {
-  const uid = auth.currentUser?.uid
-  router.push({ path: `/wishes/${uid}` })
-}
-
+import { PATHS } from '@/constants/paths';
+import { formattedBirthday } from '@/services/FormatBirthDate'
+import { useProfileStore } from '@/stores/WiProfileStore'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const loading = ref<boolean>(false)
-
+const target = useTemplateRef<HTMLDivElement>('target')
+const isLoading = ref(false)
+const hasAnimated = ref(true)
 const profileStore = useProfileStore()
 const { getProfileData } = profileStore
+const { transformValue } = useAnimation(target)
 
-
-const formattedBirthday = computed(() => {
-  const timestamp = profileStore.user?.birthday
-  if (!timestamp) return '—'
-  const date = timestamp.toDate?.() || new Date(timestamp)
-  return date.toLocaleDateString('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
-})
+const friendsTarget = computed(() => profileStore.user?.subscribe?.length ?? 0)
+const giftsTarget = computed(() => profileStore.reservedWishes.length ?? 0)
 
 watch(
   () => route.params.uid,
   async (newUid) => {
     await getProfileData(newUid as string)
+    hasAnimated.value = true
   },
 )
 
-/////////
-const targetValues = {
-  wishes: 12,
-  friends: 4,
-  gifts: 4
-}
-
-const wishes = ref(0)
-const friends = ref(0)
-const gifts = ref(0)
-const hasAnimated = ref(false)
-
-const animateValue = (current, target, duration) => {
-  const startTime = performance.now()
-  const startValue = 0
-  const updateValue = (timestamp) => {
-    const elapsed = timestamp - startTime
-    const progress = Math.min(elapsed / duration, 1)
-    current.value = startValue + (target - startValue) * easeOutQuad(progress)
-    if (progress < 1) {
-      requestAnimationFrame(updateValue)
-    }
-  }
-  requestAnimationFrame(updateValue)
-}
-
-const easeOutQuad = (t) => {
-  return t * (2 - t)
-}
-
 onMounted(async () => {
   try {
-    loading.value = true
+    isLoading.value = true
     const uid = route.params.uid as string
     await getProfileData(uid)
-    if (!hasAnimated.value) {
-      animateValue(wishes, targetValues.wishes, 2000)
-      animateValue(friends, targetValues.friends, 2000)
-      animateValue(gifts, targetValues.gifts, 2000)
-      hasAnimated.value = true
-    }
   }
   catch (err) {
     console.log('Пользователь не автроризован', err)
   }
   finally {
-    loading.value = false
+    isLoading.value = false
   }
 })
 </script>
@@ -98,185 +47,116 @@ onMounted(async () => {
 <template>
   <WiNavbar />
 
+
   <main class="main">
 
-    <section class="person" @click="toUserWishes">
-      <div ref="target" class="person__info"
-        :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }">
-        <i class="pi pi-arrow-up-right person__info__icon-share" />
-        <span class="person__info__subtitle">wish ideas for</span>
-        <h1 class="person__info__nickname">
-          @{{ profileStore.user?.displayName }}
-        </h1>
+    <router-link :to="`${PATHS.USER.WISHES}/${route.params.uid}`" class="person">
+      <UiSkeleton :isLoading="isLoading" class="person__info">
+        <div ref="target" class="person__info"
+          :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }">
+          <i class="person__icon pi pi-arrow-up-right" />
+          <span class="person__subtitle">wish ideas for</span>
+          <h1 class="person__nickname">@{{ profileStore.user?.displayName }}</h1>
+        </div>
+      </UiSkeleton>
+    </router-link>
+
+
+    <UiSkeleton :isLoading="isLoading" class="user-photo">
+      <div class="user-photo">
+        <img :src="profileStore.user?.photoUrl" alt="user image" class="user-photo__img" />
       </div>
-    </section>
+    </UiSkeleton>
 
-    <div class="person__image">
-      <img :src="profileStore.user?.photoUrl" alt="user image" class="person__image__avatar">
-    </div>
-
-<section class="about">
-  <ul class="about__list">
-    <li class="about__item">
-      <span class="about__label">День рождения:</span>
-      <span class="about__value">{{ formattedBirthday }}</span>
-    </li>
-    <li class="about__item">
-      <span class="about__label">Интересы:</span>
-      <span class="about__value">Программирование, дизайн, музыка</span>
-    </li>
-    <li class="about__item">
-      <span class="about__label">О себе:</span>
-      <span class="about__value">{{ profileStore.user?.about }}</span>
-    </li>
-  </ul>
-</section>
-
-
-    <section class="follow">
-      ПОДПИСАТЬСЯ
-    </section>
-
-    <section class="panel2">
-      <div class="stats-container">
-        <div class="stat-item">
-          <div class="stat-number">{{ Math.floor(wishes) }}</div>
-          <div class="stat-label">Желаний</div>
+    <UiSkeleton :isLoading="isLoading" class="about">
+      <section class="about">
+        <div class="about__wrapper">
+          <span class="about__label">О себе:</span>
+          <span class="about__label about__label-empty" v-if="!profileStore.user?.about">информация не указана</span>
+          <span class="about__value">{{ profileStore.user?.about }}</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ Math.floor(friends) }}</div>
-          <div class="stat-label">Друзей</div>
+      </section>
+    </UiSkeleton>
+
+    <UiSkeleton :isLoading="isLoading" class="birthday">
+      <section class="birthday">
+        <span class="birthday__label">День рождения:</span>
+        <span class="birthday__value">{{ formattedBirthday(profileStore.user?.birthday) }}</span>
+      </section>
+    </UiSkeleton>
+
+    <UiSkeleton :isLoading="isLoading" class="follow">
+      <section class="follow">
+        <router-link class="follow__link" :to="PATHS.CARDS.INVITATION_CREATE" v-if="profileStore.hasEditPermission">
+          <p class="follow__postcard">Создать открытку</p>
+          <i class="follow__icon pi pi-arrow-up-right" />
+        </router-link>
+        <div v-else class="follow__wrapper">
+          <WiSubscribeButton />
         </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ Math.floor(gifts) }}</div>
-          <div class="stat-label">Подарков</div>
+
+      </section>
+    </UiSkeleton>
+
+    <UiSkeleton :isLoading="isLoading" class="friends">
+      <router-link :to="`${PATHS.USER.FRIENDS}/${route.params.uid}`" class="friends">
+        <div class="friends__item">
+          <div class="friends__number">{{ Math.floor(friendsTarget) }}</div>
+          <div class="friends__label">Друзья</div>
+          <i class="friends__icon pi pi-arrow-up-right" />
         </div>
-      </div>
-    </section>
-    
+      </router-link>
+    </UiSkeleton>
+
+    <UiSkeleton :isLoading="isLoading" class="gifts">
+      <router-link :to="`${PATHS.USER.GIFTS}/${route.params.uid}`" class="gifts">
+        <div class="gifts__item">
+          <div class="gifts__number">{{ Math.floor(giftsTarget) }}</div>
+          <div class="gifts__label">Подарки</div>
+          <i class="gifts__icon pi pi-arrow-up-right" />
+        </div>
+      </router-link>
+    </UiSkeleton>
+
   </main>
 </template>
 
 <style lang="scss" scoped>
-@use '@/styles/colors' ;
-
-.about {
-  grid-area: c;
-  color: white;
-  // background: linear-gradient(135deg, #4a00e0, #8e2de2);
-  background-color: #4a00e0;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: transform 0.3s ease;
-}
-
-.about__list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  font-size: 20px;
-  font-weight: 300;
-  align-items: flex-start;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-}
-
-.about__item {
-  padding: 15px 20px;
-  border-radius: 12px;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.about__label {
-  font-weight: 500;
-}
-
-.about__value {
-  color: #ffffff;
-  font-weight: 300;
-  line-height: 1.4;
-}
-
-
-
-
-.panel2 {
-  grid-area: d;
-  background-color: $color-background-grey;
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  &__wrapper2 {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    font-size: 26px;
-    font-weight: 300;
-    align-items: center;
-  }
-}
-
-.stats-container {
-  display: flex;
-  justify-content: space-around;
-  padding: 20px;
-  background: rgba(70, 55, 55, 0.1);
-  border-radius: 12px;
-  margin-top: 20px;
-  width: 800px;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 0 15px;
-  width: 300px;
-}
-
-.stat-number {
-  font-size: 62px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 5px;
-}
-
-.stat-label {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-
+@use '@/styles/colors';
+@use '@/styles/mixins';
 
 .main {
   height: calc(100vh - 100px);
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
   gap: 20px;
   grid-template-areas:
     "a b e"
+    "a b h"
     "a b c"
-    "d d c";
+    "d f c";
+
+  @include mixins.mobile {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "a b"
+      "e b"
+      "h h"
+      "c c"
+      "d f";
+    gap: 10px;
+    padding: 10px;
+  }
 }
 
 .person {
   grid-area: a;
+  text-decoration: none;
 
   &__info {
-    width: 565px;
+    width: 100%;
     height: 100%;
-    // height: 480px;
     color: white;
     display: flex;
     align-items: center;
@@ -284,80 +164,284 @@ onMounted(async () => {
     justify-content: center;
     position: relative;
     cursor: pointer;
-
     background-color: #3399FF;
-    border-radius: 20px;
+    border-radius: $border-radius;
 
-    &__icon-share {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 25px;
-
-      transition: all 0.3s ease;
-      text-shadow: none;
-    }
-
-    &__subtitle {
-      font-size: 32px;
-      font-weight: 200;
-
-    }
-
-    &:hover .person__info__nickname {
+    &:hover .person__nickname,
+    &:hover .person__icon {
       transform: translateY(-2px);
       text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
     }
-
-    &:hover .person__info__icon-share {
-      transform: translateY(-2px);
-      text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
-    }
-
-    &__nickname {
-      font-size: 56px;
-      font-weight: 600;
-      margin: 0;
-      position: relative;
-      transition: all 0.3s ease;
-      text-shadow: none;
-    }
-
   }
 
-  &__image {
-    grid-area: b;
-    overflow: hidden;
-    // width: 330px;
-    // height: 480px;
-    border-radius: 20px;
+  &__icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 25px;
+    transition: all 0.3s ease;
+    text-shadow: none;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+      top: 10px;
+      right: 10px;
+    }
   }
 
-  &__image__avatar {
+  &__subtitle {
+    font-size: 32px;
+    font-weight: 200;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+    }
+  }
+
+  &__nickname {
+    font-size: 42px;
+    font-weight: 600;
+    margin: 0;
+    transition: all 0.3s ease;
+    text-align: center;
+
+    @include mixins.mobile {
+      font-size: 16px;
+    }
+  }
+}
+
+.user-photo {
+  grid-area: b;
+  overflow: hidden;
+  border-radius: $border-radius;
+  background-color: $color-background-grey;
+  display: flex;
+  justify-content: center;
+
+  &__img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  @include mixins.mobile {
+    height: 400px;
+  }
+}
+
+.about {
+  grid-area: c;
+  background-color: colors.$color-background-purple;
+  color: white;
+  border-radius: $border-radius;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-size: 1.2rem;
+  width: 100%;
+  height: 100%;
+
+  &__wrapper {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__label {
+    font-weight: 500;
+
+    @include mobile {
+      font-size: $font-size-mobile;
+    }
+
+    &-empty {
+      opacity: 0.8;
+      font-style: italic;
+      font-size: 16px;
+    }
+  }
+
+  &__value {
+    font-weight: 300;
+    line-height: 1.4;
+
+    @include mobile {
+      font-size: $font-size-mobile;
+    }
+  }
+}
+
+.birthday {
+  grid-area: h;
+  background-color: #030305;
+  color: white;
+  border-radius: $border-radius;
+  padding: 30px;
+  font-size: $font-size-desktop;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+  @include mixins.mobile {
+    font-size: $font-size-mobile;
+    gap: 5px;
+  }
+
+  &__label,
+  &__value {
+    text-align: center;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+      gap: 5px;
+    }
   }
 }
 
 .follow {
   grid-area: e;
-  // width: 460px;
+  background-color: colors.$color-background-pink;
   color: white;
-  background-color: $color-background-pink;
-  border-radius: 20px;
+  border-radius: $border-radius;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
 
   &__wrapper {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 20px;
     font-size: 26px;
     font-weight: 300;
-    align-items: center;
+    width: 100%;
+    height: 100%;
   }
+
+  &__postcard {
+    font-size: $font-size-desktop;
+    transition: all 0.3s ease;
+    text-align: center;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+    }
+  }
+
+  &__link {
+    text-decoration: none;
+    color: white;
+  }
+
+  &__icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 25px;
+    transition: all 0.3s ease;
+    text-shadow: none;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+      top: 10px;
+      right: 10px;
+    }
+  }
+
+  &:hover .follow__postcard,
+  &:hover .follow__icon {
+    transform: translateY(-2px);
+    text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  }
+
 }
 
+.friends {
+  grid-area: d;
+  text-decoration: none;
+  color: white;
+}
+
+.gifts {
+  grid-area: f;
+  text-decoration: none;
+  color: white;
+}
+
+.friends,
+.gifts {
+  width: 100%;
+  height: 100%;
+  background-color: colors.$color-background-grey;
+  border-radius: $border-radius;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  padding: 5px;
+
+  &__icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 25px;
+    transition: all 0.3s ease;
+    text-shadow: none;
+
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+      top: 10px;
+      right: 10px;
+    }
+  }
+
+  &:hover &__icon,
+  &:hover &__number,
+  &:hover &__label {
+    transform: translateY(-2px);
+    text-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+  }
+
+  &__item {
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  &__number {
+    font-size: 62px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+
+    @include mixins.mobile {
+      font-size: 1.7rem;
+    }
+  }
+
+
+  &__label {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+
+    @include mixins.mobile {
+      font-size: $font-size-mobile;
+      ;
+    }
+  }
+}
 </style>

@@ -39,34 +39,6 @@ async function uploadImage(dataURL: string, path: string): Promise<string> {
   }
 }
 
-// export async function uploadUserPictures(wallpaperFile: string | null, avatarFile: string | null
-// ) {
-//   const currentUser = auth.currentUser;
-//   if (!currentUser) {
-//     console.error('Пользователь не авторизован');
-//     return;
-//   }
-
-//   const userDocRef = doc(db, 'users', currentUser.uid);
-//   const updates: { photoUrl?: string; wallpaperUrl?: string } = {};
-
-//   try {
-//     if (avatarFile) {
-//       updates.photoUrl = await uploadImage(avatarFile, `avatars/${currentUser.uid}`);
-//     }
-
-//     if (wallpaperFile) {
-//       updates.wallpaperUrl = await uploadImage(wallpaperFile, `wallpapers/${currentUser.uid}`);
-//     }
-
-//     await updateDoc(userDocRef, updates);
-//     console.log('Профиль успешно обновлен');
-//     return updates;
-//   } catch (error) {
-//     console.error('Ошибка при загрузке профиля:', error);
-//   }
-// }
-
 export async function uploadUserPictures(data) {
   const currentUser = auth.currentUser
   if (!currentUser) {
@@ -90,12 +62,13 @@ export async function uploadUserPictures(data) {
 
     if (data.wallpaper.value) {
       if (data.wallpaper.type === 'file') {
-        updates.photoUrl = await uploadImage(data.wallpaper.value, `wallpapers/${currentUser.uid}`)
+        updates.wallpaperUrl = await uploadImage(data.wallpaper.value, `wallpapers/${currentUser.uid}`)
       }
       else {
         updates.wallpaperUrl = data.wallpaper.value
       }
     }
+
 
     await updateDoc(userDocRef, updates)
     console.log('Профиль успешно обновлен')

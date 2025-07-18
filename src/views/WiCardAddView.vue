@@ -11,8 +11,8 @@ import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { reactive, ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import Card from 'primevue/card'
 
 const route = useRoute();
 const router = useRouter()
@@ -45,28 +45,6 @@ const form = reactive({
   badge: [],
 })
 
-async function parseFromYndex() {
-  try {
-    disabledForm.value = true
-    loading.value = true
-    const url = urlToparse.value
-    const result = await YandexParser(url)
-    form.img = result.image
-    form.name = result.title
-    form.link = urlToparse.value
-    formToggler()
-    error.value = false
-    categories.value = await classifiedHobbies(form.name)
-  }
-  catch (err) {
-    console.log('parseFromYandex', err)
-    error.value = true
-  }
-  finally {
-    disabledForm.value = false
-    loading.value = false
-  }
-}
 
 function clearForm() {
   Object.assign(form, {
@@ -123,408 +101,262 @@ function previewCard(event) {
 }
 
 onMounted(() => {
-       form.name = route.query.title;
-       form.img = route.query.image;
-       form.link = route.query.link;
-    });
+  if (route.query.title) {
+    form.name = route.query.title;
+    form.img = route.query.image;
+    form.link = route.query.link;
+  }
+});
 </script>
 
 <template>
-  <main class="w-full h-screen p-3">
-    <div class="min-h-full min-w-full border-round-3xl p-3 bg ">
-      <div class="wrapper">
-        <WiNavbar />
+  <WiNavbar />
+  <div class="card-form">
 
-        <div class="container">
-          <div class="grid">
-            <div class="col-12 bg-white shadow-1 border-round-sm flex flex-column align-items-center justify-content-center p-3">
-              <span class="font-bold mb-4">Найти товар на <a
-                href="https://market.yandex.ru/"
-                target="_blank"
-                class="text-primary"
-              >Яндекс Маркет</a></span>
-              <InputText
-                id="parseLink"
-                v-model="urlToparse"
-                type="text"
-                placeholder="Ссылка на товар"
-                class="w-full mb-4"
-              />
-              <Button @click.prevent.stop="parseFromYndex">
-                Создать желание по ссылке
-              </Button>
-              <p class="text-400">
-                * На данный момент создать желание по ссылке доступно только с Яндекс Маркет.
-              </p>
-            </div>
-            <div class="col-12">
-              <form>
-                <fieldset />
-              </form>
-            </div>
-          </div>
-
-          <form @submit.prevent="CreateCard">
-            <fieldset
-              :disabled="disabledForm"
-              class="form fieldset"
-            >
-              <div
-                class="form__input__group"
-                :disabled="disabledForm"
-              >
-                <ul class="form__list">
-                  <li class="form__list__item">
-                    <label
-                      class="form__label"
-                      for="name"
-                    >Название:</label>
-                    <input
-                      id="name"
-                      v-model="form.name"
-                      class="form__input"
-                      type="text"
-                      required
-                      maxlength="80"
-                      @change="classifiedHobbies(form.name)"
-                    >
-                  </li>
-                  <li class="form__list__item">
-                    <label
-                      class="form__label"
-                      for="description"
-                    >Описание</label>
-                    <textarea
-                      id="description"
-                      v-model="form.description"
-                      class="form__textarea"
-                      type="text"
-                      maxlength="100"
-                    />
-                  </li>
-                  <li class="form__list__item">
-                    <label
-                      class="form__label"
-                      for="link"
-                    >Ссылка на товар</label>
-                    <input
-                      id="link"
-                      v-model="form.link"
-                      class="form__input"
-                      type="text"
-                      maxlength="200"
-                    >
-                  </li>
-                </ul>
-              </div>
-
-              <div class="form__preview">
-                <div class="form__preview__card">
-                  <label
-                    class="card__label card__label--file"
-                    for="file-input"
-                  >
-                    <img
-                      v-if="form.img"
-                      :src="form.img"
-                      alt="Изображение карточки желания"
-                      class="card__image"
-                    >
-                    <font-awesome-icon
-                      v-else
-                      class="card__icon--file"
-                      :icon="['fas', 'file-image']"
-                    />
-                    <input
-                      id="file-input"
-                      class="card__input card__input--file"
-                      type="file"
-                      @change="previewCard($event)"
-                    >
-                  </label>
-                  <h3 class="card__title">
-                    {{ form.name }}
-                  </h3>
-                </div>
-                <button class="form__button--add">
-                  добавить
-                </button>
-              </div>
-            </fieldset>
-          </form>
+    <form @submit.prevent="CreateCard" class="card-form__form">
+      <ul class="card-form__list">
+        <li class="card-form__item">
+          <label class="card-form__label" for="name">Название:</label>
+          <input id="name" v-model="form.name" class="card-form__input" type="text" maxlength="200">
+        </li>
+        <li class="card-form__item">
+          <label class="card-form__label" for="description">Описание</label>
+          <textarea id="description" v-model="form.description" class="card-form__textarea" type="text"
+            maxlength="100"></textarea>
+        </li>
+        <li class="card-form__item">
+          <label class="card-form__label" for="link">Ссылка на товар</label>
+          <input id="link" v-model="form.link" class="card-form__input" type="text" maxlength="200">
+        </li>
+      </ul>
+      <div class="card-form__button">
+        <Button v-if="!profileStore?.user" type="submit">
+          Добавить
+        </Button>
+        <div v-else class="card-form__clue">
+          <p>Добавление желания доступно после авторизации</p>
         </div>
       </div>
+    </form>
+
+
+
+    <div class="card-form__preview">
+
+      <div class="card-form__card-preview">
+
+        <label class="card-form__upload-label" for="file-input">
+
+          <div v-if="form.img" class="card-form__image-wrapper">
+            <img :src="form.img" alt="Изображение карточки желания" class="card__image card-form__image">
+          </div>
+          <font-awesome-icon v-else class="card-form__upload-icon" :icon="['fas', 'plus']" />
+          <input id="file-input" class="card-form__file-input" type="file" @change="previewCard($event)">
+
+        </label>
+
+        <h3 class="card-form__title">
+          {{ form.name }}
+        </h3>
+      </div>
     </div>
-  </main>
+
+    <div class="card-form__app">
+      <p class="card-form__app-text">
+        💡 Не хотите заполнять форму вручную? <br>
+        Установите <a href="#" class="card-form__app-link">наше расширение для браузера</a> — добавляйте товары из
+        маркетплейсов в вишлист одним нажатием.
+      </p>
+    </div>
+
+  </div>
+
+
+
+
 </template>
 
-<style scoped>
-.wrapper {
-  max-width: 1600px;
+<style scoped lang="scss">
+@use '@/styles/colors';
+@use '@/styles/mixins';
+
+
+.card-form {
+
   margin: auto;
-}
-
-.bg {
-  background-image: url('@/components/icons/bg.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-  min-width: 0;
-}
-
-.form__badge__spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
   gap: 20px;
-}
+  width: 1100px;
+  grid-template-areas:
+    "form preview"
+    "form preview"
+    "app app";
 
-.form__badge__item {
-  border: 1px solid var(--color-accent);
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: auto;
-}
+  @include mobile {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    width:auto;
+    grid-template-areas:
+      "form"
+      "preview"
+      "app";
+  }
 
-.badge__icon--loading {
-  color: var(--color-accent);
-  font-size: 100px;
-  opacity: 0.8;
-}
 
-.form__badge__wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 10px;
-}
 
-.form__badge__picked {
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  padding: 5px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  font-size: 16px;
-  font-weight: 600;
-}
+  &__form {
+    grid-area: form;
 
-.form__badge {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  padding: 5px;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 600;
-}
+    background-color: $color-background-grey;
+    border-radius: 20px;
+    padding: 30px;
 
-.parser__error {
-  color: red;
-  font-size: 14px;
-}
+  }
 
-.parser__error--visible {
-  height: 15px;
-  visibility: hidden;
-}
+  &__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.parser__title--link {
-  color: var(--color-accent);
-}
+  &__clue{
+    opacity: 0.7;
+  }
 
-.parser__title {
-  font-weight: 600;
-}
+  &__list {
+    list-style-type: none;
+    padding: 0;
+  }
 
-.container {
-  max-width: 900px;
-  margin: auto;
-}
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
 
-.parser {
-  border-radius: 10px;
-  width: 100%;
-  background-color: var(--color-secondary);
-  height: 150px;
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 20px;
-}
+  &__label {
+    flex: 0 0 150px;
+    color: var(--color-text-primary);
+  }
 
-.parser__input {
-  width: 400px;
-  height: 30px;
-  border-radius: 10px;
-  border: 1px solid var(--color-text-secondary);
-  outline: none;
-}
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
 
-.parser__input:focus {
-  border: 1px solid var(--color-accent);
-}
+  &__input,
+  &__textarea {
+    height: 25px;
+    margin-bottom: 10px;
+    width: 300px;
+    border: 1px solid #818c99;
+    border-radius: 5px;
+    transition: border 0.3s ease;
+    padding: 5px;
 
-.parser__button {
-  width: 408px;
-  height: 30px;
-  border: none;
-  border: 3px solid var(--color-primary);
-  background-color: var(--color-accent);
-  color: var(--color-background);
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 18px;
-}
+    @include mobile {
+      width: 100%;
+    }
+  }
 
-.parser__button:active {
-  transform: translateY(2px);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
+  &__textarea {
+    resize: none;
+    min-height: 80px;
+  }
 
-.form {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 20px;
-}
 
-.form__list {
-  list-style-type: none;
-  padding: 0;
-}
 
-.form__list__item {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
 
-.form__input__group {
-  width: 420px;
-  height: 500px;
-  background-color: var(--color-secondary);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-}
+  &__preview {
+    grid-area: preview;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
 
-.form__preview__card {
-  position: relative;
-  width: 280px;
-  height: 450px;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  text-align: center;
-  overflow: hidden;
-}
+    background-color: $color-background-grey;
+    border-radius: 20px;
+    padding: 20px;
+  }
 
-.form__preview {
-  background-color: var(--color-secondary);
-  padding: 20px;
-  width: 420px;
-  height: 500px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
+  &__card-preview {
+    width: 210px;
+    height: 256px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    padding: 8px;
+    background-color: $color-background-white;
+  }
 
-.form__button--add {
-  height: 30px;
-  border: none;
-  border: 3px solid var(--color-primary);
-  background-color: var(--color-accent);
-  color: var(--color-background);
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 16px;
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-}
+  &__upload-label {
+    width: 100%;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-direction: column;
+  }
 
-.form__button--add:active {
-  transform: translateY(2px);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
+  &__image-wrapper {
+    width: 192px;
+    height: 192px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
 
-.form__input,
-.form__textarea {
-  height: 25px;
-  margin-bottom: 10px;
-  width: 300px;
-  border: 1px solid #818c99;
-  border-radius: 5px;
-  transition: border 0.3s ease;
-  padding: 5px;
-}
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.form__input:focus,
-.form__textarea:focus {
-  border: 1px solid #0817ecb9;
-  outline: none;
-}
+  &__upload-icon {
+    font-size: 100px;
+    color: rgb(236, 233, 233);
+    transition: color 0.3s;
+  }
 
-.form__textarea {
-  resize: none;
-  min-height: 80px;
-}
+  &__file-input {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    position: absolute;
+    overflow: hidden;
+    z-index: -1;
+  }
 
-.form__label {
-  flex: 0 0 150px;
-  color: var(--color-text-primary);
-}
+  &__title {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    height: 48px;
+    font-size: 16px;
+    color: #334155;
+    font-weight: 500;
+    text-align: center;
+  }
 
-.card__label--file {
-  width: 100%;
-  border: 1px solid #ccc;
-  height: 250px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-direction: column;
-  gap: 20px;
-}
+  &__app {
+    grid-area: app;
 
-.card__image {
-  width: 100%;
-  height: 300px;
-  object-fit: cover;
-}
+    background-color: $color-background-blue;
+    border-radius: 20px;
+    padding: 30px;
 
-.card__icon--file {
-  font-size: 100px;
-  color: rgb(236, 233, 233);
-  transition: color 0.3s;
-}
-
-.card__input--file {
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
+    &-text {
+      color: $color-text;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+  }
 }
 </style>

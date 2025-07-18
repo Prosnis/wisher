@@ -11,6 +11,7 @@ const router = createRouter({
     { path: PATHS.AUTH.LOGIN, component: () => import('@/views/AuthPageView.vue') },
     { path: PATHS.CARDS.MAIN, component: () => import('@/views/CardsPageView.vue') },
     { path: PATHS.CARDS.ADD, component: () => import('@/views/WiCardAddView.vue') },
+    { path: PATHS.EXTENSION_PROMO, component: () => import('@/views/ExtensionPromoView.vue') },
     {
       path: `${PATHS.USER.PROFILE}/:uid`,
       component: () => import('@/views/UserPageView2.vue'),
@@ -20,9 +21,17 @@ const router = createRouter({
       },
     },
     {
-      path: `/wishes/:uid`,
+      path: `${PATHS.USER.WISHES}/:uid`,
       component: () => import('@/views/UserWishesView.vue'),
       name: 'UserWishes',
+      meta: {
+        requiresAuth: false,
+      },
+    },
+    {
+      path: `${PATHS.USER.FRIENDS}/:uid`,
+      component: () => import('@/views/UserFriendsView.vue'),
+      name: 'UserFriends',
       meta: {
         requiresAuth: false,
       },
@@ -46,6 +55,13 @@ const router = createRouter({
       component: () => import('@/views/UserPageSettingsView.vue'),
       meta: {
         requiresAuth: true,
+      },
+    },
+    {
+      path: `${PATHS.USER.GIFTS}/:uid`,
+      component: () => import('@/views/UserGiftsView.vue'),
+      meta: {
+        requiresAuth: false,
       },
     },
     { path: PATHS.MAIN, component: () => import('@/views/MainPageView.vue') },
