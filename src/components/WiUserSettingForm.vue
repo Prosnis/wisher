@@ -53,6 +53,7 @@ const resolver = ref(zodResolver(
 ))
 
 const pickImage = (target: 'wallpaper' | 'profilePhoto', currentImg: string) => {
+  if(!model.value) return
   model.value[target] = currentImg
   imgUpload[target].type = 'link'
   imgUpload[target].value = currentImg
@@ -72,6 +73,7 @@ function onFileSelect(target: 'wallpaper' | 'avatar', event: { files: File[] }) 
 
   reader.onload = async (e) => {
     const result = e.target?.result as string
+    if(!model.value) return
 
     if (target === 'avatar') {
       avatarFile.value = result
