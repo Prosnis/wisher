@@ -176,7 +176,7 @@ onMounted(async () => {
         background-size: cover;
         background-attachment: fixed;
         border-radius: 20px;
-        padding: 50px;
+        padding: 20px;
         width: 100%;
         height: 100%;
     }

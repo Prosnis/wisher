@@ -1,77 +1,70 @@
 <script setup lang="ts">
+import {PATHS} from '@/constants/paths'
+import { getUserSubscriptions, updateUserSubscriptions } from '@/services/FireBaseSubscribe'
 import { getAuth } from 'firebase/auth'
-import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute()
 const auth = getAuth()
-const db = getFirestore()
+const route = useRoute()
+const router = useRouter()
 
 const userSubscribe = ref<string[]>([])
-const currentUserUid = ref<string>('')
-const isSubscribed = ref<boolean>(false)
+const currentUserUid = ref('')
+const isSubscribed = ref(false)
 
-const isSelfSubscribe = computed(() => {
-  return currentUserUid.value === route.params.uid
-})
+const isSelfSubscribe = computed(() => currentUserUid.value !== route.params.uid)
+const buttonInfo = computed(() => ({
+  label: isSubscribed.value ? 'Отписаться' : 'Подписаться',
+  icon: isSubscribed.value ? 'pi pi-heart-fill' : 'pi pi-heart'
+}))
 
-const buttonLabel = computed(() => {
-  return isSubscribed.value ? 'Отписаться' : 'Подписаться'
-})
-const buttonIcon = computed(() => {
-  return isSubscribed.value ? 'pi pi-heart-fill' : 'pi pi-heart'
-})
-
-async function saveSubscribe() {
+async function initSubscriptions() {
+  const user = auth.currentUser
+  if (!user) return
+  currentUserUid.value = user.uid
   try {
-    if (auth.currentUser) {
-      const userDocRef = doc(db, 'users', currentUserUid.value)
-      await updateDoc(userDocRef, { subscribe: userSubscribe.value })
-    }
-  }
-  catch (error) {
-    console.error('Пользователь не авторизирован', error)
+    userSubscribe.value = await getUserSubscriptions(user.uid)
+    const targetUid = typeof route.params.uid === 'string' ? route.params.uid : ''
+    isSubscribed.value = userSubscribe.value.includes(targetUid)
+  } catch (error) {
+    console.error('Ошибка загрузки подписок:', error)
   }
 }
 
-function subscribe() {
-  const uid = route.params.uid as string
-  const index = userSubscribe.value.findIndex(item => item === uid)
+async function toggleSubscription() {
+  const targetUid = typeof route.params.uid === 'string' ? route.params.uid : ''
+    if (!auth.currentUser) {
+    console.warn('Пользователь не авторизован')
+    router.push(PATHS.AUTH.REGISTER)
+    return
+  }
+  const index = userSubscribe.value.indexOf(targetUid)
   if (index !== -1) {
     userSubscribe.value.splice(index, 1)
     isSubscribed.value = false
-  }
-  else {
-    userSubscribe.value.push(uid)
+  } else {
+    userSubscribe.value.push(targetUid)
     isSubscribed.value = true
   }
-  saveSubscribe()
+  try {
+    await updateUserSubscriptions(currentUserUid.value, userSubscribe.value)
+  } catch (error) {
+    console.error('Ошибка при обновлении подписки:', error)
+  }
 }
 
-onMounted(async () => {
-  if (auth.currentUser) {
-    currentUserUid.value = auth.currentUser.uid
-    const userDocRef = doc(db, 'users', currentUserUid.value)
-    try {
-      const docSnapshot = await getDoc(userDocRef)
-      if (docSnapshot.exists()) {
-        const userData = docSnapshot.data()
-        userSubscribe.value = userData.subscribe || []
-        const uid = route.params.uid as string
-        isSubscribed.value = userSubscribe.value.includes(uid)
-      }
-    }
-    catch (error) {
-      console.error('err', error)
-    }
-  }
+onMounted(() => {
+  initSubscriptions()
 })
 </script>
 
+
 <template>
-  <button class="button" v-if="!isSelfSubscribe" @click="subscribe"> <i :class="buttonIcon"></i> {{ buttonLabel
-    }}</button>
+  <button class="button"
+  v-if="isSelfSubscribe"
+  @click="toggleSubscription">
+  <i :class="buttonInfo.icon"></i> {{ buttonInfo.label}}</button>
 </template>
 
 <style scoped lang="scss">

@@ -44,63 +44,47 @@ onMounted(async () => {
 
 <template>
   <div>
-    <section class="wishes__list">
-      <div v-if="profileStore.hasEditPermission" class="flex gap-2 justify-content-center flex-column">
-      </div>
-      <div v-if="profileStore.user" class="whishes__cards">
+
+
+    <section class="wishes-list">
+      <div v-if="profileStore.user" class="wishes-list__item">
         <WiCardCreateButton v-if="cardCreateButton" />
         <WiCardCreate v-for="wish in currentWishes" :key="wish.id" :wish="wish" :user-img="profileStore.user.photoUrl"
           :user-name="profileStore.user.displayName" />
       </div>
 
-      <div v-if="currentWishes.length === 0 && !profileStore.hasEditPermission" class="empty">
-        <img class="empty__image" src="@/components/icons/empty.png"
+      <div v-if="currentWishes.length === 0 && !profileStore.hasEditPermission" class="wishes-list__empty">
+        <img class="wishes-list__empty-image" src="@/components/icons/empty.png"
           alt="Иконка пустого списка: здесь пока нет элементов">
         <span>Здесь пока пусто...</span>
       </div>
     </section>
+
+
   </div>
 </template>
 
-<style scoped>
-.empty__image {
-  width: 200px;
-}
+<style scoped lang="scss">
+.wishes-list {
 
-.empty {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  padding: 50px;
-  color: var(--color-text-secondary);
-}
+  &__item {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 
-.whishes__title {
-  color: white;
-}
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+    font-size: 20px;
+    color: rgb(3, 3, 3);
 
-.wishes__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 10px;
-  font-size: 20px;
-  color: rgb(3, 3, 3);
-}
-
-.wishes__empty--phrase {
-  color: white;
-}
-
-.wishes__empty--img {
-  width: 300px;
-}
-
-.whishes__cards {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
+    &-image{
+      width: 200px;
+    }
+  }
 }
 </style>

@@ -1,14 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import Button from 'primevue/button'
 import Popover from 'primevue/popover'
 
 import { onMounted, ref } from 'vue'
 
-const props = defineProps({
-  folder: String,
-  group: String,
-})
-const emit = defineEmits(['pickWallpaper'])
+const props = defineProps<{
+  folder: string
+  target: 'wallpaper' | 'profilePhoto'
+}>()
+
+const emit = defineEmits(['pick-wallpaper'])
 const op = ref()
 const toggle = (event) => {
   op.value.toggle(event)
@@ -17,9 +18,15 @@ const toggle = (event) => {
 const currentImg = ref('')
 const images = ref([])
 
-const pickCurrentImg = (event) => {
-  currentImg.value = event.currentTarget.querySelector('img').src
-  emit('pickWallpaper', currentImg.value)
+const pickCurrentImg = (event: Event) => {
+  const src = (event.currentTarget as HTMLElement).querySelector('img')?.getAttribute('src')
+
+  if (src) {
+    emit('pick-wallpaper', {
+      target: props.target,
+      src,
+    })
+  }
 }
 
 onMounted(async () => {
