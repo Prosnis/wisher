@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {PATHS} from '@/constants/paths'
+import { PATHS } from '@/constants/paths'
 import { getUserSubscriptions, updateUserSubscriptions } from '@/services/FireBaseSubscribe'
 import { getAuth } from 'firebase/auth'
 import { computed, onMounted, ref } from 'vue'
@@ -16,25 +16,27 @@ const isSubscribed = ref(false)
 const isSelfSubscribe = computed(() => currentUserUid.value !== route.params.uid)
 const buttonInfo = computed(() => ({
   label: isSubscribed.value ? 'Отписаться' : 'Подписаться',
-  icon: isSubscribed.value ? 'pi pi-heart-fill' : 'pi pi-heart'
+  icon: isSubscribed.value ? 'pi pi-heart-fill' : 'pi pi-heart',
 }))
 
 async function initSubscriptions() {
   const user = auth.currentUser
-  if (!user) return
+  if (!user)
+    return
   currentUserUid.value = user.uid
   try {
     userSubscribe.value = await getUserSubscriptions(user.uid)
     const targetUid = typeof route.params.uid === 'string' ? route.params.uid : ''
     isSubscribed.value = userSubscribe.value.includes(targetUid)
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Ошибка загрузки подписок:', error)
   }
 }
 
 async function toggleSubscription() {
   const targetUid = typeof route.params.uid === 'string' ? route.params.uid : ''
-    if (!auth.currentUser) {
+  if (!auth.currentUser) {
     console.warn('Пользователь не авторизован')
     router.push(PATHS.AUTH.REGISTER)
     return
@@ -43,13 +45,15 @@ async function toggleSubscription() {
   if (index !== -1) {
     userSubscribe.value.splice(index, 1)
     isSubscribed.value = false
-  } else {
+  }
+  else {
     userSubscribe.value.push(targetUid)
     isSubscribed.value = true
   }
   try {
     await updateUserSubscriptions(currentUserUid.value, userSubscribe.value)
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Ошибка при обновлении подписки:', error)
   }
 }
@@ -59,12 +63,14 @@ onMounted(() => {
 })
 </script>
 
-
 <template>
-  <button class="button"
-  v-if="isSelfSubscribe"
-  @click="toggleSubscription">
-  <i :class="buttonInfo.icon"></i> {{ buttonInfo.label}}</button>
+  <button
+    v-if="isSelfSubscribe"
+    class="button"
+    @click="toggleSubscription"
+  >
+    <i :class="buttonInfo.icon" /> {{ buttonInfo.label }}
+  </button>
 </template>
 
 <style scoped lang="scss">

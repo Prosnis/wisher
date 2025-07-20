@@ -5,11 +5,11 @@ export function getCurrentUser(): Promise<User | null> {
   return new Promise((resolve, reject) => {
     const unsubscribe = onAuthStateChanged(
       getAuth(),
-      user => {
+      (user) => {
         unsubscribe()
         resolve(user)
       },
-      reject
+      reject,
     )
   })
 }

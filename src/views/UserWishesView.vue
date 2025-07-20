@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import UiButton from '@/components/Ui/UiButton.vue';
-import WiNavbar from '@/components/WiNavbar.vue'
-import WiUserWishes from '@/components/WiUser/WiUserWishes.vue';
-import { useProfileStore } from '@/stores/WiProfileStore'
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import UiButton from '@/components/Ui/UiButton.vue'
 import UiSkeleton from '@/components/Ui/UiSkeleton.vue'
+import WiNavbar from '@/components/WiNavbar.vue'
+import WiUserWishes from '@/components/WiUser/WiUserWishes.vue'
+import { useProfileStore } from '@/stores/WiProfileStore'
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const profileStore = useProfileStore()
@@ -13,63 +13,77 @@ const { getProfileData } = profileStore
 const wishType = ref('wishes')
 const isLoading = ref(true)
 
-
-
 onMounted(async () => {
-    try {
-        isLoading.value = true
-        const uid = route.params.uid as string
-        await getProfileData(uid)
-    } catch (e) {
-        console.error(e)
-    } finally {
-        isLoading.value = false
-    }
+  try {
+    isLoading.value = true
+    const uid = route.params.uid as string
+    await getProfileData(uid)
+  }
+  catch (e) {
+    console.error(e)
+  }
+  finally {
+    isLoading.value = false
+  }
 })
 </script>
 
-
 <template>
-    <WiNavbar />
+  <WiNavbar />
 
-    <UiSkeleton :isLoading="isLoading" class="">
-        <div class="user-wishes">
-
-
-            <div class="user-wishes__header">
-                <div class="user-wishes__info">
-
-                    <div class="user-wishes__name">
-                        @{{ profileStore.user?.displayName }}
-                    </div>
-                    <div class="user-wishes__list">
-                        <UiButton class="user-wishes__btn" @click="wishType = 'wishes'">все желания</UiButton>
-                        <UiButton class="user-wishes__btn" @click="wishType = 'userReservedWishes'">забронированы
-                        </UiButton>
-                        <UiButton class="user-wishes__btn" @click="wishType = 'fulfilledWishes'">исполнены</UiButton>
-                    </div>
-
-                </div>
-            </div>
-
-            <router-link :to="{ name: 'UserProfile', params: { uid: profileStore.user?.uid } }"
-                class="user-wishes__image-wrapper">
-                <img :src="profileStore.user?.photoUrl" alt="user image" class="user-wishes__avatar">
-            </router-link>
-
-
-
-
-            <div class="user-wishes__wishes-list"
-                :style="{ backgroundImage: profileStore.user?.wallpaperUrl ? `url('${profileStore.user.wallpaperUrl}')` : 'none' }">
-                <WiUserWishes :wish-type="wishType" />
-            </div>
-
+  <UiSkeleton
+    :is-loading="isLoading"
+    class=""
+  >
+    <div class="user-wishes">
+      <div class="user-wishes__header">
+        <div class="user-wishes__info">
+          <div class="user-wishes__name">
+            @{{ profileStore.user?.displayName }}
+          </div>
+          <div class="user-wishes__list">
+            <UiButton
+              class="user-wishes__btn"
+              @click="wishType = 'wishes'"
+            >
+              все желания
+            </UiButton>
+            <UiButton
+              class="user-wishes__btn"
+              @click="wishType = 'userReservedWishes'"
+            >
+              забронированы
+            </UiButton>
+            <UiButton
+              class="user-wishes__btn"
+              @click="wishType = 'fulfilledWishes'"
+            >
+              исполнены
+            </UiButton>
+          </div>
         </div>
-    </UiSkeleton>
+      </div>
 
+      <router-link
+        :to="{ name: 'UserProfile', params: { uid: profileStore.user?.uid } }"
+        class="user-wishes__image-wrapper"
+      >
+        <img
+          :src="profileStore.user?.photoUrl"
+          alt="user image"
+          class="user-wishes__avatar"
+        >
+      </router-link>
+
+      <div
+        class="user-wishes__wishes-list"
+        :style="{ backgroundImage: profileStore.user?.wallpaperUrl ? `url('${profileStore.user.wallpaperUrl}')` : 'none' }"
+      >
+        <WiUserWishes :wish-type="wishType" />
+      </div>
+    </div>
+  </UiSkeleton>
 </template>
-
 
 <style lang="scss" scoped>
 @use '@/styles/colors';
@@ -88,7 +102,6 @@ onMounted(async () => {
     grid-template-areas:
         "control user"
         "wishes wishes";
-
 
     @include mobile {
         grid-template-areas:

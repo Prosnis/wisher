@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import WiNavbar from '@/components/WiNavbar.vue'
-import { useAnimation } from '@/composables/useAnimation';
-import { PATHS } from '@/constants/paths';
+import { useAnimation } from '@/composables/useAnimation'
+import { PATHS } from '@/constants/paths'
 import { getAuth } from 'firebase/auth'
 import { useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
@@ -13,38 +13,47 @@ const { transformValue } = useAnimation(target)
 
 const checkAuth = async () => {
   try {
-    const uid = auth.currentUser?.uid;
+    const uid = auth.currentUser?.uid
     if (uid) {
-      await router.push(`${PATHS.USER.PROFILE}/${uid}`);
-    } else {
-      await router.push(PATHS.AUTH.REGISTER);
+      await router.push(`${PATHS.USER.PROFILE}/${uid}`)
     }
-  } catch (error) {
-    console.error('Auth check failed', error);
+    else {
+      await router.push(PATHS.AUTH.REGISTER)
+    }
   }
-};
-
+  catch (error) {
+    console.error('Auth check failed', error)
+  }
+}
 </script>
 
 <template>
   <WiNavbar />
   <div class="container">
-
-    <div class="container__cta" ref="target" @click="checkAuth"
-      :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }">
+    <div
+      ref="target"
+      class="container__cta"
+      :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }"
+      @click="checkAuth"
+    >
       <i class="pi pi-arrow-up-right container__cta-icon" />
       <span class="container__cta-title">Ваши мечты заслуживают отдельного списка!</span>
-      <p class="container__cta-sub-title">Создайте первый вишлист прямо сейчас - это займет меньше минуты. Добавляйте
+      <p class="container__cta-sub-title">
+        Создайте первый вишлист прямо сейчас - это займет меньше минуты. Добавляйте
         желания из
         любых магазинов,
         делитесь с
-        близкими и получайте идеальные подарки.</p>
+        близкими и получайте идеальные подарки.
+      </p>
     </div>
 
-
-    <router-link class="container__wishes" :to="PATHS.EXTENSION_PROMO">
+    <router-link
+      class="container__wishes"
+      :to="PATHS.EXTENSION_PROMO"
+    >
       <span class="container__wishes-title">Добавляй желания 🎁</span>
-      <p class="container__wishes-sub-title">Добавляй товары из любых магазинов в один клик с помощью нашего удобного
+      <p class="container__wishes-sub-title">
+        Добавляй товары из любых магазинов в один клик с помощью нашего удобного
         расширения
         для браузера
       </p>
@@ -55,27 +64,34 @@ const checkAuth = async () => {
     </div>
 
     <div class="container__links">
-      <img class="container__links-gif" src="@/components/icons/tenor.gif" alt="loli">
+      <img
+        class="container__links-gif"
+        src="@/components/icons/tenor.gif"
+        alt="loli"
+      >
     </div>
 
-
-    <router-link class="container__invitation" :to="PATHS.CARDS.INVITATION_CREATE">
+    <router-link
+      class="container__invitation"
+      :to="PATHS.CARDS.INVITATION_CREATE"
+    >
       <span class="container__invitation-title">Приглашай красиво 💌</span>
-      <p class="container__invitation-sub-title">Создайте персонализированную электронную открытку и отправьте
+      <p class="container__invitation-sub-title">
+        Создайте персонализированную электронную открытку и отправьте
         друзьям
         в
-        мессенджеры</p>
+        мессенджеры
+      </p>
     </router-link>
 
-
-
     <div class=" container__footer">
-      <a class="container__footer__link" target="_blank" href="https://github.com/Prosnis">github</a>
+      <a
+        class="container__footer__link"
+        target="_blank"
+        href="https://github.com/Prosnis"
+      >github</a>
     </div>
-
   </div>
-
-
 </template>
 
 <style scoped lang="scss">
@@ -200,7 +216,6 @@ const checkAuth = async () => {
       text-decoration: none;
       color: black;
       transition: color 0.3s;
-
 
       &:hover {
         color: white;

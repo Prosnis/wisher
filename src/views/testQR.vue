@@ -1,29 +1,29 @@
-
 <script setup>
 import QRCode from 'qrcode'
 import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
-    url: { type: String, required: true },
-    logoSrc: { type: String, default: '/box.jpg' }, // путь к логотипу
+  url: { type: String, required: true },
+  logoSrc: { type: String, default: '/box.jpg' }, // путь к логотипу
 })
 
 const qrCanvas = ref(null)
 
 const generateQr = async () => {
   const canvas = qrCanvas.value
-  if (!canvas) return
+  if (!canvas)
+    return
 
   // Генерируем QR на canvas
   await QRCode.toCanvas(canvas, props.url, {
-      width: 150,
-      margin: 0,
-      color: {
-          dark: '#2f3e46',
-          light: '#f9fafb',
-        },
-        errorCorrectionLevel: 'H', // важно! H = можно скрыть часть кода логотипом
-    })
+    width: 150,
+    margin: 0,
+    color: {
+      dark: '#2f3e46',
+      light: '#f9fafb',
+    },
+    errorCorrectionLevel: 'H', // важно! H = можно скрыть часть кода логотипом
+  })
 
   // Рисуем логотип по центру
   const ctx = canvas.getContext('2d')
@@ -45,7 +45,11 @@ watch(() => props.url, generateQr)
 
 <template>
   <div class="qr-wrapper">
-    <canvas ref="qrCanvas" width="256" height="256"></canvas>
+    <canvas
+      ref="qrCanvas"
+      width="256"
+      height="256"
+    />
   </div>
 </template>
 

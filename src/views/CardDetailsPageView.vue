@@ -1,45 +1,49 @@
 <script setup lang="ts">
 import UiSkeleton from '@/components/Ui/UiSkeleton.vue'
 import NavBar from '@/components/WiNavbar.vue'
-import WISpinner from '@/components/WISpinner.vue'
 import { getUserData } from '@/services/GetUserData'
 import { useCardStore } from '@/stores/WiCardStore'
 import { getAuth } from 'firebase/auth'
-import { doc, getFirestore, updateDoc, deleteDoc } from 'firebase/firestore'
-import Avatar from 'primevue/avatar'
+import { deleteDoc, doc, getFirestore, updateDoc } from 'firebase/firestore'
 import Button from 'primevue/button'
 import Menu from 'primevue/menu'
-
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const db = getFirestore()
 const auth = getAuth()
+
 const router = useRouter()
 const route = useRoute()
+
 const spinner = ref<boolean>(false)
 const isLoading = ref(false)
 
 const cardStore = useCardStore()
 const { getCardData } = cardStore
 
-const toBackButton = () =>{
+const menu = ref()
+
+const toBackButton = () => {
   router.go(-1)
 }
 
-async function deleteCard() {
+async function deleteCard(): Promise<void> {
   try {
-    const cardRef = doc(db, 'wishes', cardStore.card.id as string)
-    await deleteDoc(cardRef)
-    console.log(`карточка id: ${cardStore.card.id} удалена.`)
+    const id = cardStore.card?.id
+    if (!id) {
+      console.warn('ID карточки отсутствует')
+      return
+    }
+    await deleteDoc(doc(db, 'wishes', id))
+    console.log(`карточка id: ${id} удалена.`)
+    router.go(-1)
   }
   catch (error) {
     console.error('Ошибка при удалении карточки', error)
   }
-  router.go(-1)
 }
 
-const menu = ref()
 const items = ref([
   {
     label: 'Выполнено',
@@ -53,19 +57,17 @@ const items = ref([
   },
 ])
 
-const toggle = (event) => {
+const toggle = (event: Event) => {
   menu.value.toggle(event)
 }
 
 const hideButton = computed(() => !cardStore.isOwner)
-const enableForReserve = computed(() => !cardStore.isReserved && auth.currentUser && !cardStore.card?.fulfilled)
 const fulfilled = computed(() => cardStore.card?.fulfilled ?? false)
 const guestMessage = computed(() => !auth.currentUser)
-const cardName = computed(() => cardStore.card?.name ?? '')
 
 async function toggleFulfill(): Promise<void> {
-
   try {
+    if (!cardStore.card) return
     console.log(cardStore.card.id)
     const cardRef = doc(db, 'wishes', cardStore.card.id)
     await updateDoc(cardRef, { fulfilled: !cardStore.card.fulfilled })
@@ -79,7 +81,7 @@ async function toggleFulfill(): Promise<void> {
   }
 }
 
-async function toggleReserve() {
+async function toggleReserve(): Promise<void>  {
   if (!cardStore.card) {
     console.error('Карточка не загружена')
     return
@@ -115,17 +117,18 @@ async function toggleReserve() {
   }
 }
 
-
 onMounted(async () => {
   try {
     isLoading.value = true
-    const UID = route.params.uid as string
-    await getCardData(UID)
-  }
-  catch (err) {
-    console.error('не удалось загрузить данные карточки:', err)
-  }
-  finally {
+    const uid = route.params.uid
+    if (typeof uid === 'string') {
+      await getCardData(uid)
+    } else {
+      console.warn('UID невалидный')
+    }
+  } catch (err) {
+    console.error('Не удалось загрузить данные карточки:', err)
+  } finally {
     isLoading.value = false
   }
 })
@@ -133,13 +136,9 @@ onMounted(async () => {
 
 <template>
   <NavBar />
-  <UiSkeleton :isLoading="isLoading" class="">
-
+  <UiSkeleton :is-loading="isLoading" class="">
     <div class="card">
-
       <section class="card__header">
-
-
         <div class="card__user">
           <router-link :to="{ name: 'UserProfile', params: { uid: cardStore.user?.uid } }"
             class="card__user-name card__user">
@@ -150,12 +149,11 @@ onMounted(async () => {
           </router-link>
         </div>
 
-        <div class="card__menu" v-if="cardStore.isOwner">
+        <div v-if="cardStore.isOwner" class="card__menu">
           <Button type="button" icon="pi pi-ellipsis-v" aria-haspopup="true" aria-controls="overlay_menu"
             class="card__menu-button" @click="toggle" />
           <Menu id="overlay_menu" ref="menu" :model="items" :popup="true" />
         </div>
-
       </section>
 
       <section class="card__image">
@@ -173,7 +171,6 @@ onMounted(async () => {
       </section>
 
       <section class="card__info">
-
         <div class="card__name">
           <span>
             {{ cardStore.card?.name }}
@@ -186,23 +183,18 @@ onMounted(async () => {
       </section>
 
       <section class="card__actions">
-
         <div v-if="guestMessage">
           <span class="text-gray-400">Для бронирования желаний нужно зарегистрироваться.</span>
         </div>
 
-
         <div v-else class="card__actions-wrapper">
-
           <div v-if="!cardStore.isOwner" class="card__reserve">
-
             <div v-if="fulfilled" class="card__fullfield">
               <span class="card__fullfield-text">Желание исполнено</span>
               <font-awesome-icon :icon="['fas', 'check']" class="card__fullfield-icon" />
             </div>
 
             <div v-else>
-
               <div v-if="cardStore.isReserved" class="card__reserved">
                 <Button v-if="cardStore.isReservedUser" label="Отказаться" @click="toggleReserve" />
                 <span class="card__reserved-user">
@@ -217,9 +209,7 @@ onMounted(async () => {
                 <Button v-if="hideButton" label="Зарезервировать" @click="toggleReserve" />
                 <span class="card__unreserved-text">Зарезервируйте этот подарок, если хотите его подарить.</span>
               </div>
-
             </div>
-
           </div>
 
           <div v-if="cardStore.isReserved && cardStore.isOwner" class="card__reserved">
@@ -231,18 +221,13 @@ onMounted(async () => {
               </router-link>
             </span>
           </div>
-
-
         </div>
       </section>
     </div>
     <div class="back-button" @click="toBackButton">
       <-- к списку подарков </div>
   </UiSkeleton>
-
 </template>
-
-
 
 <style scoped lang="scss">
 @use '@/styles/colors';
@@ -292,7 +277,6 @@ onMounted(async () => {
       "actions";
   }
 
-
   &__header {
     grid-area: header;
     display: flex;
@@ -316,7 +300,6 @@ onMounted(async () => {
 
   }
 
-
   &__avatar {
     width: 50px;
     height: 50px;
@@ -329,8 +312,6 @@ onMounted(async () => {
       object-fit: cover;
     }
   }
-
-
 
   &__menu-button {
     background-color: inherit;
@@ -425,15 +406,12 @@ onMounted(async () => {
     &-user {
       align-self: center;
 
-
       &-link {
         text-decoration: none;
         font-weight: 600;
         color: white;
       }
     }
-
-
 
   }
 

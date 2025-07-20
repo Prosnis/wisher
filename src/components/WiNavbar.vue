@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MenuItem } from 'primevue/menuitem'
-import UiSkeleton from '@/components/Ui/UiSkeleton.vue';
+import UiSkeleton from '@/components/Ui/UiSkeleton.vue'
 import { PATHS } from '@/constants/paths'
 import { logout } from '@/services/logOut'
 import { useUserStore } from '@/stores/WiUserStore'
@@ -43,7 +43,6 @@ const toggleMenu = (event: Event) => {
   menu.value?.toggle(event)
 }
 
-
 function goToSettingsPage() {
   const uid = auth.currentUser?.uid
   router.push({ path: `${PATHS.USER.SETTINGS}/${uid}` })
@@ -51,7 +50,8 @@ function goToSettingsPage() {
 
 async function toUserPage() {
   const uid = userStore.userUID
-  if (!uid) return
+  if (!uid)
+    return
   const userPagePath = `${PATHS.USER.PROFILE}/${uid}`
   if (route.path !== userPagePath) {
     await router.push(userPagePath)
@@ -60,36 +60,58 @@ async function toUserPage() {
 </script>
 
 <template>
-
   <Menubar class="mb-3 h-5rem navbar">
     <template #start>
-      <router-link :to="PATHS.MAIN" class="custom-link">
+      <router-link
+        :to="PATHS.MAIN"
+        class="custom-link"
+      >
         <span class="logo">wisher</span>
       </router-link>
     </template>
     <template #end>
       <div class="flex items-center align-items-center gap-2 custom-link">
         <div class="card flex justify-center">
-          <router-link v-if="notAuthorized" :to="PATHS.AUTH.REGISTER" class="custom-link">
-            <Button type="button"
-              class="bg-white border-round-2xl text-color flex justify-content-around font-semibold border-none p-2">
+          <router-link
+            v-if="notAuthorized"
+            :to="PATHS.AUTH.REGISTER"
+            class="custom-link"
+          >
+            <Button
+              type="button"
+              class="bg-white border-round-2xl text-color flex justify-content-around font-semibold border-none p-2"
+            >
               войти
               <i class="pi pi-arrow-up-right" />
             </Button>
           </router-link>
-          <Button v-else type="button" aria-haspopup="true" aria-controls="overlay_tmenu" variant="link"
-            @click="toggleMenu">
-            <UiSkeleton :isLoading="isLoading">
+          <Button
+            v-else
+            type="button"
+            aria-haspopup="true"
+            aria-controls="overlay_tmenu"
+            variant="link"
+            @click="toggleMenu"
+          >
+            <UiSkeleton :is-loading="isLoading">
               <template #default>
                 <div class="flex align-items-center gap-2">
-                  <Avatar :image="userStore.user?.photoUrl" shape="circle" size="small" />
+                  <Avatar
+                    :image="userStore.user?.photoUrl"
+                    shape="circle"
+                    size="small"
+                  />
                   <i class="pi pi-chevron-down text-white" />
                 </div>
               </template>
             </UiSkeleton>
-
           </Button>
-          <TieredMenu id="overlay_tmenu" ref="menu" :model="items" popup />
+          <TieredMenu
+            id="overlay_tmenu"
+            ref="menu"
+            :model="items"
+            popup
+          />
         </div>
       </div>
     </template>

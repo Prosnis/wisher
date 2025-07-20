@@ -6,7 +6,7 @@ import { getSubscribeList } from '@/services/GetSubsList'
 // import { useUserStore } from '@/stores/WiUserStore'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router'
 
 const subscribeList = ref<User[] | []>([])
 const loading = ref<boolean>(false)
@@ -36,8 +36,8 @@ const fetchSubscribeList = async () => {
 }
 
 onMounted(async () => {
-    const uid = route.params.uid as string
-    await getProfileData(uid)
+  const uid = route.params.uid as string
+  await getProfileData(uid)
   fetchSubscribeList()
 })
 </script>

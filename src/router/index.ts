@@ -80,10 +80,12 @@ router.beforeEach(async (to, _, next) => {
 
     if (user) {
       next()
-    } else {
+    }
+    else {
       next({ path: PATHS.AUTH.LOGIN })
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Ошибка при проверке авторизации:', error)
     next({ path: PATHS.AUTH.LOGIN })
   }

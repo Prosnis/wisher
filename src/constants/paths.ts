@@ -8,7 +8,7 @@ export const PATHS = {
     SETTINGS: '/settings',
     WISHES: '/wishes',
     FRIENDS: '/friends',
-    GIFTS: '/gifts'
+    GIFTS: '/gifts',
   },
   CARDS: {
     MAIN: '/cards',

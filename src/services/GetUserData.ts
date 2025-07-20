@@ -3,10 +3,9 @@ import type { Wish } from '@/types/interfaces/wish'
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore'
 
 interface UserData {
-  user: User | null,
+  user: User | null
   wishes: Wish[]
 }
-
 
 const db = getFirestore()
 

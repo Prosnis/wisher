@@ -7,13 +7,11 @@ import { generateQrCode } from '@/services/GetQRCode'
 import { saveInvitationToDB } from '@/services/SaveInvitationToDB'
 import { getAuth } from 'firebase/auth'
 import html2canvas from 'html2canvas'
+import Button from 'primevue/button'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
-import testQR from './testQR.vue'
 
-import QrcodeVue from 'vue-qrcode'
-import DGisTest from './DGisTest.vue'
+import testQR from './testQR.vue'
 
 const qrCodeDataUrl = ref<string | null>(null)
 const selectedImage = ref<string>(INVITATION_IMAGES[0])
@@ -85,7 +83,6 @@ onMounted(async () => {
     userProfileUrl.value = `https://${URL}/user/${currentUserUid.value}`
     qrCodeDataUrl.value = await generateQrCode(userProfileUrl.value)
   }
-
 })
 </script>
 
@@ -94,47 +91,92 @@ onMounted(async () => {
 
   <div class="invitation">
     <div class="invitation__form">
-
-      <label class="invitation__label" for="title"> Заголовок
-        <input id="title" v-model="form.title" class="invitation__input" type="text" maxlength="50"
-          placeholder="Название мероприятия">
+      <label
+        class="invitation__label"
+        for="title"
+      > Заголовок
+        <input
+          id="title"
+          v-model="form.title"
+          class="invitation__input"
+          type="text"
+          maxlength="50"
+          placeholder="Название мероприятия"
+        >
       </label>
 
-      <label class="invitation__label" for="date"> Дата
-        <input id="date" v-model="form.date" class="invitation__input" type="date">
+      <label
+        class="invitation__label"
+        for="date"
+      > Дата
+        <input
+          id="date"
+          v-model="form.date"
+          class="invitation__input"
+          type="date"
+        >
       </label>
 
-      <label class="invitation__label" for="description"> Описание
-        <textarea id="description" v-model="form.description" class="invitation__input invitation__input--description"
-          type="text" maxlength="300" placeholder="Описание"></textarea>
+      <label
+        class="invitation__label"
+        for="description"
+      > Описание
+        <textarea
+          id="description"
+          v-model="form.description"
+          class="invitation__input invitation__input--description"
+          type="text"
+          maxlength="300"
+          placeholder="Описание"
+        />
       </label>
 
-      <label class="invitation__label" for="signature"> Подпись
-        <input id="signature" v-model="form.signature" class="invitation__input" type="text" maxlength="20"
-          placeholder="Подпись">
+      <label
+        class="invitation__label"
+        for="signature"
+      > Подпись
+        <input
+          id="signature"
+          v-model="form.signature"
+          class="invitation__input"
+          type="text"
+          maxlength="20"
+          placeholder="Подпись"
+        >
       </label>
 
       <ul class="invitation__picture-list">
-        <li v-for="(image, index) in INVITATION_IMAGES" :key="index" class="invitation__picture-item"
+        <li
+          v-for="(image, index) in INVITATION_IMAGES"
+          :key="index"
+          class="invitation__picture-item"
           :class="[{ 'invitation__picture-item--selected': selectedImage.includes(image) }]"
-          @click="selectImage(image)">
-          <img class="invitation__image" :src="image" alt="Изображение для пригласительного">
+          @click="selectImage(image)"
+        >
+          <img
+            class="invitation__image"
+            :src="image"
+            alt="Изображение для пригласительного"
+          >
         </li>
       </ul>
 
-      <Button v-if="qrCodeDataUrl" :disabled="isActive" class="invitation__button" @click="saveCardAsImage">
+      <Button
+        v-if="qrCodeDataUrl"
+        :disabled="isActive"
+        class="invitation__button"
+        @click="saveCardAsImage"
+      >
         Сохранить и поделиться
       </Button>
     </div>
 
-
-
-
-    <div id="card" class="invitation__preview">
+    <div
+      id="card"
+      class="invitation__preview"
+    >
       <div class="invitation__info">
-
         <ul class="invitation__info-list">
-
           <li class="invitation__title-item">
             <h1 class="invitation__title">
               {{ form.title || 'День рождения!' }}
@@ -158,13 +200,15 @@ onMounted(async () => {
               {{ form.signature || 'Tom Riddle' }}
             </span>
           </li>
-
         </ul>
-
       </div>
 
       <div class="invitation__preview-img-wrapper">
-        <img class="invitation__preview-img" :src="selectedImage" alt="Изображение для пригласительного">
+        <img
+          class="invitation__preview-img"
+          :src="selectedImage"
+          alt="Изображение для пригласительного"
+        >
       </div>
 
       <div class="invitation__qr">
@@ -177,17 +221,26 @@ onMounted(async () => {
 
         <WISpinner v-else-if="isLoading" />
 
-        <span v-else class="invitation__qr-info">
+        <span
+          v-else
+          class="invitation__qr-info"
+        >
           После регистрации тут будет QR-код на ваш вишлсит и возможность отправить приглашение.
         </span>
       </div>
     </div>
-    <div ref="mapContainer" style="width: 100%; height: 250px;"></div>
+    <div
+      ref="mapContainer"
+      style="width: 100%; height: 250px;"
+    />
   </div>
 
   <!-- ВНИМАНИЕ: скрытый рендер-блок для генерации картинки -->
-  <div id="cardHidden" class="invitation__preview"
-    style="width: 1000px; height: 700px; position: absolute; top: -9999px; left: -9999px;">
+  <div
+    id="cardHidden"
+    class="invitation__preview"
+    style="width: 1000px; height: 700px; position: absolute; top: -9999px; left: -9999px;"
+  >
     <div class="invitation__info">
       <ul class="invitation__info-list">
         <li class="invitation__title-item">
@@ -214,18 +267,20 @@ onMounted(async () => {
     </div>
 
     <div class="invitation__preview-img-wrapper">
-      <img class="invitation__preview-img" :src="selectedImage" alt="Изображение для пригласительного" />
+      <img
+        class="invitation__preview-img"
+        :src="selectedImage"
+        alt="Изображение для пригласительного"
+      >
     </div>
 
     <div class="invitation__qr">
       <span class="invitation__qr-info">
         Отсканируйте QR-код, чтобы ознакомиться со списком подарков.
       </span>
-      <testQR :url="`https://wishme.dev/u/123`" />
+      <testQR url="https://wishme.dev/u/123" />
     </div>
   </div>
-
-
 </template>
 
 <style scoped lang="scss">
@@ -247,7 +302,6 @@ onMounted(async () => {
       "preview"
       "form";
   }
-
 
   &__form {
     grid-area: form;
@@ -295,7 +349,6 @@ onMounted(async () => {
     height: 100px;
     border-radius: 20px;
     overflow: hidden;
-
 
     &--selected {
       border: 2px solid black;

@@ -17,7 +17,7 @@ async function signIn(): Promise<void> {
   try {
     const provider = new GoogleAuthProvider()
     provider.setCustomParameters({
-      prompt: 'select_account'
+      prompt: 'select_account',
     })
     const result = await signInWithPopup(auth, provider)
     const user = result.user as FirebaseUser
@@ -57,7 +57,10 @@ async function signIn(): Promise<void> {
   <div class="register">
     <form class="register__form">
       <h1>Войти с помощью</h1>
-      <Button @click.prevent="signIn" class="register__button">
+      <Button
+        class="register__button"
+        @click.prevent="signIn"
+      >
         Google
       </Button>
     </form>

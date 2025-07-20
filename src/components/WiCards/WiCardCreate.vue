@@ -95,5 +95,4 @@ background-color: $color-background-blue;
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
-
 </style>

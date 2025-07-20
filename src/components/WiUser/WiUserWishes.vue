@@ -6,11 +6,11 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const props = withDefaults(defineProps<{
-  wishType: string,
-  cardCreateButton: boolean,
+  wishType: string
+  cardCreateButton: boolean
 }>(), {
   wishType: 'wishes',
-  cardCreateButton: true
+  cardCreateButton: true,
 })
 
 const route = useRoute()
@@ -44,23 +44,33 @@ onMounted(async () => {
 
 <template>
   <div>
-
-
     <section class="wishes-list">
-      <div v-if="profileStore.user" class="wishes-list__item">
+      <div
+        v-if="profileStore.user"
+        class="wishes-list__item"
+      >
         <WiCardCreateButton v-if="cardCreateButton" />
-        <WiCardCreate v-for="wish in currentWishes" :key="wish.id" :wish="wish" :user-img="profileStore.user.photoUrl"
-          :user-name="profileStore.user.displayName" />
+        <WiCardCreate
+          v-for="wish in currentWishes"
+          :key="wish.id"
+          :wish="wish"
+          :user-img="profileStore.user.photoUrl"
+          :user-name="profileStore.user.displayName"
+        />
       </div>
 
-      <div v-if="currentWishes.length === 0 && !profileStore.hasEditPermission" class="wishes-list__empty">
-        <img class="wishes-list__empty-image" src="@/components/icons/empty.png"
-          alt="Иконка пустого списка: здесь пока нет элементов">
+      <div
+        v-if="currentWishes.length === 0 && !profileStore.hasEditPermission"
+        class="wishes-list__empty"
+      >
+        <img
+          class="wishes-list__empty-image"
+          src="@/components/icons/empty.png"
+          alt="Иконка пустого списка: здесь пока нет элементов"
+        >
         <span>Здесь пока пусто...</span>
       </div>
     </section>
-
-
   </div>
 </template>
 

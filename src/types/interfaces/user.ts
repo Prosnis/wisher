@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore'
+
 export interface User {
   about?: string
   badges?: Badge[] | null
@@ -10,15 +12,11 @@ export interface User {
   interests?: string | null
   uid: string
   wallpaperUrl?: string | null
+  birthday: Timestamp | null
 }
 
 export interface Badge {
   BgColor: string
   name: string
   color: string
-}
-
-export interface Timestamp {
-  nanoseconds: number
-  seconds: number
 }

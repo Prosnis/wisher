@@ -4,7 +4,7 @@ import WiNavbar from '@/components/WiNavbar.vue'
 import WiSubscribeButton from '@/components/WiSubscribeButton.vue'
 
 import { useAnimation } from '@/composables/useAnimation'
-import { PATHS } from '@/constants/paths';
+import { PATHS } from '@/constants/paths'
 import { formattedBirthday } from '@/services/FormatBirthDate'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
@@ -32,11 +32,16 @@ watch(
 onMounted(async () => {
   try {
     isLoading.value = true
-    const uid = route.params.uid as string
-    await getProfileData(uid)
+    const uid = route.params.uid
+    if (typeof uid === 'string') {
+      await getProfileData(uid)
+    }
+    else {
+      console.warn('UID отсутствует или неверного типа')
+    }
   }
   catch (err) {
-    console.log('Пользователь не автроризован', err)
+    console.error('Пользователь не авторизован', err)
   }
   finally {
     isLoading.value = false
@@ -47,77 +52,131 @@ onMounted(async () => {
 <template>
   <WiNavbar />
 
-
   <main class="main">
-
-    <router-link :to="`${PATHS.USER.WISHES}/${route.params.uid}`" class="person">
-      <UiSkeleton :isLoading="isLoading" class="person__info">
-        <div ref="target" class="person__info"
-          :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }">
+    <router-link
+      :to="`${PATHS.USER.WISHES}/${route.params.uid}`"
+      class="person"
+    >
+      <UiSkeleton
+        :is-loading="isLoading"
+        class="person__info"
+      >
+        <div
+          ref="target"
+          class="person__info"
+          :style="{ transform: transformValue, transition: 'transform 0.25s ease-out' }"
+        >
           <i class="person__icon pi pi-arrow-up-right" />
           <span class="person__subtitle">wish ideas for</span>
-          <h1 class="person__nickname">@{{ profileStore.user?.displayName }}</h1>
+          <h1 class="person__nickname">
+            @{{ profileStore.user?.displayName }}
+          </h1>
         </div>
       </UiSkeleton>
     </router-link>
 
-
-    <UiSkeleton :isLoading="isLoading" class="user-photo">
+    <UiSkeleton
+      :is-loading="isLoading"
+      class="user-photo"
+    >
       <div class="user-photo">
-        <img :src="profileStore.user?.photoUrl" alt="user image" class="user-photo__img" />
+        <img
+          :src="profileStore.user?.photoUrl"
+          alt="user image"
+          class="user-photo__img"
+        >
       </div>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="about">
+    <UiSkeleton
+      :is-loading="isLoading"
+      class="about"
+    >
       <section class="about">
         <div class="about__wrapper">
           <span class="about__label">О себе:</span>
-          <span class="about__label about__label-empty" v-if="!profileStore.user?.about">информация не указана</span>
+          <span
+            v-if="!profileStore.user?.about"
+            class="about__label about__label-empty"
+          >информация не указана</span>
           <span class="about__value">{{ profileStore.user?.about }}</span>
         </div>
       </section>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="birthday">
+    <UiSkeleton
+      :is-loading="isLoading"
+      class="birthday"
+    >
       <section class="birthday">
         <span class="birthday__label">День рождения:</span>
         <span class="birthday__value">{{ formattedBirthday(profileStore.user?.birthday) }}</span>
       </section>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="follow">
+    <UiSkeleton
+      :is-loading="isLoading"
+      class="follow"
+    >
       <section class="follow">
-        <router-link class="follow__link" :to="PATHS.CARDS.INVITATION_CREATE" v-if="profileStore.hasEditPermission">
-          <p class="follow__postcard">Создать открытку</p>
+        <router-link
+          v-if="profileStore.hasEditPermission"
+          class="follow__link"
+          :to="PATHS.CARDS.INVITATION_CREATE"
+        >
+          <p class="follow__postcard">
+            Создать открытку
+          </p>
           <i class="follow__icon pi pi-arrow-up-right" />
         </router-link>
-        <div v-else class="follow__wrapper">
+        <div
+          v-else
+          class="follow__wrapper"
+        >
           <WiSubscribeButton />
         </div>
-
       </section>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="friends">
-      <router-link :to="`${PATHS.USER.FRIENDS}/${route.params.uid}`" class="friends">
+    <UiSkeleton
+      :is-loading="isLoading"
+      class="friends"
+    >
+      <router-link
+        :to="`${PATHS.USER.FRIENDS}/${route.params.uid}`"
+        class="friends"
+      >
         <div class="friends__item">
-          <div class="friends__number">{{ Math.floor(friendsTarget) }}</div>
-          <div class="friends__label">Друзья</div>
+          <div class="friends__number">
+            {{ Math.floor(friendsTarget) }}
+          </div>
+          <div class="friends__label">
+            Друзья
+          </div>
           <i class="friends__icon pi pi-arrow-up-right" />
         </div>
       </router-link>
     </UiSkeleton>
 
-    <UiSkeleton :isLoading="isLoading" class="gifts">
-      <router-link :to="`${PATHS.USER.GIFTS}/${route.params.uid}`" class="gifts">
+    <UiSkeleton
+      :is-loading="isLoading"
+      class="gifts"
+    >
+      <router-link
+        :to="`${PATHS.USER.GIFTS}/${route.params.uid}`"
+        class="gifts"
+      >
         <div class="gifts__item">
-          <div class="gifts__number">{{ Math.floor(giftsTarget) }}</div>
-          <div class="gifts__label">Подарки</div>
+          <div class="gifts__number">
+            {{ Math.floor(giftsTarget) }}
+          </div>
+          <div class="gifts__label">
+            Подарки
+          </div>
           <i class="gifts__icon pi pi-arrow-up-right" />
         </div>
       </router-link>
     </UiSkeleton>
-
   </main>
 </template>
 
@@ -400,7 +459,6 @@ onMounted(async () => {
     transition: all 0.3s ease;
     text-shadow: none;
 
-
     @include mixins.mobile {
       font-size: $font-size-mobile;
       top: 10px;
@@ -431,7 +489,6 @@ onMounted(async () => {
       font-size: 1.7rem;
     }
   }
-
 
   &__label {
     font-size: 16px;

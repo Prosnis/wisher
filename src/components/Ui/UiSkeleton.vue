@@ -14,10 +14,12 @@ const props = defineProps<{
     v-bind="$attrs"
   >
     <slot />
-    <div v-if="props.isLoading" class="skeleton-overlay" />
+    <div
+      v-if="props.isLoading"
+      class="skeleton-overlay"
+    />
   </div>
 </template>
-
 
 <style scoped lang="scss">
 .skeleton-wrapper {

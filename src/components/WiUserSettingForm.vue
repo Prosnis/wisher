@@ -33,12 +33,12 @@ const avatarFile = ref<string | null>(null)
 const wallpaperFile = ref<string | null>(null)
 
 const model = defineModel<{
-    profilePhoto: string
-    wallpaper: string
-    name: string
-    about: string
-    birthday: string
-  }>()
+  profilePhoto: string
+  wallpaper: string
+  name: string
+  about: string
+  birthday: string
+}>()
 
 const resolver = ref(zodResolver(
   z.object({
@@ -53,27 +53,28 @@ const resolver = ref(zodResolver(
 ))
 
 const pickImage = (target: 'wallpaper' | 'profilePhoto', currentImg: string) => {
-  if(!model.value) return
+  if (!model.value)
+    return
   model.value[target] = currentImg
   imgUpload[target].type = 'link'
   imgUpload[target].value = currentImg
 }
 
-const handlePick = ({ target, src }: { target: 'wallpaper' | 'profilePhoto'; src: string }) => {
+const handlePick = ({ target, src }: { target: 'wallpaper' | 'profilePhoto', src: string }) => {
   pickImage(target, src)
 }
 
-
 function onFileSelect(target: 'wallpaper' | 'avatar', event: { files: File[] }) {
   const file = event.files[0]
-  if (!file) return
-
+  if (!file)
+    return
 
   const reader = new FileReader()
 
   reader.onload = async (e) => {
     const result = e.target?.result as string
-    if(!model.value) return
+    if (!model.value)
+      return
 
     if (target === 'avatar') {
       avatarFile.value = result
@@ -81,7 +82,7 @@ function onFileSelect(target: 'wallpaper' | 'avatar', event: { files: File[] }) 
       imgUpload.profilePhoto.type = 'file'
       imgUpload.profilePhoto.value = result
     }
-  else {
+    else {
       wallpaperFile.value = result
       model.value.wallpaper = result
       imgUpload.wallpaper.type = 'file'
@@ -97,34 +98,63 @@ const onFormSubmit = async () => {
     await uploadUserPictures(imgUpload)
     await SaveUserSettings(model.value)
     router.go(-1)
-  } catch (error) { console.warn(error) }
+  }
+  catch (error) { console.warn(error) }
   finally {
     isLoading.value = false
   }
-
 }
 </script>
 
 <template>
   <div class="card flex flex-column items-center gap-5">
-    <Form v-slot="$form" :initial-values="model.value" :resolver="resolver" class="flex flex-column gap-4 w-full sm:w-56"
-      @submit="onFormSubmit">
+    <Form
+      v-slot="$form"
+      :initial-values="model.value"
+      :resolver="resolver"
+      class="flex flex-column gap-4 w-full sm:w-56"
+      @submit="onFormSubmit"
+    >
       <div class="flex flex-column gap-1">
-        <InputText v-model="model.name" name="username" type="text" placeholder="Имя"
-          :class="{ 'p-invalid': $form.username?.invalid }" />
-        <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">
+        <InputText
+          v-model="model.name"
+          name="username"
+          type="text"
+          placeholder="Имя"
+          :class="{ 'p-invalid': $form.username?.invalid }"
+        />
+        <Message
+          v-if="$form.username?.invalid"
+          severity="error"
+          size="small"
+          variant="simple"
+        >
           {{ $form.username.error.message }}
         </Message>
       </div>
 
       <div class="flex flex-column gap-1">
-        <DatePicker v-model="model.birthday" date-format="yy-mm-dd" />
+        <DatePicker
+          v-model="model.birthday"
+          date-format="yy-mm-dd"
+        />
       </div>
 
       <div class="flex flex-col gap-1">
-        <Textarea v-model="model.about" name="about" rows="5" cols="50" style="resize: none"
-          placeholder="Расскажите о себе" />
-        <Message v-if="$form.about?.invalid" severity="error" size="small" variant="simple">
+        <Textarea
+          v-model="model.about"
+          name="about"
+          rows="5"
+          cols="50"
+          style="resize: none"
+          placeholder="Расскажите о себе"
+        />
+        <Message
+          v-if="$form.about?.invalid"
+          severity="error"
+          size="small"
+          variant="simple"
+        >
           {{
             $form.about.error?.message }}
         </Message>
@@ -133,26 +163,55 @@ const onFormSubmit = async () => {
       <div class="flex justify-content-between align-items-center">
         <label class="block text-900 font-medium mb-2">Обложка</label>
         <div class="flex gap-2">
-          <WiWallaperPicker id="wallpaper" :folder="WALLPAPERS_FOLDER" target="wallpaper"
-            @pick-wallpaper="handlePick" />
-          <FileUpload mode="basic" custom-upload auto severity="secondary" class="p-button-outlined"
-            @select="onFileSelect('wallpaper', $event)" />
+          <WiWallaperPicker
+            id="wallpaper"
+            :folder="WALLPAPERS_FOLDER"
+            target="wallpaper"
+            @pick-wallpaper="handlePick"
+          />
+          <FileUpload
+            mode="basic"
+            custom-upload
+            auto
+            severity="secondary"
+            class="p-button-outlined"
+            @select="onFileSelect('wallpaper', $event)"
+          />
         </div>
       </div>
 
       <div class="flex justify-content-between align-items-center">
-        <label for="avatar" class="block text-900 font-medium mb-2">Аватар</label>
+        <label
+          for="avatar"
+          class="block text-900 font-medium mb-2"
+        >Аватар</label>
         <div class="flex gap-2">
-          <WiWallaperPicker id="profilePhoto" :folder="AVATARS_FOLDER" target="profilePhoto"
-            @pick-wallpaper="handlePick" />
-          <FileUpload mode="basic" custom-upload auto severity="secondary" class="p-button-outlined"
-            @select="onFileSelect('avatar', $event)" />
+          <WiWallaperPicker
+            id="profilePhoto"
+            :folder="AVATARS_FOLDER"
+            target="profilePhoto"
+            @pick-wallpaper="handlePick"
+          />
+          <FileUpload
+            mode="basic"
+            custom-upload
+            auto
+            severity="secondary"
+            class="p-button-outlined"
+            @select="onFileSelect('avatar', $event)"
+          />
         </div>
       </div>
 
       <div class="flex gap-2">
-        <Button :disabled="$form.username?.invalid || isLoading" type="submit" label="Сохранить" class="w-full"
-          severity="success" @click.prevent="onFormSubmit" />
+        <Button
+          :disabled="$form.username?.invalid || isLoading"
+          type="submit"
+          label="Сохранить"
+          class="w-full"
+          severity="success"
+          @click.prevent="onFormSubmit"
+        />
       </div>
     </Form>
   </div>

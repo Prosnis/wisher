@@ -9,7 +9,7 @@ import Button from 'primevue/button'
 import { onMounted, reactive, useId } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 const router = useRouter()
 const db = getFirestore()
 const auth = getAuth()
@@ -18,13 +18,12 @@ const profileStore = useProfileStore()
 const { addWish } = profileStore
 
 interface Form {
-  img: string,
-  name: string,
-  description: string,
-  date: string,
-  link: string,
+  img: string
+  name: string
+  description: string
+  date: string
+  link: string
 }
-
 
 const form = reactive<Form>({
   img: '',
@@ -33,7 +32,6 @@ const form = reactive<Form>({
   date: new Date().toLocaleDateString(),
   link: '',
 })
-
 
 function clearForm() {
   Object.assign(form, {
@@ -47,9 +45,10 @@ function clearForm() {
 
 function createCardData(form: Form): Wish {
   const user = auth.currentUser
-  if (!user) throw new Error('Пользователь не авторизирован')
+  if (!user)
+    throw new Error('Пользователь не авторизирован')
   return {
-    id: id,
+    id,
     userId: user.uid,
     img: form.img || defaultImage,
     name: form.name,
@@ -63,7 +62,6 @@ function createCardData(form: Form): Wish {
 }
 
 async function CreateCard(): Promise<void> {
-
   try {
     const newCard = createCardData(form)
     await setDoc(doc(db, 'wishes', newCard.id), newCard)
@@ -90,58 +88,109 @@ function previewCard(event: Event): void {
   reader.readAsDataURL(file as Blob)
 }
 
-
 onMounted(() => {
   const { title, image, link } = route.query
-  if (typeof title === 'string') form.name = title
-  if (typeof image === 'string') form.img = image
-  if (typeof link === 'string') form.link = link
+  if (typeof title === 'string')
+    form.name = title
+  if (typeof image === 'string')
+    form.img = image
+  if (typeof link === 'string')
+    form.link = link
 })
 </script>
 
 <template>
   <WiNavbar />
   <div class="card-form">
-
-    <form @submit.prevent="CreateCard" class="card-form__form">
+    <form
+      class="card-form__form"
+      @submit.prevent="CreateCard"
+    >
       <ul class="card-form__list">
         <li class="card-form__item">
-          <label class="card-form__label" for="name">Название:</label>
-          <input id="name" v-model="form.name" class="card-form__input" type="text" maxlength="200">
+          <label
+            class="card-form__label"
+            for="name"
+          >Название:</label>
+          <input
+            id="name"
+            v-model="form.name"
+            class="card-form__input"
+            type="text"
+            maxlength="200"
+          >
         </li>
         <li class="card-form__item">
-          <label class="card-form__label" for="description">Описание</label>
-          <textarea id="description" v-model="form.description" class="card-form__textarea" type="text"
-            maxlength="100"></textarea>
+          <label
+            class="card-form__label"
+            for="description"
+          >Описание</label>
+          <textarea
+            id="description"
+            v-model="form.description"
+            class="card-form__textarea"
+            type="text"
+            maxlength="100"
+          />
         </li>
         <li class="card-form__item">
-          <label class="card-form__label" for="link">Ссылка на товар</label>
-          <input id="link" v-model="form.link" class="card-form__input" type="text" maxlength="200">
+          <label
+            class="card-form__label"
+            for="link"
+          >Ссылка на товар</label>
+          <input
+            id="link"
+            v-model="form.link"
+            class="card-form__input"
+            type="text"
+            maxlength="200"
+          >
         </li>
       </ul>
       <div class="card-form__button">
-        <Button v-if="profileStore?.user" type="submit">
+        <Button
+          v-if="profileStore?.user"
+          type="submit"
+        >
           Добавить
         </Button>
-        <div v-else class="card-form__clue">
+        <div
+          v-else
+          class="card-form__clue"
+        >
           <p>Добавление желания доступно после авторизации</p>
         </div>
       </div>
     </form>
 
-
-
     <div class="card-form__preview">
-
       <div class="card-form__card-preview">
+        <label
+          class="card-form__upload-label"
+          for="file-input"
+        >
 
-        <label class="card-form__upload-label" for="file-input">
-
-          <div v-if="form.img" class="card-form__image-wrapper">
-            <img :src="form.img" alt="Изображение карточки желания" class="card__image card-form__image">
+          <div
+            v-if="form.img"
+            class="card-form__image-wrapper"
+          >
+            <img
+              :src="form.img"
+              alt="Изображение карточки желания"
+              class="card__image card-form__image"
+            >
           </div>
-          <font-awesome-icon v-else class="card-form__upload-icon" :icon="['fas', 'plus']" />
-          <input id="file-input" class="card-form__file-input" type="file" @change="previewCard($event)">
+          <font-awesome-icon
+            v-else
+            class="card-form__upload-icon"
+            :icon="['fas', 'plus']"
+          />
+          <input
+            id="file-input"
+            class="card-form__file-input"
+            type="file"
+            @change="previewCard($event)"
+          >
 
         </label>
 
@@ -154,22 +203,19 @@ onMounted(() => {
     <div class="card-form__app">
       <p class="card-form__app-text">
         💡 Не хотите заполнять форму вручную? <br>
-        Установите <a href="#" class="card-form__app-link">наше расширение для браузера</a> — добавляйте товары из
+        Установите <a
+          href="#"
+          class="card-form__app-link"
+        >наше расширение для браузера</a> — добавляйте товары из
         маркетплейсов в вишлист одним нажатием.
       </p>
     </div>
-
   </div>
-
-
-
-
 </template>
 
 <style scoped lang="scss">
 @use '@/styles/colors';
 @use '@/styles/mixins';
-
 
 .card-form {
 
@@ -193,8 +239,6 @@ onMounted(() => {
       "preview"
       "app";
   }
-
-
 
   &__form {
     grid-area: form;
@@ -256,9 +300,6 @@ onMounted(() => {
     resize: none;
     min-height: 80px;
   }
-
-
-
 
   &__preview {
     grid-area: preview;

@@ -69,7 +69,6 @@ export async function uploadUserPictures(data) {
       }
     }
 
-
     await updateDoc(userDocRef, updates)
     console.log('Профиль успешно обновлен')
     return updates
