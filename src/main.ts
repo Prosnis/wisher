@@ -18,6 +18,7 @@ import '@/styles/main.scss'
 import 'font-awesome-animation/css/font-awesome-animation.min.css'
 import 'primeicons/primeicons.css'
 
+
 const MyPreset = definePreset(Aura, {
   semantic: {
     primary: {

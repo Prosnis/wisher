@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { MenuItem } from 'primevue/menuitem'
+import UiSkeleton from '@/components/Ui/UiSkeleton.vue';
 import { PATHS } from '@/constants/paths'
 import { logout } from '@/services/logOut'
 import { useUserStore } from '@/stores/WiUserStore'
@@ -9,8 +11,6 @@ import Menubar from 'primevue/menubar'
 import TieredMenu from 'primevue/tieredmenu'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import UiSkeleton from '@/components/Ui/UiSkeleton.vue';
-
 
 const router = useRouter()
 const route = useRoute()
@@ -18,9 +18,9 @@ const userStore = useUserStore()
 const auth = getAuth()
 const isLoading = computed(() => !userStore.user)
 const notAuthorized = computed(() => !auth.currentUser)
-const menu = ref()
+const menu = ref<InstanceType<typeof TieredMenu> | null>(null)
 
-const items = ref([
+const items = ref<MenuItem[]>([
   {
     label: `Профиль`,
     icon: 'pi pi-user',
@@ -39,15 +39,20 @@ const items = ref([
 ],
 )
 
-const toggle = (event) => {
-  menu.value.toggle(event)
+const toggleMenu = (event: Event) => {
+  menu.value?.toggle(event)
 }
+
+
 function goToSettingsPage() {
   const uid = auth.currentUser?.uid
   router.push({ path: `${PATHS.USER.SETTINGS}/${uid}` })
 }
+
 async function toUserPage() {
-  const userPagePath = `${PATHS.USER.PROFILE}/${userStore.userUID}`
+  const uid = userStore.userUID
+  if (!uid) return
+  const userPagePath = `${PATHS.USER.PROFILE}/${uid}`
   if (route.path !== userPagePath) {
     await router.push(userPagePath)
   }
@@ -73,7 +78,7 @@ async function toUserPage() {
             </Button>
           </router-link>
           <Button v-else type="button" aria-haspopup="true" aria-controls="overlay_tmenu" variant="link"
-            @click="toggle">
+            @click="toggleMenu">
             <UiSkeleton :isLoading="isLoading">
               <template #default>
                 <div class="flex align-items-center gap-2">

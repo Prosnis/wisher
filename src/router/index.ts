@@ -1,5 +1,5 @@
 import { PATHS } from '@/constants/paths'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
+import { getCurrentUser } from '@/services/authHelpers'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -68,18 +68,25 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, _, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const auth = getAuth()
 
-  onAuthStateChanged(auth, (user) => {
-    if (requiresAuth && !user) {
-      next(PATHS.AUTH.LOGIN)
-    }
-    else {
+  if (!requiresAuth) {
+    return next()
+  }
+
+  try {
+    const user = await getCurrentUser()
+
+    if (user) {
       next()
+    } else {
+      next({ path: PATHS.AUTH.LOGIN })
     }
-  })
+  } catch (error) {
+    console.error('Ошибка при проверке авторизации:', error)
+    next({ path: PATHS.AUTH.LOGIN })
+  }
 })
 
 export default router

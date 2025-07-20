@@ -1,48 +1,37 @@
-<script setup>
+<script setup lang="ts">
+import type { Wish } from '@/types/interfaces/wish'
 import defaultImage from '@/components/icons/box.jpg'
-
 import WiNavbar from '@/components/WiNavbar.vue'
-import { PATHS } from '@/constants/paths'
-import { classifiedHobbies } from '@/services/GetCardHobby'
-import { YandexParser } from '@/services/GetFromYandex'
 import { useProfileStore } from '@/stores/WiProfileStore'
 import { getAuth } from 'firebase/auth'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import { reactive, ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import Card from 'primevue/card'
+import { onMounted, reactive, useId } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute();
 const router = useRouter()
 const db = getFirestore()
 const auth = getAuth()
-
-const loading = ref(false)
-const urlToparse = ref('')
-const formToggle = ref(true)
-const error = ref(false)
-const toggleText = ref('Заполнить вручную')
-const disabledForm = ref(false)
-
-const categories = ref([])
-
+const id = useId()
 const profileStore = useProfileStore()
 const { addWish } = profileStore
 
-function formToggler() {
-  formToggle.value = !formToggle.value
-  toggleText.value = formToggle.value ? 'Заполнить вручную' : 'Создать из ссылки'
+interface Form {
+  img: string,
+  name: string,
+  description: string,
+  date: string,
+  link: string,
 }
 
-const form = reactive({
+
+const form = reactive<Form>({
   img: '',
   name: '',
   description: '',
   date: new Date().toLocaleDateString(),
   link: '',
-  badge: [],
 })
 
 
@@ -56,10 +45,12 @@ function clearForm() {
   })
 }
 
-function createCardData(form) {
+function createCardData(form: Form): Wish {
+  const user = auth.currentUser
+  if (!user) throw new Error('Пользователь не авторизирован')
   return {
-    id: crypto.randomUUID(),
-    userId: auth.currentUser.uid,
+    id: id,
+    userId: user.uid,
     img: form.img || defaultImage,
     name: form.name,
     hover: false,
@@ -71,42 +62,41 @@ function createCardData(form) {
   }
 }
 
-function toUserPage() {
-  router.push(`${PATHS.USER.PROFILE}/${auth.currentUser.uid}`)
-}
-
-async function CreateCard() {
-  const newCard = createCardData(form)
+async function CreateCard(): Promise<void> {
 
   try {
+    const newCard = createCardData(form)
     await setDoc(doc(db, 'wishes', newCard.id), newCard)
     addWish(newCard)
     clearForm()
-    toUserPage()
+    router.go(-1)
   }
   catch (err) {
     console.log(err, 'Ошибка при создании карточки')
   }
 }
 
-function previewCard(event) {
-  const file = event.target.files[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      form.img = e.target.result
+function previewCard(event: Event): void {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+
+  const reader = new FileReader()
+  reader.onload = (e: ProgressEvent<FileReader>) => {
+    const result = e.target?.result
+    if (typeof result === 'string') {
+      form.img = result
     }
-    reader.readAsDataURL(file)
   }
+  reader.readAsDataURL(file as Blob)
 }
 
+
 onMounted(() => {
-  if (route.query.title) {
-    form.name = route.query.title;
-    form.img = route.query.image;
-    form.link = route.query.link;
-  }
-});
+  const { title, image, link } = route.query
+  if (typeof title === 'string') form.name = title
+  if (typeof image === 'string') form.img = image
+  if (typeof link === 'string') form.link = link
+})
 </script>
 
 <template>
@@ -130,7 +120,7 @@ onMounted(() => {
         </li>
       </ul>
       <div class="card-form__button">
-        <Button v-if="!profileStore?.user" type="submit">
+        <Button v-if="profileStore?.user" type="submit">
           Добавить
         </Button>
         <div v-else class="card-form__clue">
@@ -197,7 +187,7 @@ onMounted(() => {
   @include mobile {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
-    width:auto;
+    width: auto;
     grid-template-areas:
       "form"
       "preview"
@@ -221,7 +211,7 @@ onMounted(() => {
     justify-content: center;
   }
 
-  &__clue{
+  &__clue {
     opacity: 0.7;
   }
 

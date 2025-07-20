@@ -1,25 +1,41 @@
-<script setup>
+<script setup lang="ts">
 import Button from 'primevue/button'
 import Popover from 'primevue/popover'
 
 import { onMounted, ref } from 'vue'
 
-const props = defineProps({
-  folder: String,
-  group: String,
-})
-const emit = defineEmits(['pickWallpaper'])
-const op = ref()
-const toggle = (event) => {
-  op.value.toggle(event)
+interface PickWallpaperPayload {
+  target: 'wallpaper' | 'profilePhoto'
+  src: string
+}
+
+const props = defineProps<{
+  folder: string
+  target: PickWallpaperPayload['target']
+}>()
+
+const emit = defineEmits<{
+  (e: 'pick-wallpaper', payload: PickWallpaperPayload): void
+}>()
+
+const op = ref<InstanceType<typeof Popover> | null>(null)
+
+const toggle = (event: Event) => {
+  op.value?.toggle(event)
 }
 
 const currentImg = ref('')
-const images = ref([])
+const images = ref<string[]>([])
 
-const pickCurrentImg = (event) => {
-  currentImg.value = event.currentTarget.querySelector('img').src
-  emit('pickWallpaper', currentImg.value)
+const pickCurrentImg = (event: Event) => {
+  const src = (event.currentTarget as HTMLElement).querySelector('img')?.getAttribute('src')
+
+  if (src) {
+    emit('pick-wallpaper', {
+      target: props.target,
+      src,
+    })
+  }
 }
 
 onMounted(async () => {

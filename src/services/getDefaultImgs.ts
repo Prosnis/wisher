@@ -1,8 +1,21 @@
 import { getDownloadURL, getStorage, ref } from 'firebase/storage'
 
+interface AvatarJson {
+  images: string[]
+}
+
+interface WallpaperJson {
+  wallpapers: string[]
+}
+
+interface DefaultImages {
+  profilePhoto: string[]
+  profileWall: string[]
+}
+
 const storage = getStorage()
 
-export const getDefaultImgs = async () => {
+export const getDefaultImgs = async (): Promise<DefaultImages> => {
   const avatarsListUrl = await getDownloadURL(ref(storage, 'default_avatars/avatars.json'))
   const wallpapersListUrl = await getDownloadURL(ref(storage, 'default_wallpapers/wallpapers.json'))
 
@@ -11,8 +24,8 @@ export const getDefaultImgs = async () => {
     fetch(wallpapersListUrl),
   ])
 
-  const avatarFilenames = await avatarsResponse.json()
-  const wallpaperFilenames = await wallpapersResponse.json()
+  const avatarFilenames = await avatarsResponse.json() as AvatarJson
+  const wallpaperFilenames = await wallpapersResponse.json() as WallpaperJson
 
   const photoPromises = avatarFilenames.images.map(name =>
     getDownloadURL(ref(storage, `default_avatars/${name}`)))
