@@ -2,9 +2,15 @@ import type { User } from '@/types/interfaces/user'
 import type { Wish } from '@/types/interfaces/wish'
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from 'firebase/firestore'
 
+interface UserData {
+  user: User | null,
+  wishes: Wish[]
+}
+
+
 const db = getFirestore()
 
-export async function getUserData(uid: string): Promise<{ user: User | null, wishes: Wish[] }> { // в тип
+export async function getUserData(uid: string): Promise<UserData> {
   try {
     const userDoc = await getDoc(doc(db, 'users', uid))
     const userData = userDoc.exists() ? (userDoc.data() as User) : null
